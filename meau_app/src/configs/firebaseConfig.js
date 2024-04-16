@@ -1,4 +1,6 @@
 
+import envConfig from "./envConfig";
+
 // Import the functions you need from the SDKs you need
 
 import { initializeApp, getApp } from "firebase/app";
@@ -15,13 +17,13 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const firebaseConfig = {
-  apiKey: _REMOVED,
-  authDomain: _REMOVED,
-  projectId: _REMOVED,
-  storageBucket: _REMOVED,
-  messagingSenderId: _REMOVED,
-  appId: _REMOVED,
-  measurementId: _REMOVED
+  apiKey: envConfig.API_KEY,
+  authDomain: envConfig.AUTH_DOMAIN,
+  projectId: envConfig.PROJECT_ID,
+  storageBucket: envConfig.STORAGE_BUCKET,
+  messagingSenderId: envConfig.MESSAGING_SENDER_ID,
+  appId: envConfig.APP_ID,
+  measurementId: envConfig.MEASUREMENT_ID
 };
 
 // Initialize Firebase
