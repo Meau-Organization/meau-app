@@ -7,24 +7,37 @@ import CadastroPessoal from '../../screens/CadastroPessoal';
 import CadastroAnimal from '../../screens/CadastroAnimal';
 import PreencherCadastroAnimal from '../../screens/PreencherCadastroAnimal';
 
-const Stack = createNativeStackNavigator();
+import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
+import Loading from '../../screens/Loading';
+import TesteLogado from '../../screens/TesteLogado';
 
+const Stack = createNativeStackNavigator<StackRoutesParametros>();
+
+    
 export default function StackRoutes() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
 
-      <Stack.Screen name="Inicial" component={Inicial} />
 
-      <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} />
+    const telaInicial = "Inicial";
 
-      <Stack.Screen name="Login" component={Login} />
+    return (
+        <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
 
-      <Stack.Screen name="CadastroPessoal" component={CadastroPessoal} />
+            <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}}/>
 
-      <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
+            <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} />
 
-      <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
+            <Stack.Screen name="Login" component={Login} />
 
-    </Stack.Navigator>
-  );
+            <Stack.Screen name="CadastroPessoal" component={CadastroPessoal} />
+
+            <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
+
+            <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
+
+            <Stack.Screen name="Loading" component={Loading} />
+
+            <Stack.Screen name="TesteLogado" component={TesteLogado} />
+
+        </Stack.Navigator>
+    );
 }

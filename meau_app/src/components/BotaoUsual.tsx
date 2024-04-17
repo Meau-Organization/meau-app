@@ -1,5 +1,9 @@
 import { Keyboard, StyleSheet, Text, TouchableOpacity } from "react-native";
 
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+
 interface BotaoProps {
     texto: string;
     marginTop: number;

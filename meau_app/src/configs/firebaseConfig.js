@@ -1,20 +1,12 @@
 
 import envConfig from "./envConfig";
 
-// Import the functions you need from the SDKs you need
-
 import { initializeApp, getApp } from "firebase/app";
 
-import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged, User, signOut } from 'firebase/auth';
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-// import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const firebaseConfig = {
   apiKey: envConfig.API_KEY,
@@ -25,16 +17,13 @@ const firebaseConfig = {
   appId: envConfig.APP_ID,
   measurementId: envConfig.MEASUREMENT_ID
 };
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// const analytics = getAnalytics(app);
 
 const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
   
-export { getApp, getAuth, signInWithEmailAndPassword, onAuthStateChanged };
+export { getApp, getAuth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut };
 
 console.log("Firebase config rodou");

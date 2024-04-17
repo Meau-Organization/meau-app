@@ -9,27 +9,23 @@ import * as Font from 'expo-font';
 import { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import CadastroAnimal from './CadastroAnimal';
-
+import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
-type StackRoutesParametros = {
-    Inicial: undefined;
-    AvisoCadastro: undefined;
-    Login: undefined;
-    CadastroPessoal: undefined;
-    CadastroAnimal: undefined;
-    PreencherCadastroAnimal: undefined;
-};
+import { getAuth, onAuthStateChanged } from '../configs/firebaseConfig';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
+export default function Inicial({ navigation } : InicialProps, {userEstado}) {
 
-
-export default function Inicial({ navigation } : InicialProps) {
+    onAuthStateChanged(getAuth(), (user) => {
+        if (user) {
+            console.log("Usuario logado: " + user.email);
+        }
+    });
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
@@ -47,6 +43,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
         carregarFontes();
         console.log('Rodou fonts inicial');
+
     }, []);
 
     console.log("fonteCarregada: inicial: " + fonteCarregada);
@@ -82,9 +79,15 @@ export default function Inicial({ navigation } : InicialProps) {
                 <YellowB onPress={() => navigation.navigate("PreencherCadastroAnimal")} text="CADASTRAR ANIMAL"/>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.login}>login</Text>
-            </TouchableOpacity>
+            { !userEstado ?
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                    <View style={styles.login} >
+                        <Text style={styles.loginText}>login</Text>
+                    </View>
+                </TouchableOpacity>
+                :
+                <View style={styles.login}></View>
+            }
 
             <View style={styles.imageContainer}>
                 <Image source={PlaceLogoImage} style={styles.image}/>
@@ -133,11 +136,16 @@ const styles = StyleSheet.create({
     },
     login : {
         marginTop: 32, // 44 :: total -> 44 - 12(marginBottom YellowB)
+        marginBottom : 68,
+        width: 37,
+        height: 25,
+        justifyContent: 'center'
+    },
+    loginText : {
         textAlign: 'center',
         fontSize: 16,
         fontFamily: 'Roboto',
         color: '#88c9bf',
-        marginBottom : 68,
     },
     imageContainer: {
         marginBottom: 32

@@ -1,45 +1,61 @@
 
-import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Alert } from "react-native";
 import { TopBar } from "../components/TopBar";
 import { BoxLogin } from "../components/BoxLogin";
 
 import { AntDesign, Entypo } from '@expo/vector-icons'
 
-import Constants from 'expo-constants';
+import { getAuth, signInWithEmailAndPassword} from '../configs/firebaseConfig';
 
+import { signOut } from 'firebase/auth';
+
+import Constants from 'expo-constants';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
-type LoginProps = {
+type TesteLogadoProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
-export default function Login({navigation} : LoginProps) {
+export default function TesteLogado({navigation} : TesteLogadoProps ) {
 
-    const fecharTeclado = () => {
+    const logout = () =>  {
+
+        signOut(getAuth())
+            .then(() => {
+                console.log('Usuario Saiu');
+            })
+            .catch((error) => {
+                Alert.alert('Erro', 'Erro ao tentar fazer fazer o logout');
+                console.error('Erro ao tentar fazer fazer o logout:', error);
+            });
+    };
+
+    const acoes = () => {
+        logout();
+        navigation.navigate("Login");
         Keyboard.dismiss();
     };
 
+   
+
     return(
-        <TouchableWithoutFeedback onPress={fecharTeclado} >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
             <View style={styles.container}>
                 
                 <TopBar
-                    nome = 'Login'
-                    icone = 'menu'
+                    nome = 'Usuario Logado'
+                    icone = 'voltar'
                 />
 
-                <BoxLogin irPag={() => navigation.navigate("TesteLogado")}/>
+            <View style={styles.middleView}>
+                <Text style={styles.middleText}>Logado com sucesso! {'\n'}</Text>
+            </View>
 
-                <TouchableOpacity style={styles.botao_facebook} onPress={fecharTeclado}>
-                    <AntDesign name="facebook-square" size={16} color="#f7f7f7" style={{}}/>
-                    <Text style={styles.botao_texto}>ENTRAR COM O FACEBOOK</Text>
-                </TouchableOpacity>
+                <TouchableOpacity style={styles.botao_facebook} onPress={acoes}>
 
-                <TouchableOpacity style={styles.botao_google} onPress={fecharTeclado}>
-                    <Entypo name="google-" size={16} color="#f7f7f7" style={{}}/>
-                    <Text style={styles.botao_texto}>ENTRAR COM O GOOGLE</Text>
+                    <Text style={styles.botao_texto}>Logout</Text>
                 </TouchableOpacity>
 
             </View>
@@ -56,13 +72,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#fafafa',
         alignItems: 'center',
     },
+    middleView : {
+        marginTop: 100,
+        paddingHorizontal: 48,
+        marginBottom: 48,
+    },
+    middleText: {
+        fontFamily: 'Roboto',
+        fontSize: 16,
+        color: '#757575',
+        textAlign: 'center',
+    },
 
     botao_facebook: {
         flexDirection: 'row',
         marginTop: 72,
         width: 232,
         height: 40,
-        backgroundColor: '#194f7c',
+        backgroundColor: '#88c9bf',
         justifyContent: 'center',
         alignItems: 'center',
         
