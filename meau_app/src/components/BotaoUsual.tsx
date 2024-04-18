@@ -1,48 +1,31 @@
-import { Keyboard, StyleSheet, Text, TouchableOpacity } from "react-native";
-
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+import { StyleSheet, Text, View } from "react-native";
 
 interface BotaoProps {
     texto: string;
-    marginTop: number;
-    irParaPagina?: () => void;
     cor?: string;
-    largura?: number;
-    altura?: number;
-    marginDown?: number;
-    raio?: number;
     corTexto?: string;
-    login?: (user: string, senha: string) => void;
-    user?: string;
-    senha?: string;
+    marginTop?: number;
+    marginBottom?: number;
+    altura?: number;
+    largura?: number;
+    raio?: number;
 }
 
-export default function BotaoUsual( {texto, marginTop, irParaPagina, cor, largura, altura, marginDown, raio, corTexto, login, user, senha} : BotaoProps ) {
-
-    const acoesOnPress = () => {
-        
-        if(irParaPagina != undefined) {
-            irParaPagina();
-        }
-
-        if(login != undefined && user != undefined && senha != undefined) {
-            login(user, senha);
-        }
-
-        Keyboard.dismiss();
-    }
+export default function BotaoUsual( { texto, cor = '#ffd358', corTexto, marginTop, marginBottom, altura = 40, largura = 232, raio = 5} : BotaoProps ) {
 
     return (
-        <>
-            <TouchableOpacity
-                style={[styles.botao, {borderRadius: raio, marginBottom: marginDown, marginTop: marginTop, backgroundColor: cor, width: largura, height: altura}]}
-                onPress={acoesOnPress}
-            >
+            <View
+                style={[styles.botao, {
+                    backgroundColor: cor,
+                    marginTop: marginTop,
+                    marginBottom: marginBottom,
+                    height: altura,
+                    width: largura,
+                    borderRadius: raio
+                }]} >
+
                     <Text style={[styles.botao_texto, {color: corTexto}]}> {texto} </Text>
-            </TouchableOpacity>
-        </>
+            </View>
     )
 }
 
@@ -50,16 +33,13 @@ export default function BotaoUsual( {texto, marginTop, irParaPagina, cor, largur
 const styles = StyleSheet.create({
 
     botao: {
-        width: 232,
-        height: 40,
-        backgroundColor: '#88c9bf',
         justifyContent: 'center',
         alignItems: 'center',
         
         shadowColor: 'black',
         shadowRadius: 2,
         shadowOpacity: 1,
-        elevation: 10,
+        elevation: 2,
         shadowOffset: { width: 0, height: 2},
         margin: 2
 

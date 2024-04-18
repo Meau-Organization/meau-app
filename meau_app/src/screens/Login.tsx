@@ -30,7 +30,7 @@ export default function Login({navigation} : LoginProps) {
                     icone = 'menu'
                 />
 
-                <BoxLogin irPag={() => navigation.navigate("TesteLogado")}/>
+                <BoxLogin NavegarPara={() => navigation.navigate("TesteLogado")}/>
 
                 <TouchableOpacity style={styles.botao_facebook} onPress={fecharTeclado}>
                     <AntDesign name="facebook-square" size={16} color="#f7f7f7" style={{}}/>
@@ -70,7 +70,8 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         shadowOpacity: 0.8,
         elevation: 10,
-        shadowOffset: { width: 0, height: 2}
+        shadowOffset: { width: 0, height: 2},
+        borderRadius: 5,
 
     },
 
@@ -87,7 +88,8 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         shadowOpacity: 0.8,
         elevation: 10,
-        shadowOffset: { width: 0, height: 2}
+        shadowOffset: { width: 0, height: 2},
+        borderRadius: 5,
 
     },
 

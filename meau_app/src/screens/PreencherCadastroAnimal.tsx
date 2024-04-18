@@ -27,6 +27,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
        <View style = {{paddingTop: Constants.statusBarHeight}}> 
         <ScrollView >
             <View style = {styles.container}>
+
                 <TopBar
                     nome='Cadastro do Animal'
                     cor='#ffd358'
@@ -37,11 +38,21 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                 <Text style = {styles.title}>Tenho interesse em cadastrar o animal para:</Text>
 
                 <View style = {styles.containerButtons}>
-                    <BotaoUsual texto = 'Adoção' marginTop={8} cor='#ffd358' largura={100} altura={40} marginDown={16} raio={2} ></BotaoUsual>
-                    <View style={{ width: 8 }} />
-                    <BotaoUsual texto = 'Aparinhar' marginTop={8} cor='#f1f2f2' largura={100} altura={40} marginDown={16} raio={2} corTexto='#bdbdbd'></BotaoUsual>  
-                    <View style={{ width: 8 }} />
-                    <BotaoUsual texto = 'Ajuda' marginTop={8} cor='#f1f2f2' largura={100} altura={40}  marginDown={16} raio={2}></BotaoUsual>
+                    
+                    <TouchableOpacity activeOpacity={0.5}>
+                        <BotaoUsual texto = 'Adoção' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2} ></BotaoUsual>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity activeOpacity={0.5}>
+                        <View style={{ width: 8 }} />
+                            <BotaoUsual texto = 'Aparinhar' cor='#f1f2f2' corTexto='#bdbdbd' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2}></BotaoUsual>  
+                        <View style={{ width: 8 }} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity activeOpacity={0.5}>
+                        <BotaoUsual texto = 'Ajuda' cor='#f1f2f2' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2}></BotaoUsual>
+                    </TouchableOpacity>
+
                 </View>
 
                 <View style={{marginTop: 8, backgroundColor: '#e6e7e8', width: 312, height: 0.8 }}></View>
@@ -162,10 +173,11 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                 <TextInput style = {styles.textName}> Compatilhe a história do animal </TextInput>
                 <View style = {styles.containerName}></View>
 
-                <View style = {{alignItems: 'center'}}>
-                    <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} irParaPagina={() => navigation.navigate('CadastroAnimal')} 
-                        cor='#ffd358' largura={232} altura={40} marginDown={24} raio={4}  ></BotaoUsual>
-                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('CadastroAnimal')}  activeOpacity={0.5}>
+                    <View style = {{alignItems: 'center'}}>
+                        <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} marginBottom={24} raio={4}></BotaoUsual>
+                    </View>
+                </TouchableOpacity>
              
             </View>
          </ScrollView>
@@ -258,5 +270,9 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginLeft: 48
       },
+
+      touchEstilo: {
+        borderWidth: 1, width: 100, height: 40, alignItems: 'center', justifyContent: 'center'
+      }
 
 })

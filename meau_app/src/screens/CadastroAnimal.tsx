@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
@@ -41,8 +41,10 @@ export default function CadastroAnimal({ navigation } : MeusPetsProps){
                     em contato!
                 </Text>
 
-                
-                <BotaoUsual texto="Meus Pets" marginTop={250} irParaPagina={() => navigation.navigate("Login") } cor='#ffd358' largura={232} altura={40} raio={4}/>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
+                    <BotaoUsual texto="Meus Pets" marginTop={250} cor='#ffd358'/>
+                </TouchableOpacity>
+
             </View>
         
         </TouchableWithoutFeedback>    

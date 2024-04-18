@@ -14,6 +14,7 @@ import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 import { getAuth, onAuthStateChanged } from '../configs/firebaseConfig';
+import BotaoUsual from '../components/BotaoUsual';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
@@ -74,9 +75,17 @@ export default function Inicial({ navigation } : InicialProps, {userEstado}) {
             </View>
 
             <View style={styles.menuCenter}>
-                <YellowB onPress={() => navigation.navigate("AvisoCadastro")} text="ADOTAR"/>
-                <YellowB onPress={() => navigation.navigate("AvisoCadastro")} text="AJUDAR"/>
-                <YellowB onPress={() => navigation.navigate("PreencherCadastroAnimal")} text="CADASTRAR ANIMAL"/>
+                
+                <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
+                    <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
+                    <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("PreencherCadastroAnimal")}  activeOpacity={0.5}>
+                    <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>
+                </TouchableOpacity>
+
             </View>
 
             { !userEstado ?

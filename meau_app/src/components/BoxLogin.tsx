@@ -6,11 +6,11 @@ import BotaoUsual from './BotaoUsual';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, User } from '../configs/firebaseConfig';
 
-interface boxProps {
-    irPag: () => void;
+interface BoxLoginProps {
+    NavegarPara: () => void;
 }
 
-export function BoxLogin({irPag} : boxProps) {
+export function BoxLogin( { NavegarPara } : BoxLoginProps) {
 
     const [userTexto, setUserTexto] = useState('');
     const [senhaTexto, setSenhaTexto] = useState('');
@@ -41,8 +41,7 @@ export function BoxLogin({irPag} : boxProps) {
     };
 
 
-    function login(user: string, senha: string) {
-    
+    const login = (user: string, senha: string) => {
         signInWithEmailAndPassword(getAuth(), user, senha)
         .then((userCredential) => {
             const user = userCredential.user;
@@ -53,6 +52,12 @@ export function BoxLogin({irPag} : boxProps) {
             const errorMessage = error.message;
             console.error('Deu ruim:', errorMessage);
         });
+    };
+
+    const acoesOnPress = (user: string, senha: string) => {
+        login(user, senha);
+        Keyboard.dismiss();
+        NavegarPara();
     }
 
     return (
@@ -85,7 +90,9 @@ export function BoxLogin({irPag} : boxProps) {
                 
             </View>
 
-            <BotaoUsual texto='ENTRAR' marginTop={52} irParaPagina={irPag} login={login} user={userTexto} senha={senhaTexto}/>
+            <TouchableOpacity onPress={(e) => acoesOnPress(userTexto, senhaTexto)}  activeOpacity={0.5}>
+                <BotaoUsual texto='ENTRAR' cor='#88c9bf' marginTop={52}/>
+            </TouchableOpacity>
             
         </View>
     )

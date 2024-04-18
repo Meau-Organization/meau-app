@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
@@ -9,20 +9,13 @@ import BotaoUsual from "../components/BotaoUsual";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 
-type StackRoutesParametros = {
-    Inicial: undefined;
-    AvisoCadastro: undefined;
-    Login: undefined;
-    CadastroPessoal: undefined;
-};
+import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
 type AvisoCadastroProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
+    navigation: NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>;
 };
 
 export default function AvisoCadastro( { navigation } : AvisoCadastroProps) {
-
-    // console.log("fonteCarregada: aviso cadastro: " + fonteCarregada);
 
     return(
         <View style={styles.container}>
@@ -49,18 +42,20 @@ export default function AvisoCadastro( { navigation } : AvisoCadastroProps) {
                     possuir um cadastro.
                 </Text>
             </View>
-
-            <BotaoUsual texto='FAZER CADASTRO' marginTop={52} irParaPagina={() => navigation.navigate("CadastroPessoal")} cor='#ffd358'
-                largura={232} altura={40} />
+                
+            <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
+                <BotaoUsual texto='FAZER CADASTRO' marginTop={52}/>
+            </TouchableOpacity>
 
             <View style={[styles.middleView, {marginTop: 44}]}>
                 <Text style={styles.middleText}>
                     Já possui cadastro?
                 </Text>
             </View>
-
-            <BotaoUsual texto='FAZER LOGIN' marginTop={16} irParaPagina={() => navigation.navigate("Login")} cor='#ffd358'
-                largura={232} altura={40} />
+            
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
+                <BotaoUsual texto='FAZER LOGIN' marginTop={16}/>
+            </TouchableOpacity>
 
         </View>
     );
