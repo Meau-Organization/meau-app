@@ -1,13 +1,8 @@
 
 import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Alert } from "react-native";
 import { TopBar } from "../components/TopBar";
-import { BoxLogin } from "../components/BoxLogin";
 
-import { AntDesign, Entypo } from '@expo/vector-icons'
-
-import { getAuth, signInWithEmailAndPassword} from '../configs/firebaseConfig';
-
-import { signOut } from 'firebase/auth';
+import { auth, signOut} from '../configs/firebaseConfig';
 
 import Constants from 'expo-constants';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,7 +17,7 @@ export default function TesteLogado({navigation} : TesteLogadoProps ) {
 
     const logout = () =>  {
 
-        signOut(getAuth())
+        signOut(auth)
             .then(() => {
                 console.log('Usuario Saiu');
             })

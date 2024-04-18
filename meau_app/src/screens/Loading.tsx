@@ -2,19 +2,19 @@
 import { View, Text, StyleSheet } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, onAuthStateChanged, User } from '../configs/firebaseConfig';
+import { auth, onAuthStateChanged, User } from '../configs/firebaseConfig';
 import { useState } from "react";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 type LoadingProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
+    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Loading'>;
 };
 
 export default function Loading({ navigation } : LoadingProps) {
 
 
-    onAuthStateChanged(getAuth(), (user) => {
+    onAuthStateChanged(auth, (user) => {
         let userEstado1 : boolean = !!user;
         if (userEstado1) {
             console.log("Teste de login" + userEstado1);

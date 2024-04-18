@@ -13,18 +13,21 @@ import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
-import { getAuth, onAuthStateChanged } from '../configs/firebaseConfig';
+import { auth, onAuthStateChanged } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
-export default function Inicial({ navigation } : InicialProps, {userEstado}) {
+export default function Inicial({ navigation } : InicialProps) {
 
-    onAuthStateChanged(getAuth(), (user) => {
+    const [userEstado, setUserEstado] = useState(false);
+
+    onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log("Usuario logado: " + user.email);
+            setUserEstado(true);
         }
     });
 
