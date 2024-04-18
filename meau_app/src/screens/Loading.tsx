@@ -44,5 +44,6 @@ const styles = StyleSheet.create({
         paddingTop: Constants.statusBarHeight,
         backgroundColor: '#fafafa',
         alignItems: 'center',
+        justifyContent: 'center'
     }
 });

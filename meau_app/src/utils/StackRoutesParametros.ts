@@ -8,4 +8,5 @@ export type StackRoutesParametros = {
     PreencherCadastroAnimal: undefined;
     Loading: undefined;
     TesteLogado: undefined;
+    ProtectTelas: undefined;
 };

@@ -22,20 +22,9 @@ type InicialProps = {
 
 export default function Inicial({ navigation } : InicialProps) {
 
-    const [userEstado, setUserEstado] = useState(false);
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("Usuario logado: " + user.email);
-            setUserEstado(true);
-        }
-    });
-
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
-    const handleMenuPress = () => {
-        alert('Você pressionou o botão de menu.');
-    };
+    const [userEstado, setUserEstado] = useState(false);
 
     useEffect(() => {
         async function carregarFontes() {
@@ -50,7 +39,23 @@ export default function Inicial({ navigation } : InicialProps) {
 
     }, []);
 
-    console.log("fonteCarregada: inicial: " + fonteCarregada);
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            setUserEstado(true);
+        }
+    });
+
+
+    const handleMenuPress = () => {
+        alert('Você pressionou o botão de menu.');
+    };
+
+   
+    if (fonteCarregada) {
+        console.log("Fontes carregadas: " + fonteCarregada);
+    } else {
+        console.log("Fontes falhou: " + fonteCarregada);
+    }
 
     return (
 
@@ -82,10 +87,12 @@ export default function Inicial({ navigation } : InicialProps) {
                 <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
+
                 <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
                     <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("PreencherCadastroAnimal")}  activeOpacity={0.5}>
+
+                <TouchableOpacity onPress={() => navigation.navigate("ProtectTelas")}  activeOpacity={0.5}>
                     <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 

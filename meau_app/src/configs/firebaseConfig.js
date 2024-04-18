@@ -24,7 +24,7 @@ const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
   
-export { getApp, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut };
+export { getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut };
 
 if (app && auth) {
   console.log("Firebase config rodou");

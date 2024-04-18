@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 
-import { fonteCarregada } from "../utils/FontsLoad";
+import {fonteCarregada} from "../utils/FontsLoad";
 
 import BotaoUsual from "../components/BotaoUsual";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";

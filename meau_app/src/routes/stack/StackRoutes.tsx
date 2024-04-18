@@ -1,4 +1,4 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import Login from '../../screens/Login';
 import Inicial from '../../screens/Inicial';
@@ -10,9 +10,9 @@ import PreencherCadastroAnimal from '../../screens/PreencherCadastroAnimal';
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import Loading from '../../screens/Loading';
 import TesteLogado from '../../screens/TesteLogado';
+import ProtectTelas from '../../components/ProtectTelas';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
-
     
 export default function StackRoutes() {
 
@@ -33,6 +33,13 @@ export default function StackRoutes() {
             <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
+            
+            <Stack.Screen name="ProtectTelas">
+                {(navigation) =>
+                        <ProtectTelas {...navigation}>
+                            <PreencherCadastroAnimal {...navigation} />
+                        </ProtectTelas>}
+            </Stack.Screen>
 
             <Stack.Screen name="Loading" component={Loading} />
 

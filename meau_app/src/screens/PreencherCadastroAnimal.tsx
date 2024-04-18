@@ -10,15 +10,11 @@ import BotaoMarcavelQuadradoOpaco from '../components/BotaoMarcavelQuadradoOpaco
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-
-type StackRoutesParametros = {
-    CadastroAnimal : undefined;
-    Login : undefined;
-};
+import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 
 type MeusPetsProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'CadastroAnimal'>;
+    navigation: NativeStackNavigationProp<StackRoutesParametros, 'PreencherCadastroAnimal'>;
 };
 
 
@@ -34,28 +30,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                     icone='voltar'
                 />
             
-            
-                <Text style = {styles.title}>Tenho interesse em cadastrar o animal para:</Text>
 
-                <View style = {styles.containerButtons}>
-                    
-                    <TouchableOpacity activeOpacity={0.5}>
-                        <BotaoUsual texto = 'Adoção' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2} ></BotaoUsual>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity activeOpacity={0.5}>
-                        <View style={{ width: 8 }} />
-                            <BotaoUsual texto = 'Aparinhar' cor='#f1f2f2' corTexto='#bdbdbd' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2}></BotaoUsual>  
-                        <View style={{ width: 8 }} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity activeOpacity={0.5}>
-                        <BotaoUsual texto = 'Ajuda' cor='#f1f2f2' marginTop={8} marginBottom={16} largura={100} altura={40} raio={2}></BotaoUsual>
-                    </TouchableOpacity>
-
-                </View>
-
-                <View style={{marginTop: 8, backgroundColor: '#e6e7e8', width: 312, height: 0.8 }}></View>
                 <Text style={{fontSize : 16, marginTop: 8, marginLeft:24 }}>Adoção</Text>
 
                 <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>

@@ -30,7 +30,7 @@ export default function Login({navigation} : LoginProps) {
                     icone = 'menu'
                 />
 
-                <BoxLogin NavegarPara={() => navigation.navigate("TesteLogado")}/>
+                <BoxLogin NavegarPara={() => navigation.navigate("Loading")}/>
 
                 <TouchableOpacity style={styles.botao_facebook} onPress={fecharTeclado}>
                     <AntDesign name="facebook-square" size={16} color="#f7f7f7" style={{}}/>
