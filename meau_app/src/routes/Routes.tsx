@@ -1,7 +1,7 @@
 
 import { NavigationContainer } from "@react-navigation/native";
 import StackRoutes from "./stack/StackRoutes";
-import DrawerRoutes from "./drawer/DrowerRoutes";
+import DrawerRoutes from "./drawer/DrawerRoutes";
 
 
 export default function Routes() {

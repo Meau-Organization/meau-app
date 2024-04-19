@@ -80,10 +80,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
         <View style={styles.container}>
 
-            <View style={styles.menuIcon}>
-                <MenuButton onPress={handleMenuPress} />
-            </View>
-
+        
             {fonteCarregada ? (
                 <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
                     Olá!

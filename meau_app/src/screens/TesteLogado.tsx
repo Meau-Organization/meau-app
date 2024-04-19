@@ -38,11 +38,6 @@ export default function TesteLogado({navigation} : TesteLogadoProps ) {
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
             <View style={styles.container}>
-                
-                <TopBar
-                    nome = 'Usuario Logado'
-                    icone = 'voltar'
-                />
 
             <View style={styles.middleView}>
                 <Text style={styles.middleText}>Logado com sucesso! {'\n'}</Text>

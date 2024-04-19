@@ -24,11 +24,6 @@ export default function CadastroAnimal({ navigation } : MeusPetsProps){
 
         <TouchableWithoutFeedback>
             <View style = {styles.container}>
-                <TopBar 
-                    nome="Cadastro do Animal"
-                    icone="voltar"
-                    cor="#fee29b"
-                />
 
                 <Text style = {styles.title}> EBA!</Text>
 

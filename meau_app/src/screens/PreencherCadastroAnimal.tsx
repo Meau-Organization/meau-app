@@ -20,18 +20,10 @@ type MeusPetsProps = {
 
 export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     return(
-       <View style = {{paddingTop: Constants.statusBarHeight}}> 
         <ScrollView >
             <View style = {styles.container}>
 
-                <TopBar
-                    nome='Cadastro do Animal'
-                    cor='#ffd358'
-                    icone='voltar'
-                />
-            
-
-                <Text style={{fontSize : 16, marginTop: 8, marginLeft:24 }}>Adoção</Text>
+                <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
 
                 <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
 
@@ -156,7 +148,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
              
             </View>
          </ScrollView>
-        </View>
     )
 }
 

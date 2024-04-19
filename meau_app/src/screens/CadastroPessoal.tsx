@@ -7,14 +7,6 @@ export default function CadastroPessoal(){
     <View style = {styles.container}>
       <ScrollView>
 
-        <View style = {styles.viewTitle}>
-          <TouchableOpacity>
-            <Entypo name="menu" size={24} color="#434343" style = {styles.menuIcon} />
-          </TouchableOpacity>
-          
-          <Text style={styles.title}>Cadastro Pessoal</Text>
-        </View>
-
         <View style = {styles.messageView}> 
           <Text style = {styles.message}> As informações preenchidas serão divulgadas apenas para 
             a pessoa com a qual você realizar o processo de adoção e/ou apadrinhamento, 

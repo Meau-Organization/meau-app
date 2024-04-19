@@ -20,12 +20,6 @@ export default function AvisoCadastro( { navigation } : AvisoCadastroProps) {
     return(
         <View style={styles.container}>
 
-            <TopBar
-                nome = 'Cadastro'
-                icone = 'voltar'
-                irParaPagina={() => navigation.navigate("Inicial")}
-            />
-
             {fonteCarregada ? (
                 <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
                     Ops!

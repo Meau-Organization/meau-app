@@ -25,10 +25,6 @@ export default function Login({navigation} : LoginProps) {
         <TouchableWithoutFeedback onPress={fecharTeclado} >
             <View style={styles.container}>
                 
-                <TopBar
-                    nome = 'Login'
-                    icone = 'menu'
-                />
 
                 <BoxLogin NavegarPara={() => navigation.navigate("Loading")}/>
 
