@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from 'react';
+
 import 'react-native-gesture-handler';
+
 import * as SplashScreen from 'expo-splash-screen';
 
 import Routes from './src/routes/Routes';

@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert } from 'react-native';
 import MenuButton from '../components/MenuButton';
 import YellowB from '../components/YellowB';
 
@@ -13,7 +13,7 @@ import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
-import { auth, onAuthStateChanged } from '../configs/firebaseConfig';
+import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
 
 type InicialProps = {
@@ -21,6 +21,7 @@ type InicialProps = {
 };
 
 export default function Inicial({ navigation } : InicialProps) {
+
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
@@ -50,12 +51,30 @@ export default function Inicial({ navigation } : InicialProps) {
         alert('Você pressionou o botão de menu.');
     };
 
+    const acoesLogout = () => {
+        logout();
+        setUserEstado(false);
+        navigation.navigate("Inicial");
+    };
+
    
     if (fonteCarregada) {
         console.log("Fontes carregadas: " + fonteCarregada);
     } else {
         console.log("Fontes falhou: " + fonteCarregada);
     }
+
+    const logout = () =>  {
+
+        signOut(auth)
+            .then(() => {
+                console.log('Usuario Saiu');
+            })
+            .catch((error) => {
+                Alert.alert('Erro', 'Erro ao tentar fazer fazer o logout');
+                console.error('Erro ao tentar fazer fazer o logout:', error);
+            });
+    };
 
     return (
 
@@ -105,7 +124,11 @@ export default function Inicial({ navigation } : InicialProps) {
                     </View>
                 </TouchableOpacity>
                 :
-                <View style={styles.login}></View>
+                <TouchableOpacity onPress={acoesLogout}>
+                    <View style={[styles.login, {width: 50}]} >
+                        <Text style={styles.loginText}>logout</Text>
+                    </View>
+                </TouchableOpacity>
             }
 
             <View style={styles.imageContainer}>
