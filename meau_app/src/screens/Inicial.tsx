@@ -59,7 +59,7 @@ export default function Inicial({ navigation } : InicialProps) {
     const acoesLogout = () => {
         logout();
         setUserEstado(false);
-        navigation.navigate("Inicial");
+        navigation.navigate("DrawerRoutes");
     };
 
    
