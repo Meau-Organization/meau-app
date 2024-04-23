@@ -1,7 +1,56 @@
-import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image } from 'react-native'
+import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
+import React, {useState} from 'react';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import {getAuth, createUserWithEmailAndPassword, db} from '../../../configs/firebaseConfig';
+import { collection, addDoc } from "firebase/firestore"; 
 
 export default function CadastroPessoal(){
+  
+  const [nome, setNome] = useState('');
+  const [idade, setIdade] = useState('');
+  const [email, setEmail] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [Logradouro, setLogradouro] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [username, setUsername] = useState('');
+  const [senha, setSenha] = useState('');
+  const [isLoading, setIsLoadign] = useState(false);
+
+  const auth = getAuth();
+
+  async function cadastrarNovaConta(){
+    setIsLoadign(true);
+
+    try{
+      const docRef = await addDoc(collection(db, "users"), {
+        nome: nome,
+        idade: idade,
+        email: email,
+        estado: estado,
+        cidade: cidade, 
+        logradouro: Logradouro,
+        telefone: telefone,
+        username: username,
+        senha: senha
+      });
+      console.log("Document written with ID: ", docRef.id)
+    }catch(e){
+      console.error("Erro para adicionar usuário:", e);
+    }
+
+    createUserWithEmailAndPassword(auth, email, senha)
+    .then(() => Alert.alert("Conta", "cadastrada com sucesso"))
+    .catch((error) => console.log(error))
+    .finally(() => setIsLoadign(false));
+  }
+
+  async function createUser(){
+  
+  }
+
+
   return(
     
     <View style = {styles.container}>
@@ -18,37 +67,37 @@ export default function CadastroPessoal(){
 
        
           
-        <TextInput style = {styles.textName}> Nome </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setNome}> Nome </TextInput>
         <View style = {styles.containerName}>
           
         </View>
           
-        <TextInput style = {styles.textName}> Idade </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setIdade}> Idade </TextInput>
         <View style = {styles.containerName}>
             
         </View>
 
-        <TextInput style = {styles.textName}> E-mail </TextInput>  
+        <TextInput style = {styles.textName} onChangeText={setEmail}> E-mail </TextInput>  
         <View style = {styles.containerName}>
             
         </View>
 
-        <TextInput style = {styles.textName}> Estado </TextInput>  
+        <TextInput style = {styles.textName} onChangeText={setEstado}> Estado </TextInput>  
         <View style = {styles.containerName}>
             
         </View>
 
-        <TextInput style = {styles.textName}> Cidade </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setCidade}> Cidade </TextInput>
         <View style = {styles.containerName}>
             
         </View>
           
-        <TextInput style = {styles.textName}> Logradouro </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setLogradouro}> Logradouro </TextInput>
         <View style = {styles.containerName}>
             
         </View>
 
-        <TextInput style = {styles.textName}> Telefone </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setTelefone}> Telefone </TextInput>
         <View style = {styles.containerName}>
             
             
@@ -57,12 +106,12 @@ export default function CadastroPessoal(){
 
         <Text style = {styles.info}> Informações de Perfil</Text>
 
-        <TextInput style = {styles.textName}> Nome de usuário </TextInput>
+        <TextInput style = {styles.textName} onChangeText={setUsername}> Nome de usuário </TextInput>
         <View style = {styles.containerName}>
             
         </View>
         
-        <TextInput style = {styles.textName}> Senha </TextInput>
+        <TextInput style = {styles.textName} secureTextEntry onChangeText={setSenha}> Senha </TextInput>
         <View style = {styles.containerName}>
             
         </View>
@@ -77,7 +126,7 @@ export default function CadastroPessoal(){
         <View style = {styles.imageButtonContainer}> 
           <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
             <Image
-              source={require('../assets/images/botao_adicionar.png')}
+              source={require('../../../assets/images/botao_adicionar.png')}
               style={styles.imageAddButton}
             />
             <Text style ={styles.textButton}> Adicionar foto</Text>
@@ -85,7 +134,7 @@ export default function CadastroPessoal(){
         </View>
 
         <View>
-          <TouchableOpacity style = {styles.loginButton}>
+          <TouchableOpacity style = {styles.loginButton} disabled = {isLoading} onPress={cadastrarNovaConta}>
             <Text >Fazer Cadastro</Text>
           </TouchableOpacity>
         </View>

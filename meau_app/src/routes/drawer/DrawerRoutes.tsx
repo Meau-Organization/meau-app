@@ -6,7 +6,7 @@ import StackRoutes from '../stack/StackRoutes'
 import { View, StatusBar } from 'react-native';
 import Constants from 'expo-constants';
 import CadastroAnimal from '../../screens/CadastroAnimal';
-import PreencherCadastroAnimal from '../../screens/PreencherCadastroAnimal';
+import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
 import Inicial from '../../screens/Inicial';
 
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
