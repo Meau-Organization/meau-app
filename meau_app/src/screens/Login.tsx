@@ -12,7 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 
 type LoginProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
+    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Login'>;
 };
 
 export default function Login({navigation} : LoginProps) {
@@ -26,7 +26,7 @@ export default function Login({navigation} : LoginProps) {
             <View style={styles.container}>
                 
 
-                <BoxLogin NavegarPara={() => navigation.navigate("Loading")}/>
+                <BoxLogin />
 
                 <TouchableOpacity style={styles.botao_facebook} onPress={fecharTeclado}>
                     <AntDesign name="facebook-square" size={16} color="#f7f7f7" style={{}}/>

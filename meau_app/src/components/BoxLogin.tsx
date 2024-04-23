@@ -1,16 +1,23 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
+import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, Modal } from 'react-native';
 
 import { FontAwesome6 } from '@expo/vector-icons';
 import BotaoUsual from './BotaoUsual';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, User } from '../configs/firebaseConfig';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+import { useNavigation } from '@react-navigation/native';
+import ModalLoanding from './ModalLoanding';
 
-interface BoxLoginProps {
-    NavegarPara: () => void;
-}
 
-export function BoxLogin( { NavegarPara } : BoxLoginProps) {
+
+export function BoxLogin() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
+
+    const [esperando, setEsperando] = useState(true);
+    const [modal, setModal] = useState(false);
 
     const [userTexto, setUserTexto] = useState('');
     const [senhaTexto, setSenhaTexto] = useState('');
@@ -44,10 +51,16 @@ export function BoxLogin( { NavegarPara } : BoxLoginProps) {
     const login = (user: string, senha: string) => {
         signInWithEmailAndPassword(getAuth(), user, senha)
         .then((userCredential) => {
+            
+            setEsperando(false);
             const user = userCredential.user;
             console.log('Entrou:', user.email);
+            navigation.navigate("DrawerRoutes");
+            
         })
         .catch((error) => {
+            
+            setEsperando(false);
             const errorCode = error.code;
             const errorMessage = error.message;
             console.error('Deu ruim:', errorMessage);
@@ -55,9 +68,9 @@ export function BoxLogin( { NavegarPara } : BoxLoginProps) {
     };
 
     const acoesOnPress = (user: string, senha: string) => {
-        login(user, senha);
         Keyboard.dismiss();
-        NavegarPara();
+        setModal(true);
+        login(user, senha);
     }
 
     return (
@@ -93,6 +106,10 @@ export function BoxLogin( { NavegarPara } : BoxLoginProps) {
             <TouchableOpacity onPress={(e) => acoesOnPress(userTexto, senhaTexto)}  activeOpacity={0.5}>
                 <BotaoUsual texto='ENTRAR' cor='#88c9bf' marginTop={52}/>
             </TouchableOpacity>
+
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding/>
+            </Modal>
             
         </View>
     )

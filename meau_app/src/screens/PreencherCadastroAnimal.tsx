@@ -29,13 +29,20 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
     const [logado, setLogado] = useState(false);
 
+    const [esperando, setEsperando] = useState(true);
+
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setLogado(true);
+
+                setEsperando(false);
+
                 console.log("Logado");
             } else {
-
+                setLogado(false);
+                setEsperando(false);
+                console.log("SAIU " + esperando + " " + logado);
             }
         });
 
@@ -173,7 +180,10 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
             </ScrollView>
         )
     } else {
-        return <AvisoCadastro/>;
+        if (esperando) 
+            return null;
+        else
+            return <AvisoCadastro/>;
     }
 }
 

@@ -10,4 +10,5 @@ export type StackRoutesParametros = {
     TesteLogado: undefined;
     ProtectTelas: undefined;
     DrawerRoutes: undefined;
+    BoxLogin: undefined;
 };
