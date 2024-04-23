@@ -1,16 +1,16 @@
 import {Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image}from 'react-native'
 import Constants from 'expo-constants';
 
-import { TopBar } from '../components/TopBar';
-import BotaoUsual from '../components/BotaoUsual';
+import { TopBar } from '../../../components/TopBar';
+import BotaoUsual from '../../../components/BotaoUsual';
 
-import BotaoMarcavelRedondo from '../components/BotaoMarcavelRedondo';
-import BotaoMarcavelQuadrado from '../components/BotaoMarcavelQuadrado';
-import BotaoMarcavelQuadradoOpaco from '../components/BotaoMarcavelQuadradoOpaco';
+import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
+import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
+import BotaoMarcavelQuadradoOpaco from '../../../components/BotaoMarcavelQuadradoOpaco';
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 
 
 type MeusPetsProps = {
@@ -35,7 +35,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                 <View style = {styles.imageButtonContainer}> 
                 <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
                     <Image
-                         source={require('../assets/images/botao_adicionar.png')}
+                         source={require('../../../assets/images/botao_adicionar.png')}
                         style={styles.imageAddButton}
                         />
                     <Text style ={styles.textButton}> Adicionar foto</Text>

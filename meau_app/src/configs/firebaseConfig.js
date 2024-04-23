@@ -3,7 +3,7 @@ import envConfig from "./envConfig";
 
 import { initializeApp, getApp } from "firebase/app";
 
-import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,7 +24,7 @@ const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
   
-export { getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut };
+export { getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword };
 
 if (app && auth) {
   console.log("Firebase config rodou");

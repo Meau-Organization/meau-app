@@ -3,9 +3,9 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import Login from '../../screens/Login';
 import Inicial from '../../screens/Inicial';
 import AvisoCadastro from '../../screens/AvisoCadastro';
-import CadastroPessoal from '../../screens/CadastroPessoal';
+import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import CadastroAnimal from '../../screens/CadastroAnimal';
-import PreencherCadastroAnimal from '../../screens/PreencherCadastroAnimal';
+import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
 
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import Loading from '../../screens/Loading';
