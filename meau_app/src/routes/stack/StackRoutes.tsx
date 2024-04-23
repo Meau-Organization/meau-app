@@ -11,16 +11,19 @@ import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import Loading from '../../screens/Loading';
 import TesteLogado from '../../screens/TesteLogado';
 import ProtectTelas from '../../components/ProtectTelas';
+import DrawerRoutes from '../drawer/DrawerRoutes';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
 export default function StackRoutes() {
 
 
-    const telaInicial = "Inicial";
+    const telaInicial = "DrawerRoutes";
 
     return (
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
+
+            <Stack.Screen name="DrawerRoutes" component={DrawerRoutes} />
 
             <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}}/>
 
@@ -34,12 +37,12 @@ export default function StackRoutes() {
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
             
-            <Stack.Screen name="ProtectTelas">
+            {/* <Stack.Screen name="ProtectTelas">
                 {(navigation) =>
                         <ProtectTelas {...navigation}>
                             <PreencherCadastroAnimal {...navigation} />
                         </ProtectTelas>}
-            </Stack.Screen>
+            </Stack.Screen> */}
 
             <Stack.Screen name="Loading" component={Loading} />
 

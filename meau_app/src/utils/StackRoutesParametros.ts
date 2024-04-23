@@ -9,4 +9,5 @@ export type StackRoutesParametros = {
     Loading: undefined;
     TesteLogado: undefined;
     ProtectTelas: undefined;
+    DrawerRoutes: undefined;
 };

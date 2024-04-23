@@ -15,12 +15,15 @@ const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
+import { useNavigation } from '@react-navigation/native';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
 export default function Inicial({ navigation } : InicialProps) {
+
+    const navig = useNavigation();
 
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
@@ -37,6 +40,8 @@ export default function Inicial({ navigation } : InicialProps) {
 
         carregarFontes();
         console.log('Rodou fonts inicial');
+
+        console.log("rotas na pilha " + navigation.getState().routeNames);
 
     }, []);
 
@@ -100,7 +105,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
             <View style={styles.menuCenter}>
                 
-                <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 
@@ -108,7 +113,7 @@ export default function Inicial({ navigation } : InicialProps) {
                     <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate("ProtectTelas")}  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigation.navigate("PreencherCadastroAnimal")}  activeOpacity={0.5}>
                     <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 

@@ -10,12 +10,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import { useNavigation } from "@react-navigation/native";
 
-type AvisoCadastroProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>;
-};
 
-export default function AvisoCadastro( { navigation } : AvisoCadastroProps) {
+export default function AvisoCadastro() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>>();
 
     return(
         <View style={styles.container}>
