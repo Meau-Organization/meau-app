@@ -2,7 +2,8 @@ import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, 
 import { Entypo } from '@expo/vector-icons';
 import React, {useState} from 'react';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import {getAuth, createUserWithEmailAndPassword} from '../../../configs/firebaseConfig';
+import {getAuth, createUserWithEmailAndPassword, db} from '../../../configs/firebaseConfig';
+import { collection, addDoc } from "firebase/firestore"; 
 
 export default function CadastroPessoal(){
   
@@ -19,13 +20,34 @@ export default function CadastroPessoal(){
 
   const auth = getAuth();
 
-  function cadastrarNovaConta(){
+  async function cadastrarNovaConta(){
     setIsLoadign(true);
+
+    try{
+      const docRef = await addDoc(collection(db, "users"), {
+        nome: nome,
+        idade: idade,
+        email: email,
+        estado: estado,
+        cidade: cidade, 
+        logradouro: Logradouro,
+        telefone: telefone,
+        username: username,
+        senha: senha
+      });
+      console.log("Document written with ID: ", docRef.id)
+    }catch(e){
+      console.error("Erro para adicionar usuário:", e);
+    }
 
     createUserWithEmailAndPassword(auth, email, senha)
     .then(() => Alert.alert("Conta", "cadastrada com sucesso"))
     .catch((error) => console.log(error))
     .finally(() => setIsLoadign(false));
+  }
+
+  async function createUser(){
+  
   }
 
 
