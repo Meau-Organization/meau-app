@@ -4,9 +4,11 @@ import React, {useState} from 'react';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {getAuth, createUserWithEmailAndPassword, db} from '../../../configs/firebaseConfig';
 import { collection, addDoc } from "firebase/firestore"; 
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CadastroPessoal(){
   
+  const [image, setImage] = useState(null);
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [email, setEmail] = useState('');
@@ -19,6 +21,22 @@ export default function CadastroPessoal(){
   const [isLoading, setIsLoadign] = useState(false);
 
   const auth = getAuth();
+
+  const pickImage = async () => {
+  
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   async function cadastrarNovaConta(){
     setIsLoadign(true);
@@ -33,7 +51,8 @@ export default function CadastroPessoal(){
         logradouro: Logradouro,
         telefone: telefone,
         username: username,
-        senha: senha
+        senha: senha, 
+        image: image
       });
       console.log("Document written with ID: ", docRef.id)
     }catch(e){
@@ -124,8 +143,10 @@ export default function CadastroPessoal(){
         <Text style = {styles.info}> Foto de Perfil</Text>
 
         <View style = {styles.imageButtonContainer}> 
-          <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+          <TouchableOpacity style = {styles.imageButton} onPress={pickImage}>
+            {image && <Image source={{ uri: image }} style={styles.image} />}
             <Image
+              
               source={require('../../../assets/images/botao_adicionar.png')}
               style={styles.imageAddButton}
             />
@@ -274,7 +295,18 @@ const styles = StyleSheet.create({
       },
       elevation: 8,
       marginBottom:32
-    }
+    },
+    image: {
+      width: 128,
+      height: 128,
+      borderRadius: 8,
+      backgroundColor: '#e6e7e7', 
+      marginTop: 32,
+      padding:10,
+      alignContent: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
 })
 

@@ -1,16 +1,17 @@
-import {Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image}from 'react-native'
+import {Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Alert}from 'react-native'
 import Constants from 'expo-constants';
 
 import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
-
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
 import BotaoMarcavelQuadradoOpaco from '../../../components/BotaoMarcavelQuadradoOpaco';
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
+
+import React, {useState} from 'react';
+import { collection, addDoc } from "firebase/firestore"; 
+import {getAuth, createUserWithEmailAndPassword, db} from '../../../configs/firebaseConfig';
 
 
 type MeusPetsProps = {
@@ -19,6 +20,7 @@ type MeusPetsProps = {
 
 
 export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
+   
     return(
         <ScrollView >
             <View style = {styles.container}>
@@ -27,7 +29,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
                 <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
 
-                <TextInput style = {styles.textName}> Nome do Animal </TextInput>
+                <TextInput style = {styles.textName} > Nome do Animal </TextInput>
                 <View style = {styles.containerName}></View>
 
                 <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
@@ -113,7 +115,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
 
 
-                <TextInput style = {styles.textName}> Doenças do animal</TextInput>
+                <TextInput style = {styles.textName} > Doenças do animal</TextInput>
                 <View style = {styles.containerName}></View>
 
                 <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>EXIGÊNCIAS PARA ADOÇÃO</Text>
@@ -142,7 +144,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
                 <TouchableOpacity onPress={() => navigation.navigate('CadastroAnimal')}  activeOpacity={0.5}>
                     <View style = {{alignItems: 'center'}}>
-                        <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} marginBottom={24} raio={4}></BotaoUsual>
+                        <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} marginBottom={24} raio={4} ></BotaoUsual>
                     </View>
                 </TouchableOpacity>
              
