@@ -42,7 +42,7 @@ export default function CadastroPessoal(){
             const usuario = getAuth().currentUser;
 
             if (usuario) {
-                const docRef = await setDoc(doc(db, "users", usuario.uid), {
+                const docRef = await setDoc(doc(db, "Users", usuario.uid), {
                     nome: nome,
                     idade: idade,
                     email: email,
