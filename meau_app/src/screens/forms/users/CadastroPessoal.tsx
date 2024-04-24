@@ -7,59 +7,79 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useNavigation } from '@react-navigation/native';
 
+import * as ImagePicker from 'expo-image-picker';
+
 export default function CadastroPessoal(){
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
-  
-    const [nome, setNome] = useState('');
-    const [idade, setIdade] = useState('');
-    const [email, setEmail] = useState('');
-    const [estado, setEstado] = useState('');
-    const [cidade, setCidade] = useState('');
-    const [Logradouro, setLogradouro] = useState('');
-    const [telefone, setTelefone] = useState('');
-    const [username, setUsername] = useState('');
-    const [senha, setSenha] = useState('');
-    const [isLoading, setIsLoadign] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
 
-    const auth = getAuth();
+  const [image, setImage] = useState(null);
+  const [nome, setNome] = useState('');
+  const [idade, setIdade] = useState('');
+  const [email, setEmail] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [Logradouro, setLogradouro] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [username, setUsername] = useState('');
+  const [senha, setSenha] = useState('');
+  const [isLoading, setIsLoadign] = useState(false);
 
-    async function cadastrarNovaConta() {
-        setIsLoadign(true);
 
-        try{
-            await createUserWithEmailAndPassword(getAuth(), email, senha)
-                .then(() => {
-                    Alert.alert("Conta", "cadastrada com sucesso");
-                })
-                .catch((error) => {
-                    console.log(error);
-                })
-                .finally(() => {
-                    setIsLoadign(false);
-                });
+  const auth = getAuth();
 
-            const usuario = getAuth().currentUser;
+  async function cadastrarNovaConta() {
+    setIsLoadign(true);
 
-            if (usuario) {
-                const docRef = await setDoc(doc(db, "Users", usuario.uid), {
-                    nome: nome,
-                    idade: idade,
-                    email: email,
-                    estado: estado,
-                    cidade: cidade, 
-                    logradouro: Logradouro,
-                    telefone: telefone,
-                    username: username,
-                    senha: senha
-                });
-                // console.log("Document written with ID: ", docRef.id);
-            }
-            
-        }catch(e){
-            console.error("Erro para adicionar usuário:", e);
-        }
+    try{
+      await createUserWithEmailAndPassword(getAuth(), email, senha)
+        .then(() => {
+          Alert.alert("Conta", "cadastrada com sucesso");
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoadign(false);
+      });
+
+      const usuario = getAuth().currentUser;
+
+      if (usuario) {
+        const docRef = await setDoc(doc(db, "Users", usuario.uid), {
+        nome: nome,
+        idade: idade,
+        email: email,
+        estado: estado,
+        cidade: cidade, 
+        logradouro: Logradouro,
+        telefone: telefone,
+        username: username,
+        senha: senha
+        });
+        // console.log("Document written with ID: ", docRef.id);
+      }
+
+    }catch(e){
+      console.error("Erro para adicionar usuário:", e);
     }
+  };
+
+  const pickImage = async () => {
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
 
   return(
@@ -101,8 +121,7 @@ export default function CadastroPessoal(){
           </View>
 
           <TextInput style = {styles.textName} onChangeText={setEstado}> Estado </TextInput>  
-          <View style = {styles.containerName}>
-              
+            <View style = {styles.containerName}>
           </View>
 
           <TextInput style = {styles.textName} onChangeText={setCidade}> Cidade </TextInput>
@@ -142,8 +161,10 @@ export default function CadastroPessoal(){
           <Text style = {styles.info}> Foto de Perfil</Text>
 
           <View style = {styles.imageButtonContainer}> 
-            <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+            <TouchableOpacity style = {styles.imageButton} onPress={pickImage}>
+              {image && <Image source={{ uri: image }} style={styles.image} />}
               <Image
+                
                 source={require('../../../assets/images/botao_adicionar.png')}
                 style={styles.imageAddButton}
               />
@@ -293,7 +314,18 @@ const styles = StyleSheet.create({
       },
       elevation: 8,
       marginBottom:32
-    }
+    },
+    image: {
+      width: 128,
+      height: 128,
+      borderRadius: 8,
+      backgroundColor: '#e6e7e7', 
+      marginTop: 32,
+      padding:10,
+      alignContent: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
 })
 

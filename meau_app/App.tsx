@@ -20,7 +20,6 @@ export default function App() {
 
     useEffect(() => {
 
-        //auth.onAuthStateChanged( (user) => {
         onAuthStateChanged(getAuth(), (user) => {
             console.log("Teste USUARIO 2");
             if (user) {

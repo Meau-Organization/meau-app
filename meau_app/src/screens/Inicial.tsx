@@ -1,7 +1,5 @@
 
 import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert } from 'react-native';
-import MenuButton from '../components/MenuButton';
-import YellowB from '../components/YellowB';
 
 import Constants from 'expo-constants';
 import * as Font from 'expo-font';
@@ -15,7 +13,6 @@ const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
-import { useNavigation } from '@react-navigation/native';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
@@ -50,10 +47,6 @@ export default function Inicial({ navigation } : InicialProps) {
         }
     });
 
-
-    const handleMenuPress = () => {
-        alert('Você pressionou o botão de menu.');
-    };
 
     const acoesLogout = () => {
         logout();

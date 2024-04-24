@@ -8,9 +8,6 @@ import CadastroAnimal from '../../screens/CadastroAnimal';
 import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
 
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
-import Loading from '../../screens/Loading';
-import TesteLogado from '../../screens/TesteLogado';
-import ProtectTelas from '../../components/ProtectTelas';
 import DrawerRoutes from '../drawer/DrawerRoutes';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
@@ -36,17 +33,6 @@ export default function StackRoutes() {
             <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
-            
-            {/* <Stack.Screen name="ProtectTelas">
-                {(navigation) =>
-                        <ProtectTelas {...navigation}>
-                            <PreencherCadastroAnimal {...navigation} />
-                        </ProtectTelas>}
-            </Stack.Screen> */}
-
-            <Stack.Screen name="Loading" component={Loading} />
-
-            <Stack.Screen name="TesteLogado" component={TesteLogado} />
 
         </Stack.Navigator>
     );

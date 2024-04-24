@@ -3,22 +3,17 @@ import Constants from 'expo-constants';
 
 import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
-
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
-import BotaoMarcavelQuadradoOpaco from '../../../components/BotaoMarcavelQuadradoOpaco';
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useEffect, useState } from 'react';
 
-import { getAuth, onAuthStateChanged, db, addDoc, collection } from '../../../configs/firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
+import { getAuth, db, addDoc, collection } from '../../../configs/firebaseConfig';
+
 import AvisoCadastro from '../../AvisoCadastro';
 import ModalLoanding from '../../../components/ModalLoanding';
-
-
 
 
 type MeusPetsProps = {
@@ -242,6 +237,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f9f9f9',
+        paddingTop: Constants.statusBarHeight,
     },
     title: {
         paddingTop: 16,

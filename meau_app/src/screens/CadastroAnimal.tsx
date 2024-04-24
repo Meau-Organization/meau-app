@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } fr
 
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
-import { fonteCarregada } from "../utils/FontsLoad";
 
 import Constants from 'expo-constants';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
