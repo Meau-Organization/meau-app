@@ -2,50 +2,89 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface BotaoMarcavelRedondoProps {
-  label: string;
-  onPress?: () => void;
-  checked?: boolean;
+    vetor_opcoes: Array<string>;
+    setEstadoDoPai: React.Dispatch<React.SetStateAction<string>>;
+    width?: number;
+    marginBottom?: number;
+    borderRadius?: number;
+    acompanhamentoTam?: number;
 }
 
-export default function BotaoMarcavelRedondo({ label, onPress, checked } : BotaoMarcavelRedondoProps) {
-  return (
-    <TouchableOpacity style={styles.radioButton} onPress={onPress}>
-      <View style={[styles.radioButtonOuter, checked && styles.radioButtonOuterSelected]}>
-        {checked && <View style={styles.radioButtonInner} />}
-      </View>
-      <Text style={styles.radioButtonText}>{label}</Text>
-    </TouchableOpacity>
-  );
+export default function BotaoMarcavelRedondo({ vetor_opcoes, setEstadoDoPai, width = 115, marginBottom = 0, borderRadius = 15, acompanhamentoTam } : BotaoMarcavelRedondoProps) {
+
+    let opacidade = 1;
+    let travar = false;
+
+    const [selecionado, setSelecionado] = useState('');
+
+    const marcar = (opcao : string) => {
+        setSelecionado(opcao);
+        setEstadoDoPai(opcao);
+      };
+
+    if (acompanhamentoTam != undefined) {
+        if (acompanhamentoTam == 0) {
+            opacidade = 0.5;
+            travar = true;
+        }
+    }
+
+    //console.log(selecionado);
+    // console.log(travar + selecionado);
+
+    return (
+
+        <>
+            {vetor_opcoes.map( opcao => (
+                
+                <View key={opcao} style={[styles.container, {width: width, marginBottom: marginBottom}]}>
+
+                    <TouchableOpacity style={[styles.radioButton, {borderRadius: borderRadius, opacity: opacidade}]}
+                        onPress={() => marcar(opcao)}
+                        disabled={travar}
+                    >
+
+                        { (selecionado == opcao && !travar) && <View style={[styles.marcado, {borderRadius: borderRadius}]} /> }
+
+                    </TouchableOpacity>
+
+                    <Text style={[styles.opcao, {opacity: opacidade}]} >{opcao}</Text>
+
+                </View>
+            ) )}
+        </>
+    );
+
+    
 }
 
 const styles = StyleSheet.create({
-  radioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  radioButtonOuter: {
-    width: 24,
-    height: 24,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#757575',
-    justifyContent: 'center',
-    alignItems: 'center',
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        //borderWidth: 1,
+    },
+    opcao: {
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        color: '#757575',
+    },
+    radioButton: {
+        width: 24,
+        height: 24,
+        borderWidth: 2.5,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: '#757575',
+        marginRight: 5,
+    },
 
-  },
-  radioButtonOuterSelected: {
-    borderColor: 'blue', 
-  },
-  radioButtonInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'blue', 
-  },
-  radioButtonText: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: '#757575'
-  },
+    marcado : {
+        width: 14,
+        height: 14,
+        backgroundColor: '#ffd358',
+        borderRadius: 10,
+        
+    }
 });

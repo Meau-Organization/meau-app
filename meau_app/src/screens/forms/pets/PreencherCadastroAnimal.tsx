@@ -25,11 +25,27 @@ type MeusPetsProps = {
 
 export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
-    const navigation2 = useNavigation();
-
     const [logado, setLogado] = useState(false);
-
     const [esperando, setEsperando] = useState(true);
+
+    const [nomeAnimal,          setNomeAnimal]          = useState('');
+    const [especie,             setEspecie]             = useState('');
+    const [sexo,                setSexo]                = useState('');
+    const [porte,               setPorte]               = useState('');
+    const [idade,               setIdade]               = useState('');
+    const [temperamento,        setTemperamento]        = useState<string[]>([]);
+    const [saude,               setSaude]               = useState<string[]>([]);
+    const [doencasAnimal,       setDoencasAnimal]       = useState('');
+    const [sobreAnimal,         setSobreAnimal]         = useState('');
+    const [termosAdocao,        setTermosAdocao]        = useState<string[]>([]);
+    const [exigenciaFotosCasa,  setExigenciaFotosCasa]  = useState<string[]>([]);
+    const [visitaPrevia,        setVisitaPrevia]        = useState<string[]>([]);
+    const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
+    const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
+
+    // console.log("especie: " + especie);
+    // console.log("idade: " + idade);
+    //console.log("lista temperamento: " + temperamento);
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -57,118 +73,84 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                     <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
-
-                    <TextInput style = {styles.textName}> Nome do Animal </TextInput>
+                    <TextInput style = {styles.textName} onChangeText={setNomeAnimal}> Nome do Animal </TextInput>
                     <View style = {styles.containerName}></View>
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
-
                     <View style = {styles.imageButtonContainer}> 
-                    <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
-                        <Image
-                            source={require('../../../assets/images/botao_adicionar.png')}
-                            style={styles.imageAddButton}
-                            />
-                        <Text style ={styles.textButton}> Adicionar foto</Text>
-                    </TouchableOpacity>
-                    
+                        <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+                            <Image
+                                source={require('../../../assets/images/botao_adicionar.png')}
+                                style={styles.imageAddButton}
+                                />
+                            <Text style ={styles.textButton}> Adicionar foto</Text>
+                        </TouchableOpacity>
                     </View>
 
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>   
-                    
+                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
                     <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo label={'Cachorro'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 20}}></View>
-                        <BotaoMarcavelRedondo label={'Gato'}></BotaoMarcavelRedondo>
+                        <BotaoMarcavelRedondo vetor_opcoes={['Cachorro', 'Gato']} setEstadoDoPai={setEspecie}/>
                     </View> 
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SEXO</Text>   
                     
+
+                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SEXO</Text>
                     <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo label={'Macho'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelRedondo label={'Fêmea'}></BotaoMarcavelRedondo>
+                        <BotaoMarcavelRedondo vetor_opcoes={['Macho', 'Fêmea']} setEstadoDoPai={setSexo}/>
                     </View> 
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>PORTE</Text>   
-                    
                     <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo label={'Pequeno'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 23}}></View>
-                        <BotaoMarcavelRedondo label={'Médio'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 30}}></View>
-                        <BotaoMarcavelRedondo label={'Grande'}></BotaoMarcavelRedondo>
+                        <BotaoMarcavelRedondo vetor_opcoes={['Pequeno', 'Médio', 'Grande']} setEstadoDoPai={setPorte}/>
                     </View> 
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>IDADE</Text>   
+                    <View style = {styles.containerBotaoMarcavel} >
+                        <BotaoMarcavelRedondo vetor_opcoes={['Filhote', 'Adulto', 'Idoso']} setEstadoDoPai={setIdade}/>
+                    </View> 
+
+                   <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>TEMPERAMENTO</Text>
+                    <View style = {styles.containerBotaoMarcavel} >
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Brincalhão', 'Tímido', 'Calmo', 'Guarda', 'Amoroso', 'Preguiçoso']} setEstadoDoPai={setTemperamento}/>
+                    </View>
+
                     
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo label={'Filhote'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelRedondo label={'Adulto'}></BotaoMarcavelRedondo>
-                        <View style = {{width: 30}}></View>
-                        <BotaoMarcavelRedondo label={'Idoso'}></BotaoMarcavelRedondo>
-                    </View> 
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>TEMPERAMENTO</Text>
                     
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado label={'Brincalhão'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado label={'Tímido'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 50}}></View>
-                        <BotaoMarcavelQuadrado label={'Calmo'}></BotaoMarcavelQuadrado>
-                    </View> 
-
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado label={'Guarda'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 59}}></View>
-                        <BotaoMarcavelQuadrado label={'Amoroso'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado label={'Preguiçoso'}></BotaoMarcavelQuadrado>
-                    </View> 
-
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SAÚDE</Text>
-                    
                     <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado label={'Vacinado'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado label={'Vermifugado'}></BotaoMarcavelQuadrado>
-                    </View> 
-                    
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado label={'Castrado'}></BotaoMarcavelQuadrado>
-                        <View style = {{width: 37}}></View>
-                        <BotaoMarcavelQuadrado label={'Doente'}></BotaoMarcavelQuadrado>
-                    </View> 
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Vacinado', 'Vermifugado', 'Castrado', 'Doente']} setEstadoDoPai={setSaude}/>
+                    </View>
 
-
-
-                    <TextInput style = {styles.textName}> Doenças do animal</TextInput>
+                    <TextInput style = {styles.textName}  onChangeText={setDoencasAnimal}> Doenças do animal</TextInput>
                     <View style = {styles.containerName}></View>
+
+
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>EXIGÊNCIAS PARA ADOÇÃO</Text>
                     <View style = {styles.containerBotaoMarcavelColumn} >
-                        <BotaoMarcavelQuadrado label={'Termo de adoção'}></BotaoMarcavelQuadrado>
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Termo de adoção']} setEstadoDoPai={setTermosAdocao} width={150}/>
+
                         <View style = {{width: 59}}></View>
-                        <BotaoMarcavelQuadrado label={'Fotos da casa'}></BotaoMarcavelQuadrado>
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Fotos da casa']} setEstadoDoPai={setExigenciaFotosCasa}  width={130}/>
+                        
                         <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado label={'Visita pérvia ao animal'}></BotaoMarcavelQuadrado>
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Visita pérvia ao animal']} setEstadoDoPai={setVisitaPrevia}  width={180}/>
+                        
                         <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado label={'Acompanhamento pós adoção'}></BotaoMarcavelQuadrado>
+                        <BotaoMarcavelQuadrado vetor_opcoes={['Acompanhamento pós adoção']} setEstadoDoPai={setAcompanhamento}  width={230}/>
+                        
                             <View style = {styles.containerBotaoMarcavelColumn1}>
-                                <BotaoMarcavelQuadradoOpaco label={'1 mês'}></BotaoMarcavelQuadradoOpaco>
-                                <View style = {{width: 35}}></View>
-                                <BotaoMarcavelQuadradoOpaco label={'3 meses'}></BotaoMarcavelQuadradoOpaco>
-                                <View style = {{width: 35}}></View>
-                                <BotaoMarcavelQuadradoOpaco label={'6 meses'}></BotaoMarcavelQuadradoOpaco> 
+                                <BotaoMarcavelRedondo vetor_opcoes={['1 mês', '3 meses', '6 meses']} setEstadoDoPai={setTempoAcompanhamento}
+                                    marginBottom={28}
+                                    borderRadius={4}
+                                    acompanhamentoTam={acompanhamento.length}
+                                />
                             </View>
 
                     </View> 
 
                     <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>SOBRE O ANIMAL</Text>
 
-                    <TextInput style = {styles.textName}> Compatilhe a história do animal </TextInput>
+                    <TextInput style = {styles.textName} onChangeText={setSobreAnimal}> Compatilhe a história do animal </TextInput>
                     <View style = {styles.containerName}></View>
 
                     <TouchableOpacity onPress={() => navigation.navigate('CadastroAnimal')}  activeOpacity={0.5}>
@@ -262,7 +244,12 @@ const styles = StyleSheet.create({
       containerBotaoMarcavel:{
         flexDirection: 'row',
         marginTop: 8,
-        marginLeft: 24
+        marginLeft: 24,
+        flexWrap: 'wrap',
+        //borderWidth: 1
+        alignItems: 'flex-start', // Altere isso para controlar o alinhamento transversal
+        justifyContent: 'flex-start',
+        
       },
       containerBotaoMarcavelColumn:{
         flexDirection: 'column',
@@ -271,8 +258,8 @@ const styles = StyleSheet.create({
       },
       containerBotaoMarcavelColumn1:{
         flexDirection: 'column',
-        marginTop: 8,
-        marginLeft: 48
+        marginLeft: 48,
+        //borderWidth: 1
       },
 
       touchEstilo: {
