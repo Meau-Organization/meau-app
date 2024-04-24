@@ -1,21 +1,21 @@
-import { DrawerScreenProps, createDrawerNavigator } from '@react-navigation/drawer'
+import { createDrawerNavigator } from '@react-navigation/drawer'
 
 import { Ionicons , AntDesign} from '@expo/vector-icons';
 
-import StackRoutes from '../stack/StackRoutes'
 import { View, StatusBar } from 'react-native';
-import Constants from 'expo-constants';
-import CadastroAnimal from '../../screens/CadastroAnimal';
-import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
+
 import Inicial from '../../screens/Inicial';
 
-import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
-import Loading from '../../screens/Loading';
 import { NavigationState, useNavigationState } from '@react-navigation/native';
+import MeusPets from '../../screens/MeusPets';
 
 const Drawer = createDrawerNavigator();
 
 interface coresPaginas {
+    [key: string]: string;
+}
+
+interface titulosPaginas {
     [key: string]: string;
 }
 
@@ -40,11 +40,15 @@ export default function DrawerRoutes() {
     
     const coresHeader: coresPaginas = {
         Home: '#fafafa',
-        PreencherCadastroAnimal: '#ffd358',
+        MeusPets: '#88c9bf',
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
-        PreencherCadastroAnimal: '#434343',
+        MeusPets: '#434343',
+    };
+    const titulos_paginas: titulosPaginas = {
+        Home: '',
+        MeusPets: 'Meus Pets',
     };
 
 
@@ -54,7 +58,7 @@ export default function DrawerRoutes() {
         
             <Drawer.Navigator
                 screenOptions={{
-                    title: '',
+                    title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
                     headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
                     headerStyle: {
                         backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafafa' : coresHeader[nomeRotaAtiva],
@@ -73,12 +77,13 @@ export default function DrawerRoutes() {
                 />
 
                 <Drawer.Screen
-                    name = "PreencherCadastroAnimal"
-                    component={PreencherCadastroAnimal}
+                    name = "MeusPets"
+                    component={MeusPets}
                     options={{
-                        drawerLabel: 'Cadastrar Animal',
+                        drawerLabel: 'Meus Pets',
                         drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
                     }}
+                    initialParams={{ recarregar: false, usuario_id: '' }}
                 />
 
             </Drawer.Navigator>

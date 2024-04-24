@@ -3,11 +3,12 @@ import envConfig from "./envConfig";
 
 import { initializeApp, getApp } from "firebase/app";
 
-import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndPassword, onAuthStateChanged,
+    User, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getFirestore, addDoc, setDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -30,7 +31,7 @@ const db = getFirestore(app);
   
 export {
     getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, db,
-    setDoc, doc,
+    addDoc, setDoc, doc, collection, query, where, getDocs
 };
 
 if (app && auth) {

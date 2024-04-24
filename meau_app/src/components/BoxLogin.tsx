@@ -48,8 +48,8 @@ export function BoxLogin() {
     };
 
 
-    const login = (user: string, senha: string) => {
-        signInWithEmailAndPassword(getAuth(), user, senha)
+    const login = async (user: string, senha: string) => {
+        await signInWithEmailAndPassword(getAuth(), user, senha)
         .then((userCredential) => {
             
             setEsperando(false);

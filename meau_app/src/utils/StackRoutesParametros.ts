@@ -11,4 +11,5 @@ export type StackRoutesParametros = {
     ProtectTelas: undefined;
     DrawerRoutes: undefined;
     BoxLogin: undefined;
+    MeusPets: { recarregar: boolean, usuario_id: string };
 };

@@ -18,40 +18,48 @@ export default function AvisoCadastro() {
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>>();
 
     return(
-        <View style={styles.container}>
+        <>
+            <TopBar
+                nome='Cadastro'
+                icone='voltar'
+                irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                cor='#88c9bf'
+            />
+            <View style={styles.container}>
 
-            {fonteCarregada ? (
-                <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
-                    Ops!
-                </Text>
-            ) : (
-                <Text style={ [styles.welcomeText]}>
-                    Ops!
-                </Text>
-            )}
+                {fonteCarregada ? (
+                    <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
+                        Ops!
+                    </Text>
+                ) : (
+                    <Text style={ [styles.welcomeText]}>
+                        Ops!
+                    </Text>
+                )}
 
-            <View style={styles.middleView}>
-                <Text style={styles.middleText}>
-                    Você não pode realizar esta ação sem {'\n'}
-                    possuir um cadastro.
-                </Text>
-            </View>
+                <View style={styles.middleView}>
+                    <Text style={styles.middleText}>
+                        Você não pode realizar esta ação sem {'\n'}
+                        possuir um cadastro.
+                    </Text>
+                </View>
+                    
+                <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
+                    <BotaoUsual texto='FAZER CADASTRO' marginTop={52}/>
+                </TouchableOpacity>
+
+                <View style={[styles.middleView, {marginTop: 44}]}>
+                    <Text style={styles.middleText}>
+                        Já possui cadastro?
+                    </Text>
+                </View>
                 
-            <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
-                <BotaoUsual texto='FAZER CADASTRO' marginTop={52}/>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
+                    <BotaoUsual texto='FAZER LOGIN' marginTop={16}/>
+                </TouchableOpacity>
 
-            <View style={[styles.middleView, {marginTop: 44}]}>
-                <Text style={styles.middleText}>
-                    Já possui cadastro?
-                </Text>
             </View>
-            
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
-                <BotaoUsual texto='FAZER LOGIN' marginTop={16}/>
-            </TouchableOpacity>
-
-        </View>
+        </>
     );
 
 

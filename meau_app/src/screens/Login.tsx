@@ -23,6 +23,14 @@ export default function Login({navigation} : LoginProps) {
 
     return(
         <TouchableWithoutFeedback onPress={fecharTeclado} >
+            <>
+                <TopBar
+                    nome='Login'
+                    icone='voltar'
+                    irParaPagina={() => navigation.goBack()}
+                    cor='#88c9bf'
+                />
+            
             <View style={styles.container}>
                 
 
@@ -39,6 +47,8 @@ export default function Login({navigation} : LoginProps) {
                 </TouchableOpacity>
 
             </View>
+            
+            </>
         </TouchableWithoutFeedback>
     )
 

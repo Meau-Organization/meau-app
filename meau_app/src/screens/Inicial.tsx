@@ -23,7 +23,6 @@ type InicialProps = {
 
 export default function Inicial({ navigation } : InicialProps) {
 
-    const navig = useNavigation();
 
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
@@ -73,6 +72,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
         signOut(auth)
             .then(() => {
+                setUserEstado(false);
                 console.log('Usuario Saiu');
             })
             .catch((error) => {
@@ -105,11 +105,11 @@ export default function Inicial({ navigation } : InicialProps) {
 
             <View style={styles.menuCenter}>
                 
-                <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
+                <TouchableOpacity  activeOpacity={0.5}>
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate("AvisoCadastro")}  activeOpacity={0.5}>
+                <TouchableOpacity activeOpacity={0.5}>
                     <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 

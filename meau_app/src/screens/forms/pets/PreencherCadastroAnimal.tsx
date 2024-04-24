@@ -1,4 +1,4 @@
-import {Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image}from 'react-native'
+import {Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Modal}from 'react-native'
 import Constants from 'expo-constants';
 
 import { TopBar } from '../../../components/TopBar';
@@ -13,9 +13,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useEffect, useState } from 'react';
 
-import { auth, onAuthStateChanged } from '../../../configs/firebaseConfig';
+import { getAuth, onAuthStateChanged, db, addDoc, collection } from '../../../configs/firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import AvisoCadastro from '../../AvisoCadastro';
+import ModalLoanding from '../../../components/ModalLoanding';
+
+
 
 
 type MeusPetsProps = {
@@ -25,8 +28,28 @@ type MeusPetsProps = {
 
 export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
-    const [logado, setLogado] = useState(false);
+    const [modal, setModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+
     const [esperando, setEsperando] = useState(true);
+
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+
+        const user = getAuth().currentUser;
+
+        setCurrentUser(user);
+        
+        if (user) {
+            setEsperando(false);
+            console.log("Logado - Pagina Preencher Cadastro Animal");
+        } else {
+            setEsperando(false);
+            console.log("Off - Pagina Preencher Cadastro Animal");
+        }
+
+    }, []);
 
     const [nomeAnimal,          setNomeAnimal]          = useState('');
     const [especie,             setEspecie]             = useState('');
@@ -43,124 +66,168 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
 
-    // console.log("especie: " + especie);
-    // console.log("idade: " + idade);
-    //console.log("lista temperamento: " + temperamento);
+    const novoAnimal = async () => {
+        try {
 
-    useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setLogado(true);
+            const usuario = currentUser;
 
-                setEsperando(false);
+            if (usuario) {
+                console.log('Usuario novo animal');
+                const userCollectionRef = collection(db, 'Animals');
+                console.log(userCollectionRef);
 
-                console.log("Logado");
+                const docRef = await addDoc(userCollectionRef, {
+                    nomeAnimal: nomeAnimal,
+                    especie: especie,
+                    sexo: sexo,
+                    porte: porte,
+                    idade: idade,
+                    temperamento: temperamento,
+                    saude: saude,
+                    doencasAnimal: doencasAnimal,
+                    sobreAnimal: sobreAnimal,
+                    termosAdocao: termosAdocao.length == 0 ? false : true,
+                    exigenciaFotosCasa: exigenciaFotosCasa.length == 0 ? false : true,
+                    visitaPrevia: visitaPrevia.length == 0 ? false : true,
+                    tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
+                    usuario_id: usuario.uid,
+                    
+                });
+                console.log(docRef.id);
+                setLoading(false);
+                navigation.navigate('CadastroAnimal');
+
             } else {
-                setLogado(false);
-                setEsperando(false);
-                console.log("SAIU " + esperando + " " + logado);
+                setLoading(false);
+                console.log('Nenhum usuário autenticado.');
             }
-        });
+            
+        } catch (error) {
+            setLoading(false);
+            console.error("Erro ao adicionar animal:", error);
+        }
 
-    }, []);
+    }
 
-    if (logado) {
+    const cadastrarAnimal = () => {
+        setModal(true);
+        novoAnimal();
+    }
+
+    
+
+    if (currentUser) {
 
         return(
-            <ScrollView >
-                <View style = {styles.container}>
-
-                    <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
-                    <TextInput style = {styles.textName} onChangeText={setNomeAnimal}> Nome do Animal </TextInput>
-                    <View style = {styles.containerName}></View>
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
-                    <View style = {styles.imageButtonContainer}> 
-                        <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
-                            <Image
-                                source={require('../../../assets/images/botao_adicionar.png')}
-                                style={styles.imageAddButton}
-                                />
-                            <Text style ={styles.textButton}> Adicionar foto</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo vetor_opcoes={['Cachorro', 'Gato']} setEstadoDoPai={setEspecie}/>
-                    </View> 
-                    
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SEXO</Text>
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo vetor_opcoes={['Macho', 'Fêmea']} setEstadoDoPai={setSexo}/>
-                    </View> 
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>PORTE</Text>   
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo vetor_opcoes={['Pequeno', 'Médio', 'Grande']} setEstadoDoPai={setPorte}/>
-                    </View> 
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>IDADE</Text>   
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelRedondo vetor_opcoes={['Filhote', 'Adulto', 'Idoso']} setEstadoDoPai={setIdade}/>
-                    </View> 
-
-                   <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>TEMPERAMENTO</Text>
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Brincalhão', 'Tímido', 'Calmo', 'Guarda', 'Amoroso', 'Preguiçoso']} setEstadoDoPai={setTemperamento}/>
-                    </View>
+            <>
+                <TopBar
+                    nome='Cadastro do Animal'
+                    icone='voltar'
+                    irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                    cor='#ffd358'
+                />
+                <ScrollView >
 
                     
-                    
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SAÚDE</Text>
-                    <View style = {styles.containerBotaoMarcavel} >
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Vacinado', 'Vermifugado', 'Castrado', 'Doente']} setEstadoDoPai={setSaude}/>
-                    </View>
 
-                    <TextInput style = {styles.textName}  onChangeText={setDoencasAnimal}> Doenças do animal</TextInput>
-                    <View style = {styles.containerName}></View>
+                    <View style = {styles.container}>
 
+                        <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
 
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
+                        <TextInput style = {styles.textName} onChangeText={setNomeAnimal}> Nome do Animal </TextInput>
+                        <View style = {styles.containerName}></View>
 
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>EXIGÊNCIAS PARA ADOÇÃO</Text>
-                    <View style = {styles.containerBotaoMarcavelColumn} >
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Termo de adoção']} setEstadoDoPai={setTermosAdocao} width={150}/>
-
-                        <View style = {{width: 59}}></View>
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Fotos da casa']} setEstadoDoPai={setExigenciaFotosCasa}  width={130}/>
-                        
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Visita pérvia ao animal']} setEstadoDoPai={setVisitaPrevia}  width={180}/>
-                        
-                        <View style = {{width: 35}}></View>
-                        <BotaoMarcavelQuadrado vetor_opcoes={['Acompanhamento pós adoção']} setEstadoDoPai={setAcompanhamento}  width={230}/>
-                        
-                            <View style = {styles.containerBotaoMarcavelColumn1}>
-                                <BotaoMarcavelRedondo vetor_opcoes={['1 mês', '3 meses', '6 meses']} setEstadoDoPai={setTempoAcompanhamento}
-                                    marginBottom={28}
-                                    borderRadius={4}
-                                    acompanhamentoTam={acompanhamento.length}
-                                />
-                            </View>
-
-                    </View> 
-
-                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>SOBRE O ANIMAL</Text>
-
-                    <TextInput style = {styles.textName} onChangeText={setSobreAnimal}> Compatilhe a história do animal </TextInput>
-                    <View style = {styles.containerName}></View>
-
-                    <TouchableOpacity onPress={() => navigation.navigate('CadastroAnimal')}  activeOpacity={0.5}>
-                        <View style = {{alignItems: 'center'}}>
-                            <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} marginBottom={24} raio={4}></BotaoUsual>
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
+                        <View style = {styles.imageButtonContainer}> 
+                            <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+                                <Image
+                                    source={require('../../../assets/images/botao_adicionar.png')}
+                                    style={styles.imageAddButton}
+                                    />
+                                <Text style ={styles.textButton}> Adicionar foto</Text>
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
-                
-                </View>
-            </ScrollView>   
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelRedondo vetor_opcoes={['Cachorro', 'Gato']} setEstadoDoPai={setEspecie}/>
+                        </View>
+                        
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SEXO</Text>
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelRedondo vetor_opcoes={['Macho', 'Fêmea']} setEstadoDoPai={setSexo}/>
+                        </View> 
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>PORTE</Text>   
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelRedondo vetor_opcoes={['Pequeno', 'Médio', 'Grande']} setEstadoDoPai={setPorte}/>
+                        </View> 
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>IDADE</Text>   
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelRedondo vetor_opcoes={['Filhote', 'Adulto', 'Idoso']} setEstadoDoPai={setIdade}/>
+                        </View> 
+
+                    <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>TEMPERAMENTO</Text>
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Brincalhão', 'Tímido', 'Calmo', 'Guarda', 'Amoroso', 'Preguiçoso']} setEstadoDoPai={setTemperamento}/>
+                        </View>
+
+                        
+                        
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>SAÚDE</Text>
+                        <View style = {styles.containerBotaoMarcavel} >
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Vacinado', 'Vermifugado', 'Castrado', 'Doente']} setEstadoDoPai={setSaude}/>
+                        </View>
+
+                        <TextInput style = {styles.textName}  onChangeText={setDoencasAnimal}> Doenças do animal</TextInput>
+                        <View style = {styles.containerName}></View>
+
+
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>EXIGÊNCIAS PARA ADOÇÃO</Text>
+                        <View style = {styles.containerBotaoMarcavelColumn} >
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Termo de adoção']} setEstadoDoPai={setTermosAdocao} width={150}/>
+
+                            <View style = {{width: 59}}></View>
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Fotos da casa']} setEstadoDoPai={setExigenciaFotosCasa}  width={130}/>
+                            
+                            <View style = {{width: 35}}></View>
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Visita pérvia ao animal']} setEstadoDoPai={setVisitaPrevia}  width={180}/>
+                            
+                            <View style = {{width: 35}}></View>
+                            <BotaoMarcavelQuadrado vetor_opcoes={['Acompanhamento pós adoção']} setEstadoDoPai={setAcompanhamento}  width={230}/>
+                            
+                                <View style = {styles.containerBotaoMarcavelColumn1}>
+                                    <BotaoMarcavelRedondo vetor_opcoes={['1 mês', '3 meses', '6 meses']} setEstadoDoPai={setTempoAcompanhamento}
+                                        marginBottom={28}
+                                        borderRadius={4}
+                                        acompanhamentoTam={acompanhamento.length}
+                                    />
+                                </View>
+
+                        </View> 
+
+                        <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>SOBRE O ANIMAL</Text>
+
+                        <TextInput style = {styles.textName} onChangeText={setSobreAnimal}> Compatilhe a história do animal </TextInput>
+                        <View style = {styles.containerName}></View>
+
+                        <TouchableOpacity onPress={cadastrarAnimal}  activeOpacity={0.5}>
+                            <View style = {{alignItems: 'center'}}>
+                                <BotaoUsual texto="COLOCAR PARA ADOÇÃO " marginTop = {24} marginBottom={24} raio={4}></BotaoUsual>
+                            </View>
+                        </TouchableOpacity>
+
+                        <Modal visible={loading && modal} animationType='fade' transparent={true}>
+                            <ModalLoanding spinner={loading} />
+                        </Modal>
+                    
+                    </View>
+                </ScrollView>   
+            </>
         )
 
     } else {

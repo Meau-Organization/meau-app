@@ -1,11 +1,15 @@
 import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
-import { Entypo } from '@expo/vector-icons';
 import React, {useState} from 'react';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 import {getAuth, createUserWithEmailAndPassword, db, setDoc, doc} from '../../../configs/firebaseConfig';
+import { TopBar } from '../../../components/TopBar';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
+import { useNavigation } from '@react-navigation/native';
 
 export default function CadastroPessoal(){
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
   
     const [nome, setNome] = useState('');
     const [idade, setIdade] = useState('');
@@ -59,95 +63,103 @@ export default function CadastroPessoal(){
 
 
   return(
-    
-    <View style = {styles.container}>
-      <ScrollView>
+    <>
+      <TopBar
+          nome='Cadastro'
+          icone='voltar'
+          irParaPagina={() => navigation.goBack()}
+          cor='#88c9bf'
+      />
+      
+      <View style = {styles.container}>
+        <ScrollView>
 
-        <View style = {styles.messageView}> 
-          <Text style = {styles.message}> As informações preenchidas serão divulgadas apenas para 
-            a pessoa com a qual você realizar o processo de adoção e/ou apadrinhamento, 
-            após a formalização do processo.
-          </Text>
-        </View>
+          <View style = {styles.messageView}> 
+            <Text style = {styles.message}> As informações preenchidas serão divulgadas apenas para 
+              a pessoa com a qual você realizar o processo de adoção e/ou apadrinhamento, 
+              após a formalização do processo.
+            </Text>
+          </View>
 
-        <Text style = {styles.info}> Informações Pessoais</Text>
+          <Text style = {styles.info}> Informações Pessoais</Text>
 
-       
-          
-        <TextInput style = {styles.textName} onChangeText={setNome}> Nome </TextInput>
-        <View style = {styles.containerName}>
-          
-        </View>
-          
-        <TextInput style = {styles.textName} onChangeText={setIdade}> Idade </TextInput>
-        <View style = {styles.containerName}>
-            
-        </View>
-
-        <TextInput style = {styles.textName} onChangeText={setEmail}> E-mail </TextInput>  
-        <View style = {styles.containerName}>
-            
-        </View>
-
-        <TextInput style = {styles.textName} onChangeText={setEstado}> Estado </TextInput>  
-        <View style = {styles.containerName}>
-            
-        </View>
-
-        <TextInput style = {styles.textName} onChangeText={setCidade}> Cidade </TextInput>
-        <View style = {styles.containerName}>
-            
-        </View>
-          
-        <TextInput style = {styles.textName} onChangeText={setLogradouro}> Logradouro </TextInput>
-        <View style = {styles.containerName}>
-            
-        </View>
-
-        <TextInput style = {styles.textName} onChangeText={setTelefone}> Telefone </TextInput>
-        <View style = {styles.containerName}>
-            
-            
-        </View>
         
-
-        <Text style = {styles.info}> Informações de Perfil</Text>
-
-        <TextInput style = {styles.textName} onChangeText={setUsername}> Nome de usuário </TextInput>
-        <View style = {styles.containerName}>
             
-        </View>
-        
-        <TextInput style = {styles.textName} secureTextEntry onChangeText={setSenha}> Senha </TextInput>
-        <View style = {styles.containerName}>
+          <TextInput style = {styles.textName} onChangeText={setNome}> Nome </TextInput>
+          <View style = {styles.containerName}>
             
-        </View>
-
-        <TextInput style = {styles.textName}> Confirmação de senha </TextInput>
-        <View style = {styles.containerName}>
+          </View>
             
-        </View>
+          <TextInput style = {styles.textName} onChangeText={setIdade}> Idade </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
 
-        <Text style = {styles.info}> Foto de Perfil</Text>
+          <TextInput style = {styles.textName} onChangeText={setEmail}> E-mail </TextInput>  
+          <View style = {styles.containerName}>
+              
+          </View>
 
-        <View style = {styles.imageButtonContainer}> 
-          <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
-            <Image
-              source={require('../../../assets/images/botao_adicionar.png')}
-              style={styles.imageAddButton}
-            />
-            <Text style ={styles.textButton}> Adicionar foto</Text>
-          </TouchableOpacity>
-        </View>
+          <TextInput style = {styles.textName} onChangeText={setEstado}> Estado </TextInput>  
+          <View style = {styles.containerName}>
+              
+          </View>
 
-        <View>
-          <TouchableOpacity style = {styles.loginButton} disabled = {isLoading} onPress={cadastrarNovaConta}>
-            <Text >Fazer Cadastro</Text>
-          </TouchableOpacity>
-        </View>
+          <TextInput style = {styles.textName} onChangeText={setCidade}> Cidade </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
+            
+          <TextInput style = {styles.textName} onChangeText={setLogradouro}> Logradouro </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
 
-      </ScrollView>  
-    </View>
+          <TextInput style = {styles.textName} onChangeText={setTelefone}> Telefone </TextInput>
+          <View style = {styles.containerName}>
+              
+              
+          </View>
+          
+
+          <Text style = {styles.info}> Informações de Perfil</Text>
+
+          <TextInput style = {styles.textName} onChangeText={setUsername}> Nome de usuário </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
+          
+          <TextInput style = {styles.textName} secureTextEntry onChangeText={setSenha}> Senha </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
+
+          <TextInput style = {styles.textName}> Confirmação de senha </TextInput>
+          <View style = {styles.containerName}>
+              
+          </View>
+
+          <Text style = {styles.info}> Foto de Perfil</Text>
+
+          <View style = {styles.imageButtonContainer}> 
+            <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+              <Image
+                source={require('../../../assets/images/botao_adicionar.png')}
+                style={styles.imageAddButton}
+              />
+              <Text style ={styles.textButton}> Adicionar foto</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity style = {styles.loginButton} disabled = {isLoading} onPress={cadastrarNovaConta}>
+              <Text >Fazer Cadastro</Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>  
+      </View>
+    </>
   )
 }
 

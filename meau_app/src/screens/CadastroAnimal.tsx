@@ -6,24 +6,30 @@ import { fonteCarregada } from "../utils/FontsLoad";
 
 import Constants from 'expo-constants';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
 
-type StackRoutesParametros = {
-    CadastroAnimal : undefined;
-    Login : undefined;
-};
+import { getAuth } from '../configs/firebaseConfig';
+
+export default function CadastroAnimal(){
 
 
-type MeusPetsProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'CadastroAnimal'>;
-};
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "AvisoCadastro">>();
 
-
-export default function CadastroAnimal({ navigation } : MeusPetsProps){
     return(
 
         <TouchableWithoutFeedback>
+            <>
+            <TopBar
+                    nome='Cadastro do Animal'
+                    icone='voltar'
+                    irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                    cor='#ffd358'
+                />
             <View style = {styles.container}>
+
+                
 
                 <Text style = {styles.title}> EBA!</Text>
 
@@ -36,11 +42,22 @@ export default function CadastroAnimal({ navigation } : MeusPetsProps){
                     em contato!
                 </Text>
 
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
+
+                <TouchableOpacity
+                    onPress={
+                        () => navigation.navigate('MeusPets', {
+                            recarregar: true,
+                            usuario_id: getAuth().currentUser ? getAuth().currentUser.uid : '',
+                        })
+                    }
+                    activeOpacity={0.5}
+                >
+
                     <BotaoUsual texto="Meus Pets" marginTop={250} cor='#ffd358'/>
                 </TouchableOpacity>
 
             </View>
+            </>
         
         </TouchableWithoutFeedback>    
     )
