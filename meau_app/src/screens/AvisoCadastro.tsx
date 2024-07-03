@@ -12,19 +12,30 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useNavigation } from "@react-navigation/native";
 
+interface AvisoCadastroProps {
+    topbar: boolean
+}
 
-export default function AvisoCadastro() {
+
+export default function AvisoCadastro( { topbar } : AvisoCadastroProps ) {
+
+    //alert(topbar);
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>>();
 
     return(
         <>
-            <TopBar
-                nome='Cadastro'
-                icone='voltar'
-                irParaPagina={() => navigation.navigate("DrawerRoutes")}
-                cor='#88c9bf'
-            />
+            {topbar ? (
+                    <TopBar
+                        nome='Cadastro'
+                        icone='voltar'
+                        irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                        cor='#88c9bf'
+                    />
+                ) : (
+                    <></>
+                )}
+            
             <View style={styles.container}>
 
                 {fonteCarregada ? (

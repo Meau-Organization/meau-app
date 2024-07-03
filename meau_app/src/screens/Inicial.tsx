@@ -102,9 +102,9 @@ export default function Inicial({ navigation } : InicialProps) {
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 
-                <TouchableOpacity activeOpacity={0.5}>
+                {/* <TouchableOpacity activeOpacity={0.5}>
                     <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity onPress={() => navigation.navigate("PreencherCadastroAnimal")}  activeOpacity={0.5}>
                     <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>

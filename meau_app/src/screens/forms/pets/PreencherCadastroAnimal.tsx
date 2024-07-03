@@ -229,7 +229,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
         if (esperando) 
             return null;
         else
-            return <AvisoCadastro/>;
+            return <AvisoCadastro topbar={true} />;
     }
 }
 

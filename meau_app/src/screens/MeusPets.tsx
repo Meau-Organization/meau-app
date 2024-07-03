@@ -2,13 +2,13 @@ import { FlatList, Modal, StyleSheet, Text, View } from "react-native";
 import Constants from 'expo-constants';
 
 import { getAuth, db, collection, query, where, getDocs } from '../configs/firebaseConfig';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ModalLoanding from "../components/ModalLoanding";
+import { useFocusEffect } from "@react-navigation/native";
+import AvisoCadastro from "./AvisoCadastro";
 
 
-export default function MeusPets({ route }) { 
-
-    let { recarregar, usuario_id } = route.params;
+export default function MeusPets() {
 
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -42,57 +42,79 @@ export default function MeusPets({ route }) {
         }
     };
 
+    const [currentUser, setCurrentUser] = useState(null);
+    const [esperando, setEsperando] = useState(true);
 
-    useEffect(() => {
-        const user = getAuth().currentUser;
-
-        if (user) {
-            console.log("Logado - Pagina Meus Pets");
-            buscarMeusPets(user.uid);
-
-        } else {
+    useFocusEffect(
+        useCallback(() => {
             
-            console.log("SAIU");
-        }
+            const user = getAuth().currentUser;
 
-    }, []);
+            setCurrentUser(user);
 
-    return(
-        
-        <View>
-            <Text>{recarregar ? 'Recarregar' : ''}</Text>
-            
-            <FlatList
-            
-                data={meusPets}
+            if (user) {
+                setEsperando(false);
+                console.log("Logado - Pagina Meus Pets");
+                buscarMeusPets(user.uid);
 
-                keyExtractor={item => item.id.toString()}
+            } else {
+                setEsperando(false);
+                console.log("SAIU");
+            }
 
-                renderItem={({ item }) => (
-                    <View  style={{marginTop: 10, borderWidth: 1}}>
-                        <Text>Nome: {item.nomeAnimal}</Text>
-                        <Text>Epecie: {item.especie}</Text>
-                        <Text>Sexo: {item.sexo}</Text>
-                        <Text>Porte: {item.porte}</Text>
-                        <Text>Idade: {item.idade}</Text>
-                        <Text>Temperamento: {item.temperamento.join(', ')}</Text>
-                        <Text>Saúde: {item.saude.join(', ')}</Text>
-                        <Text>Doenças: {item.doencasAnimal}</Text>
-                        <Text>Sobre: {item.sobreAnimal}</Text>
-                        <Text>Termos de Adoção: {item.termosAdocao}</Text>
-                        <Text>Fotos da Casa: {item.exigenciaFotosCasa}</Text>
-                        <Text>Visita Prévia ao animal: {item.visitaPrevia}</Text>
-                        <Text>Tempo de Acompanhamento: {item.tempoAcompanhamento}</Text>
-                        
-                    </View>
-                )}
-            />
-            
-            <Modal visible={loading && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={loading} />
-            </Modal>
-        </View>
+            return () => {
+                //console.log('Tela perdeu foco');
+                setLoading(true);
+            };
+
+        }, [])
     );
+
+    if (currentUser) {
+
+        return(
+            
+            <View>
+                
+                <FlatList
+                
+                    data={meusPets}
+
+                    keyExtractor={item => item.id.toString()}
+
+                    renderItem={({ item }) => (
+                        <View  style={{marginTop: 10, borderWidth: 1}}>
+                            <Text>Nome: {item.nomeAnimal}</Text>
+                            <Text>Epecie: {item.especie}</Text>
+                            <Text>Sexo: {item.sexo}</Text>
+                            <Text>Porte: {item.porte}</Text>
+                            <Text>Idade: {item.idade}</Text>
+                            <Text>Temperamento: {item.temperamento.join(', ')}</Text>
+                            <Text>Saúde: {item.saude.join(', ')}</Text>
+                            <Text>Doenças: {item.doencasAnimal}</Text>
+                            <Text>Sobre: {item.sobreAnimal}</Text>
+                            <Text>Termos de Adoção: {item.termosAdocao}</Text>
+                            <Text>Fotos da Casa: {item.exigenciaFotosCasa}</Text>
+                            <Text>Visita Prévia ao animal: {item.visitaPrevia}</Text>
+                            <Text>Tempo de Acompanhamento: {item.tempoAcompanhamento}</Text>
+                            
+                        </View>
+                    )}
+                />
+                
+                <Modal visible={loading && modal} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={loading} />
+                </Modal>
+            </View>
+        );
+
+    } else {
+        if (esperando) 
+            return null;
+        else
+            return <AvisoCadastro topbar={false} />;
+
+    }
 
 }
 

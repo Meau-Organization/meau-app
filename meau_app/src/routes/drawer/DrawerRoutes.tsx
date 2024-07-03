@@ -83,7 +83,7 @@ export default function DrawerRoutes() {
                         drawerLabel: 'Meus Pets',
                         drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
                     }}
-                    initialParams={{ recarregar: false, usuario_id: '' }}
+                    //initialParams={{ recarregar: false, usuario_id: '' }}
                 />
 
             </Drawer.Navigator>

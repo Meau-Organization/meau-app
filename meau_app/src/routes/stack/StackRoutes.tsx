@@ -9,6 +9,7 @@ import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroA
 
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import DrawerRoutes from '../drawer/DrawerRoutes';
+import MeusPets from '../../screens/MeusPets';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     

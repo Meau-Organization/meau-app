@@ -14,7 +14,7 @@ import { getAuth } from '../configs/firebaseConfig';
 export default function CadastroAnimal(){
 
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "AvisoCadastro">>();
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "CadastroAnimal">>();
 
     return(
 
