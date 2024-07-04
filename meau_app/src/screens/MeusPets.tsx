@@ -10,13 +10,12 @@ import AvisoCadastro from "./AvisoCadastro";
 
 export default function MeusPets() {
 
-    const [modal, setModal] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [modal, setModal] = useState(true);
 
     const [meusPets, setMeusPets]  = useState([]);
 
     const buscarMeusPets = async (usuario_id : string) => {
-        setModal(true);
+
         try {
             const animalsRef = collection(db, 'Animals');
 
@@ -32,12 +31,10 @@ export default function MeusPets() {
 
             setMeusPets(meus_pets);
 
-            setLoading(false);
-            setModal(false);
+            setEsperando(false);
 
         } catch(error) {
-            setLoading(false);
-            setModal(false);
+            setEsperando(false);
             console.log(error);
         }
     };
@@ -53,7 +50,6 @@ export default function MeusPets() {
             setCurrentUser(user);
 
             if (user) {
-                setEsperando(false);
                 console.log("Logado - Pagina Meus Pets");
                 buscarMeusPets(user.uid);
 
@@ -64,13 +60,12 @@ export default function MeusPets() {
 
             return () => {
                 //console.log('Tela perdeu foco');
-                setLoading(true);
             };
 
         }, [])
     );
 
-    if (currentUser) {
+    if (currentUser && !esperando) {
 
         return(
             
@@ -102,17 +97,20 @@ export default function MeusPets() {
                     )}
                 />
                 
-                <Modal visible={loading && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={loading} />
-                </Modal>
             </View>
         );
 
     } else {
-        if (esperando) 
-            return null;
-        else
+        if (esperando) {
+            return (
+                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={esperando} />
+                </Modal>
+            );
+
+        } else {
             return <AvisoCadastro topbar={false} />;
+        }
 
     }
 

@@ -8,7 +8,7 @@ import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndP
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-import { getFirestore, addDoc, setDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, addDoc, getDoc, setDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -31,7 +31,7 @@ const db = getFirestore(app);
   
 export {
     getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, db,
-    addDoc, setDoc, doc, collection, query, where, getDocs
+    addDoc, getDoc, setDoc, doc, collection, query, where, getDocs
 };
 
 if (app && auth) {

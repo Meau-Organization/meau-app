@@ -1,332 +1,409 @@
-import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
-import React, {useState} from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert, Modal } from 'react-native'
+import React, { useState } from 'react';
 
-import {getAuth, createUserWithEmailAndPassword, db, setDoc, doc} from '../../../configs/firebaseConfig';
+import { getAuth, createUserWithEmailAndPassword, db, setDoc, doc } from '../../../configs/firebaseConfig';
 import { TopBar } from '../../../components/TopBar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useNavigation } from '@react-navigation/native';
 
+import Feather from '@expo/vector-icons/Feather';
+
 import * as ImagePicker from 'expo-image-picker';
+import useVetorBool from '../../../hooks/useVetorBool';
 
-export default function CadastroPessoal(){
+import { validarFinal, onChangeSenhaConfirm, onChangeSenha, validarEmail, onChangeGenerico, mostrarIconeCheckFunc, alertaErros } from '../../../utils/Valida';
+import BotaoUsual from '../../../components/BotaoUsual';
+import ModalLoanding from '../../../components/ModalLoanding';
 
-  const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
+export default function CadastroPessoal() {
 
-  const [image, setImage] = useState(null);
-  const [nome, setNome] = useState('');
-  const [idade, setIdade] = useState('');
-  const [email, setEmail] = useState('');
-  const [estado, setEstado] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [Logradouro, setLogradouro] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [username, setUsername] = useState('');
-  const [senha, setSenha] = useState('');
-  const [isLoading, setIsLoadign] = useState(false);
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
 
+    const [image, setImage] = useState(null);
 
-  const auth = getAuth();
+    const [nome, setNome] = useState('');                   const idNome = 0;
+    const [idade, setIdade] = useState('');                 const idIdade = 1;
+    const [email, setEmail] = useState('');                 const idEmail = 2;
+    const [estado, setEstado] = useState('');               const idEstado = 3;
+    const [cidade, setCidade] = useState('');               const idCidade = 4;
+    const [endereco, setEndereco] = useState('');           const idEndereco = 5;
+    const [telefone, setTelefone] = useState('');           const idTelefone = 6;
+    const [username, setUsername] = useState('');           const idUsername = 7;
+    const [senha, setSenha] = useState('');                 const idSenha = 8;
+    const [senhaConfirm, setSenhaConfirm] = useState('');   const idSenhaConfirm = 9;
 
-  async function cadastrarNovaConta() {
-    setIsLoadign(true);
+    const [isLoading, setIsLoadign] = useState(false);
+    const [modal, setModal] = useState(true);
 
-    try{
-      await createUserWithEmailAndPassword(getAuth(), email, senha)
-        .then(() => {
-          Alert.alert("Conta", "cadastrada com sucesso");
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsLoadign(false);
-      });
+    // -------------------------------------------------------------------------------------------------------------------------------
+    const [validar, setValidar] = useState(false);
+    const [vetorBoolCheckIcone, AlternarCheckIcone ] = useVetorBool(10);
+    const [vetorBoolFoco, AlternarFoco] = useVetorBool(10);
+    const [vetorBoolError, AlternarError] = useVetorBool(10);
 
-      const usuario = getAuth().currentUser;
-
-      if (usuario) {
-        const docRef = await setDoc(doc(db, "Users", usuario.uid), {
-        nome: nome,
-        idade: idade,
-        email: email,
-        estado: estado,
-        cidade: cidade, 
-        logradouro: Logradouro,
-        telefone: telefone,
-        username: username,
-        senha: senha
-        });
-        // console.log("Document written with ID: ", docRef.id);
-      }
-
-    }catch(e){
-      console.error("Erro para adicionar usuário:", e);
-    }
-  };
-
-  const pickImage = async () => {
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-
-  return(
-    <>
-      <TopBar
-          nome='Cadastro'
-          icone='voltar'
-          irParaPagina={() => navigation.goBack()}
-          cor='#88c9bf'
-      />
-      
-      <View style = {styles.container}>
-        <ScrollView>
-
-          <View style = {styles.messageView}> 
-            <Text style = {styles.message}> As informações preenchidas serão divulgadas apenas para 
-              a pessoa com a qual você realizar o processo de adoção e/ou apadrinhamento, 
-              após a formalização do processo.
-            </Text>
-          </View>
-
-          <Text style = {styles.info}> Informações Pessoais</Text>
-
+    type SetStateFunction<String> = React.Dispatch<React.SetStateAction<string>>;
+    function onChangeGenericoBase<String> (setFuncao: SetStateFunction<String>, novoTexto: string, checkid: number) {
         
-            
-          <TextInput style = {styles.textName} onChangeText={setNome}> Nome </TextInput>
-          <View style = {styles.containerName}>
-            
-          </View>
-            
-          <TextInput style = {styles.textName} onChangeText={setIdade}> Idade </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
+        onChangeGenerico(
+            setFuncao, novoTexto, checkid, vetorBoolCheckIcone, vetorBoolError,
+            AlternarCheckIcone, AlternarError);
+    }
+    const onChangeSenhaConfirmBase = (novoTexto : string) => {
+        onChangeSenhaConfirm(
+            senha, idSenhaConfirm, novoTexto, setSenhaConfirm,
+            vetorBoolCheckIcone, vetorBoolError, AlternarCheckIcone,
+            AlternarError,
+        )
+    }
+    const onChangeSenhaBase = (novoTexto : string) => {
+        onChangeSenha(
+            senha, senhaConfirm, idSenhaConfirm, idSenha, novoTexto,
+            setSenha, vetorBoolCheckIcone, vetorBoolError, AlternarCheckIcone,
+            AlternarError
+        );
+    }
+    // -------------------------------------------------------------------------------------------------------------------------------
+    
 
-          <TextInput style = {styles.textName} onChangeText={setEmail}> E-mail </TextInput>  
-          <View style = {styles.containerName}>
-              
-          </View>
+    const auth = getAuth();
 
-          <TextInput style = {styles.textName} onChangeText={setEstado}> Estado </TextInput>  
-            <View style = {styles.containerName}>
-          </View>
+    async function cadastrarNovaConta() {
+        setIsLoadign(true);
+        
+        if ( !validarFinal(senha, senhaConfirm, setValidar, vetorBoolCheckIcone) ) {
 
-          <TextInput style = {styles.textName} onChangeText={setCidade}> Cidade </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
-            
-          <TextInput style = {styles.textName} onChangeText={setLogradouro}> Logradouro </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
+            try {
+                await createUserWithEmailAndPassword(getAuth(), email, senha)
+                    .then(() => {
+                        Alert.alert("Conta", "cadastrada com sucesso");
+                        navigation.navigate("DrawerRoutes");
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    })
+                    .finally(() => {
+                        setIsLoadign(false);
+                    });
 
-          <TextInput style = {styles.textName} onChangeText={setTelefone}> Telefone </TextInput>
-          <View style = {styles.containerName}>
-              
-              
-          </View>
-          
+                const usuario = getAuth().currentUser;
 
-          <Text style = {styles.info}> Informações de Perfil</Text>
+                if (usuario) {
+                    const docRef = await setDoc(doc(db, "Users", usuario.uid), {
+                        nome: nome,
+                        idade: idade,
+                        email: email,
+                        estado: estado,
+                        cidade: cidade,
+                        endereco: endereco,
+                        telefone: telefone,
+                        username: username,
+                    });
+                    // console.log("Document written with ID: ", docRef.id);
+                }
 
-          <TextInput style = {styles.textName} onChangeText={setUsername}> Nome de usuário </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
-          
-          <TextInput style = {styles.textName} secureTextEntry onChangeText={setSenha}> Senha </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
+            } catch (e) {
+                console.error("Erro para adicionar usuário:", e);
+            }
+        } else {
+            console.log("dados incompletos");
 
-          <TextInput style = {styles.textName}> Confirmação de senha </TextInput>
-          <View style = {styles.containerName}>
-              
-          </View>
+            alertaErros(senha, senhaConfirm, email);
+            setIsLoadign(false);
+        }
+    };
 
-          <Text style = {styles.info}> Foto de Perfil</Text>
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+        console.log(result);
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
-          <View style = {styles.imageButtonContainer}> 
-            <TouchableOpacity style = {styles.imageButton} onPress={pickImage}>
-              {image && <Image source={{ uri: image }} style={styles.image} />}
-              <Image
-                
-                source={require('../../../assets/images/botao_adicionar.png')}
-                style={styles.imageAddButton}
-              />
-              <Text style ={styles.textButton}> Adicionar foto</Text>
-            </TouchableOpacity>
-          </View>
+    return (
+        <>
+            <TopBar
+                nome='Cadastro'
+                icone='voltar'
+                irParaPagina={() => navigation.goBack()}
+                cor='#88c9bf'
+            />
 
-          <View>
-            <TouchableOpacity style = {styles.loginButton} disabled = {isLoading} onPress={cadastrarNovaConta}>
-              <Text >Fazer Cadastro</Text>
-            </TouchableOpacity>
-          </View>
+            <Modal visible={isLoading && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={isLoading} />
+            </Modal>
 
-        </ScrollView>  
-      </View>
-    </>
-  )
+            <ScrollView>
+                <View style={styles.container}>
+                    
+
+                        <View style={styles.messageView}>
+                            <Text style={styles.message}> As informações preenchidas serão divulgadas apenas para
+                                a pessoa com a qual você realizar o processo de adoção e/ou apadrinhamento,
+                                após a formalização do processo.
+                            </Text>
+                        </View>
+                        
+                        <Text style={styles.info}> Informações Pessoais</Text>
+
+                        <View style={[
+                            styles.inputContainer, { borderColor: vetorBoolFoco[idNome] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idNome] ? styles.inputError : null  : null] }>
+                            
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {nome}
+                                onChangeText = {(nome) => onChangeGenericoBase(setNome, nome, idNome)}
+                                placeholder = "Nome completo"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idNome)}
+                                onBlur = {() => AlternarFoco(idNome)}  
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idNome])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idIdade] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idIdade] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {idade}
+                                onChangeText = {(idade) => onChangeGenericoBase(setIdade, idade, idIdade)}
+                                placeholder = "Idade"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idIdade)}
+                                onBlur = {() => AlternarFoco(idIdade)}  
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idIdade])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idEmail] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idEmail] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {email}
+                                onChangeText = {(email) => onChangeGenericoBase(setEmail, email, idEmail)}
+                                placeholder = "Email"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idEmail)}
+                                onBlur = {() => AlternarFoco(idEmail)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idEmail])}
+                            {vetorBoolError[idEmail] ? <Feather name="x" size={24} color="red" /> : null}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idEstado] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idEstado] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {estado}
+                                onChangeText = {(estado) => onChangeGenericoBase(setEstado, estado, idEstado)}
+                                placeholder = "Estado"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idEstado)}
+                                onBlur = {() => AlternarFoco(idEstado)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idEstado])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idCidade] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idCidade] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {cidade}
+                                onChangeText = {(cidade) => onChangeGenericoBase(setCidade, cidade, idCidade)}
+                                placeholder = "Cidade"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idCidade)}
+                                onBlur = {() => AlternarFoco(idCidade)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idCidade])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idEndereco] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idEndereco] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {endereco}
+                                onChangeText = {(endereco) => onChangeGenericoBase(setEndereco, endereco, idEndereco)}
+                                placeholder = "Endereço"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idEndereco)}
+                                onBlur = {() => AlternarFoco(idEndereco)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idEndereco])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idTelefone] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idTelefone] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {telefone}
+                                onChangeText = {(telefone) => onChangeGenericoBase(setTelefone, telefone, idTelefone)}
+                                placeholder = "Telefone"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idTelefone)}
+                                onBlur = {() => AlternarFoco(idTelefone)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idTelefone])}
+                        </View>
+
+
+                        <Text style={styles.info}> Informações de Perfil</Text>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idUsername] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idUsername] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {username}
+                                onChangeText = {(username) => onChangeGenericoBase(setUsername, username, idUsername)}
+                                placeholder = "Nome de usuário"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idUsername)}
+                                onBlur = {() => AlternarFoco(idUsername)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idUsername])}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idSenha] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idSenha] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                secureTextEntry = {true}
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {senha}
+                                onChangeText = {onChangeSenhaBase}
+                                placeholder = "Senha"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idSenha)}
+                                onBlur = {() => AlternarFoco(idSenha)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idSenha])}
+                            {!vetorBoolCheckIcone[idSenha] ? <Text style={{color: '#bdbdbd', marginLeft: -80, fontSize: 12}}>Min 8 caracteres</Text> : null}
+                        </View>
+
+                        <View style={ [styles.inputContainer, { borderColor: vetorBoolFoco[idSenhaConfirm] ? '#88c9bf' : '#e6e7e8', marginTop: 32 }, validar ? !vetorBoolCheckIcone[idSenhaConfirm] ? styles.inputError : null  : null] }>
+                            <TextInput
+                                secureTextEntry = {true}
+                                style = {{width: 288, marginLeft: 12}}
+                                value = {senhaConfirm}
+                                onChangeText = {onChangeSenhaConfirmBase}
+                                placeholder = "Confirmação de senha"
+                                placeholderTextColor = "#bdbdbd"
+                                onFocus = {() => AlternarFoco(idSenhaConfirm)}
+                                onBlur = {() => AlternarFoco(idSenhaConfirm)}
+                            />
+                            {mostrarIconeCheckFunc(vetorBoolCheckIcone[idSenhaConfirm])}
+                            {vetorBoolError[idSenhaConfirm] ? <Feather name="x" size={24} color="red" /> : null}
+                        </View>
+
+                        <Text style={styles.info}> Foto de Perfil</Text>
+
+                        <View style={styles.imageButtonContainer}>
+                            <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+                                {image && <Image source={{ uri: image }} style={styles.image} />}
+                                <Image
+
+                                    source={require('../../../assets/images/botao_adicionar.png')}
+                                    style={styles.imageAddButton}
+                                />
+                                <Text style={styles.textButton}> Adicionar foto</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity disabled={isLoading} onPress={cadastrarNovaConta}  activeOpacity={0.5}>
+                            <BotaoUsual texto='FAZER CADASTRO' marginTop={32} marginBottom={24} cor='#88c9bf'/>
+                        </TouchableOpacity>
+                    
+                </View>
+            </ScrollView>
+        </>
+    )
 }
 
 const styles = StyleSheet.create({
 
-  container: {
-        flex:1, 
+    container: {
+        flex: 1,
         backgroundColor: '#f9f9f9',
+        alignItems: 'center'
     },
-    menuIcon:{
-      marginTop: 16,
-      marginLeft: 16,
+    messageView: {
+        height: 81,
+        width: 329,
+        backgroundColor: '#cfe8e5',
+        marginTop: 15,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8
     },
-    viewTitle: { 
-      marginTop:30,
-      backgroundColor: '#cfe8e5',
-      width: "100%",
-      height: 57,
-      flex: 1,
-      flexDirection: 'row'
-    },
-    title:{
-      marginLeft: 30,
-      marginTop: 16,
-      fontSize: 20,
-      color: '#434343'
-    },
-    messageView:{
-      height: 81,
-      width:329,
-      backgroundColor: '#cfe8e5',
-      marginTop: 15,
-      alignSelf: 'center',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 8
-    },
-    message:{
-      marginLeft: 35,
-      marginRight: 33, 
-      fontSize: 10,
-      textAlign: 'center',
-  
+    message: {
+        marginLeft: 35,
+        marginRight: 33,
+        fontSize: 10,
+        textAlign: 'center',
+
     },
     info: {
-      marginTop: 24,
-      marginLeft: 24,
-      color: '#589b9b',
-      fontWeight: 'bold',
+        width: 328,
+        marginTop: 28,
+        color: '#589b9b',
+        fontWeight: 'bold',
     },
-    information: {
-      width: 332,
-      height: 480,
-      backgroundColor: '#f9f9f9'
+    imageButtonContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    containerName:{
-      width: 328,
-      height: 0.8,
-      backgroundColor: '#e6e7e8',
-      marginLeft: 16,
-      marginTop: 8,
-      justifyContent: 'flex-start',
-    
+    imageButton: {
+        width: 128,
+        height: 128,
+        borderRadius: 8,
+        backgroundColor: '#e6e7e7',
+        marginTop: 32,
+        padding: 10,
+        alignContent: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 8,
+            height: 8
+        },
+        elevation: 15
     },
-    textName: {
-      marginTop: 32,
-      marginLeft: 28,
-      color: '#bdbdbd',
-      fontSize: 14,
-      fontFamily: 'Roboto'
-    }, 
-    textUsername:{
-      opacity: 0.5,
-      marginTop: 32,
-      marginLeft: 28
+    textButton: {
+        alignSelf: 'center',
+        textAlign: 'center',
+        color: '#757575',
+        fontFamily: 'Roboto',
+        fontSize: 14
     },
-    containerPassword: {
-      width: 328,
-      height: 0.8,
-      backgroundColor: '#e6e7e8',
-      marginLeft: 16
-    },
-    imageButtonContainer:{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    imageButton:{
-      width: 128,
-      height: 128,
-      borderRadius: 8,
-      backgroundColor: '#e6e7e7', 
-      marginTop: 32,
-      padding:10,
-      alignContent: 'center',
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset:{
-        width: 8,
-        height: 8
-      },
-      elevation:15
-    },
-    textButton:{
-      alignSelf: 'center',
-      textAlign: 'center',
-      color: '#757575',
-      fontFamily: 'Roboto',
-      fontSize: 14
-    },
-    imageAddButton:{
-      width: 24,
-      height: 24,
-      resizeMode: "contain",
-      alignSelf: 'center'
-    },
-    loginButton: {
-      marginTop: 32,
-      backgroundColor: '#88c9bf',
-      alignSelf: 'center',
-      justifyContent: 'center',
-      alignItems:'center',
-      width: 232,
-      height: 40,
-      borderRadius: 8,
-      shadowColor: '#000000',
-      shadowOffset:{
-        width: 8,
-        height: 8
-      },
-      elevation: 8,
-      marginBottom:32
+    imageAddButton: {
+        width: 24,
+        height: 24,
+        resizeMode: "contain",
+        alignSelf: 'center'
     },
     image: {
-      width: 128,
-      height: 128,
-      borderRadius: 8,
-      backgroundColor: '#e6e7e7', 
-      marginTop: 32,
-      padding:10,
-      alignContent: 'center',
-      justifyContent: 'center',
-      alignItems: 'center',
+        width: 128,
+        height: 128,
+        borderRadius: 8,
+        backgroundColor: '#e6e7e7',
+        marginTop: 32,
+        padding: 10,
+        alignContent: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    inputContainer: {
+        width: 328,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e6e7e8',
+        flexDirection: 'row',
+        alignItems: 'center',
+        //backgroundColor: 'green'
+    },
+    inputError: {
+        borderColor: 'red',
     },
 
 })
 
-export{CadastroPessoal};
+export { CadastroPessoal };
