@@ -107,18 +107,17 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     }
 
     const cadastrarAnimal =  async () => {
-        const cadastrarAnimal = () => {
-            setModal(true);
-            novoAnimal();
-        }
-    
+        setModal(true);
+        novoAnimal();    
     }
    
     const adicionarImagem = async () => {
         setModal(true);
-        const base64Image = await openImagePickerAsync(abrirCamera);
-        if (base64Image) {
-            setImagemBase64(base64Image);
+        const base64 = await openImagePickerAsync(abrirCamera);
+       
+       console.log("teste"+ base64) 
+        if (base64) {
+            setImagemBase64(base64);
         }
         setModal(false);
     }

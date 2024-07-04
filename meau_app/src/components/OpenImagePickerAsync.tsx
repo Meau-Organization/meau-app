@@ -16,6 +16,7 @@ export const openImagePickerAsync = async (fromCamera) => {
 
     let pickerResult;
     if (fromCamera) {
+       
         pickerResult = await ImagePicker.launchCameraAsync({
             base64: true,
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -23,13 +24,17 @@ export const openImagePickerAsync = async (fromCamera) => {
             quality: 1,
         });
     } else {
+        
         pickerResult = await ImagePicker.launchImageLibraryAsync({
             base64: true,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
         });
     }
 
     if (!pickerResult.cancelled) {
-        return pickerResult.base64;
+        return pickerResult;
     } else {
         return null;
     }
