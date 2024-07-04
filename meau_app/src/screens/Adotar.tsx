@@ -1,36 +1,43 @@
-import { FlatList, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, collection, query, where, getDocs } from '../configs/firebaseConfig';
+import { getAuth, db, doc, getDoc, collection, query, where, getDocs } from '../configs/firebaseConfig';
 import { useCallback, useEffect, useState } from "react";
-import ModalLoanding from "../components/ModalLoanding";
+
 import { useFocusEffect } from "@react-navigation/native";
 import AvisoCadastro from "./AvisoCadastro";
+import ModalLoanding from "../components/ModalLoanding";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import CardAnimal from "../components/CardAnimal";
 
 
-export default function MeusPets() {
+export default function Adotar() {
 
+    //console.log("statusbar: " + Constants.statusBarHeight);
+
+    const [currentUser, setCurrentUser] = useState(null);
+
+    const [esperando, setEsperando] = useState(true);
     const [modal, setModal] = useState(true);
 
-    const [meusPets, setMeusPets]  = useState([]);
+    const [animais, setAnimais]  = useState([]);
 
-    const buscarMeusPets = async (usuario_id : string) => {
+    const buscarAnimais = async () => {
 
         try {
             const animalsRef = collection(db, 'Animals');
 
-            const q = query(animalsRef, where('usuario_id', '==', usuario_id));
+            const q = query(animalsRef);
 
             const snapshot = await getDocs(q);
-            const meus_pets = [];
+            const animais = [];
 
             snapshot.forEach((doc) => {
-                meus_pets.push({ id: doc.id, ...doc.data() });
+                animais.push({ id: doc.id, ...doc.data() });
                 //console.log(doc.id, " => ", doc.data());
             });
 
-            setMeusPets(meus_pets);
+            setAnimais(animais);
 
             setEsperando(false);
 
@@ -40,9 +47,6 @@ export default function MeusPets() {
         }
     };
 
-    const [currentUser, setCurrentUser] = useState(null);
-    const [esperando, setEsperando] = useState(true);
-
     useFocusEffect(
         useCallback(() => {
             
@@ -51,8 +55,8 @@ export default function MeusPets() {
             setCurrentUser(user);
 
             if (user) {
-                console.log("Logado - Pagina Meus Pets");
-                buscarMeusPets(user.uid);
+                console.log("Logado - Pagina Adotar");
+                buscarAnimais();
 
             } else {
                 setEsperando(false);
@@ -71,8 +75,8 @@ export default function MeusPets() {
         return(
             <ScrollView style={{backgroundColor: '#fafafa'}}>
                 <View style={styles.container}>
-
-                    {meusPets.map((animal, index : number) => (
+                    
+                    {animais.map((animal, index : number) => (
                         
                         <View key={animal.id} style={{ flexDirection: 'row',  width: '95.5%' }}>
                             
@@ -80,12 +84,11 @@ export default function MeusPets() {
                                 primeiro={ index == 0 ? true : false}
                                 modo={'space-between'}
                                 nome={animal.nomeAnimal}
-                                sexo={""}
-                                idade={"0 NOVOS INTERESSADOS"}
-                                porte={""}
-                                cidade={""}
-                                estado={""}
-                                trocaIcone={true}
+                                sexo={animal.sexo}
+                                idade={animal.idade}
+                                porte={animal.porte}
+                                cidade={animal.cidade}
+                                estado={animal.estado}
                             />
 
                         </View>
@@ -102,16 +105,15 @@ export default function MeusPets() {
         );
 
     } else {
-        if (esperando) {
+
+        if (esperando) 
             return (
                 <Modal visible={esperando && modal} animationType='fade' transparent={true}>
                     <ModalLoanding spinner={esperando} />
                 </Modal>
             );
-
-        } else {
+        else
             return <AvisoCadastro topbar={false} />;
-        }
 
     }
 
@@ -124,5 +126,6 @@ const styles = StyleSheet.create({
         paddingTop: Constants.statusBarHeight,
         backgroundColor: '#fafafa',
         alignItems: 'center',
+        //borderWidth: 1
     },
 });

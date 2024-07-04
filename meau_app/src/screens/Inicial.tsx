@@ -98,7 +98,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
             <View style={styles.menuCenter}>
                 
-                <TouchableOpacity  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigation.navigate("Adotar")} activeOpacity={0.5}>
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 

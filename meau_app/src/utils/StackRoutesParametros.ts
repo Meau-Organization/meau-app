@@ -12,4 +12,5 @@ export type StackRoutesParametros = {
     DrawerRoutes: undefined;
     BoxLogin: undefined;
     MeusPets: undefined;
+    Adotar: undefined;
 };

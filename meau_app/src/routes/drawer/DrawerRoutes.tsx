@@ -9,6 +9,7 @@ import Inicial from '../../screens/Inicial';
 import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
+import Adotar from '../../screens/Adotar';
 
 const Drawer = createDrawerNavigator();
 
@@ -43,16 +44,19 @@ export default function DrawerRoutes() {
         Home: '#fafafa',
         MeusPets: '#88c9bf',
         MeuPerfil: '#cfe9e5',
+        Adotar: '#ffd358',
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
         MeusPets: '#434343',
         MeuPerfil: '#434343',
+        Adotar: '#434343',
     };
     const titulos_paginas: titulosPaginas = {
         Home: '',
         MeusPets: 'Meus Pets',
         MeuPerfil: 'Meu Perfil',
+        Adotar: 'Adotar',
     };
 
 
@@ -97,6 +101,15 @@ export default function DrawerRoutes() {
                         drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
                     }}
                     //initialParams={{ recarregar: false, usuario_id: '' }}
+                />
+
+                <Drawer.Screen
+                    name = "Adotar"
+                    component={Adotar}
+                    options={{
+                        drawerLabel: 'Adotar',
+                        drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                    }}
                 />
 
             </Drawer.Navigator>

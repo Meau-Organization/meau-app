@@ -10,7 +10,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useEffect, useState } from 'react';
 
-import { getAuth, db, addDoc, collection } from '../../../configs/firebaseConfig';
+import { getAuth, db, addDoc, collection, doc, getDoc } from '../../../configs/firebaseConfig';
 
 import AvisoCadastro from '../../AvisoCadastro';
 import ModalLoanding from '../../../components/ModalLoanding';
@@ -67,30 +67,43 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
             const usuario = currentUser;
 
             if (usuario) {
-                console.log('Usuario novo animal');
-                const userCollectionRef = collection(db, 'Animals');
-                console.log(userCollectionRef);
 
-                const docRef = await addDoc(userCollectionRef, {
-                    nomeAnimal: nomeAnimal,
-                    especie: especie,
-                    sexo: sexo,
-                    porte: porte,
-                    idade: idade,
-                    temperamento: temperamento,
-                    saude: saude,
-                    doencasAnimal: doencasAnimal,
-                    sobreAnimal: sobreAnimal,
-                    termosAdocao: termosAdocao.length == 0 ? false : true,
-                    exigenciaFotosCasa: exigenciaFotosCasa.length == 0 ? false : true,
-                    visitaPrevia: visitaPrevia.length == 0 ? false : true,
-                    tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
-                    usuario_id: usuario.uid,
+                const userDocRef = doc(db, 'Users', usuario.uid);
+                const userDoc = await getDoc(userDocRef);
+    
+                if (userDoc.exists()) {
                     
-                });
-                console.log(docRef.id);
-                setLoading(false);
-                navigation.navigate('CadastroAnimal');
+                    console.log('Usuario novo animal');
+                    const userCollectionRef = collection(db, 'Animals');
+                    console.log(userCollectionRef);
+
+                    const docRef = await addDoc(userCollectionRef, {
+                        nomeAnimal: nomeAnimal,
+                        especie: especie,
+                        sexo: sexo,
+                        porte: porte,
+                        idade: idade,
+                        temperamento: temperamento,
+                        saude: saude,
+                        doencasAnimal: doencasAnimal,
+                        sobreAnimal: sobreAnimal,
+                        termosAdocao: termosAdocao.length == 0 ? false : true,
+                        exigenciaFotosCasa: exigenciaFotosCasa.length == 0 ? false : true,
+                        visitaPrevia: visitaPrevia.length == 0 ? false : true,
+                        tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
+                        usuario_id: usuario.uid,
+                        cidade: userDoc.data().cidade,
+                        estado: userDoc.data().estado,
+                        
+                    });
+                    console.log(docRef.id);
+                    setLoading(false);
+                    navigation.navigate('CadastroAnimal');
+    
+                } else {
+                    console.log('Dados do usuario não encontrados');
+    
+                }
 
             } else {
                 setLoading(false);
