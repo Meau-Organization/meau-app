@@ -6,13 +6,14 @@ import { TopBar } from '../../../components/TopBar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 import { useNavigation } from '@react-navigation/native';
-
+import { openImagePickerAsync } from '../../../components/OpenImagePickerAsync';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function CadastroPessoal(){
 
   const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
 
+  const [modal, setModal] = useState(false);
   const [image, setImage] = useState(null);
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
@@ -24,6 +25,8 @@ export default function CadastroPessoal(){
   const [username, setUsername] = useState('');
   const [senha, setSenha] = useState('');
   const [isLoading, setIsLoadign] = useState(false);
+  const [imagemBase64, setImagemBase64] = useState(null);
+  const [abrirCamera, setAbrirCamera] = useState(false);
 
 
   const auth = getAuth();
@@ -55,7 +58,8 @@ export default function CadastroPessoal(){
         logradouro: Logradouro,
         telefone: telefone,
         username: username,
-        senha: senha
+        senha: senha,
+        imagemBase64: imagemBase64,
         });
         // console.log("Document written with ID: ", docRef.id);
       }
@@ -80,6 +84,17 @@ export default function CadastroPessoal(){
       setImage(result.assets[0].uri);
     }
   };
+
+  const adicionarImagem = async () => {
+    setModal(true);
+    const base64 = await openImagePickerAsync(abrirCamera);
+   
+   console.log("teste"+ base64) 
+    if (base64) {
+        setImagemBase64(base64);
+    }
+    setModal(false);
+}
 
 
   return(
@@ -161,15 +176,29 @@ export default function CadastroPessoal(){
           <Text style = {styles.info}> Foto de Perfil</Text>
 
           <View style = {styles.imageButtonContainer}> 
-            <TouchableOpacity style = {styles.imageButton} onPress={pickImage}>
-              {image && <Image source={{ uri: image }} style={styles.image} />}
-              <Image
-                
-                source={require('../../../assets/images/botao_adicionar.png')}
-                style={styles.imageAddButton}
-              />
-              <Text style ={styles.textButton}> Adicionar foto</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+                            style={styles.imageButton}
+                            onPress={() => {
+                                if (!abrirCamera) {
+                                    adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
+                                } else {
+                                    setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
+                                }
+                            }}
+                        >
+                            {imagemBase64 ? (
+                                <Image
+                                    source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
+                                    style={styles.imageAddButton}
+                                />
+                            ) : (
+                                <Image
+                                    source={require('../../../assets/images/botao_adicionar.png')}
+                                    style={styles.imageAddButton}
+                                />
+                            )}
+                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                        </TouchableOpacity>
           </View>
 
           <View>
