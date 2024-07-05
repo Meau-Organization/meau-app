@@ -81,7 +81,7 @@ export default function MeuPerfil() {
             <View style={styles.container}>
 
                 <ImageBackground
-                    source={require('../assets/images/cj.jpeg')}
+                    source={{ uri: `data:${dadosUser.imagemBase64.assets[0].mimeType};base64,${dadosUser.imagemBase64.assets[0].base64}` }}
                     imageStyle={{ borderRadius: 100}}
                     resizeMode="contain"
                     style={styles.mini_foto}

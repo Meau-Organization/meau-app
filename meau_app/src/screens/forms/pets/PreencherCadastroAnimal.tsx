@@ -5,6 +5,7 @@ import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
+import {openImagePickerAsync}  from '../../../components/OpenImagePickerAsync';
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
@@ -25,9 +26,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(true);
-
     const [esperando, setEsperando] = useState(true);
-
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
@@ -60,6 +59,8 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [visitaPrevia,        setVisitaPrevia]        = useState<string[]>([]);
     const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
+    const [imagemBase64, setImagemBase64] = useState(null);
+    const [abrirCamera, setAbrirCamera] = useState(false); 
 
     const novoAnimal = async () => {
         try {
@@ -94,6 +95,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                         usuario_id: usuario.uid,
                         cidade: userDoc.data().cidade,
                         estado: userDoc.data().estado,
+                        imagemBase64: imagemBase64,
                         
                     });
                     console.log(docRef.id);
@@ -117,9 +119,20 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
     }
 
-    const cadastrarAnimal = () => {
+    const cadastrarAnimal =  async () => {
         setModal(true);
-        novoAnimal();
+        novoAnimal();    
+    }
+   
+    const adicionarImagem = async () => {
+        setModal(true);
+        const base64 = await openImagePickerAsync(abrirCamera);
+       
+       console.log("teste"+ base64) 
+        if (base64) {
+            setImagemBase64(base64);
+        }
+        setModal(false);
     }
 
     
@@ -148,13 +161,29 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
                         <View style = {styles.imageButtonContainer}> 
-                            <TouchableOpacity style = {styles.imageButton} onPress={() => console.log('Botão pressionado')}>
+                        <TouchableOpacity
+                            style={styles.imageButton}
+                            onPress={() => {
+                                if (!abrirCamera) {
+                                    adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
+                                } else {
+                                    setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
+                                }
+                            }}
+                        >
+                            {imagemBase64 ? (
+                                <Image
+                                    source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
+                                    style={styles.imageAddButton}
+                                />
+                            ) : (
                                 <Image
                                     source={require('../../../assets/images/botao_adicionar.png')}
                                     style={styles.imageAddButton}
-                                    />
-                                <Text style ={styles.textButton}> Adicionar foto</Text>
-                            </TouchableOpacity>
+                                />
+                            )}
+                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                        </TouchableOpacity>
                         </View>
 
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>

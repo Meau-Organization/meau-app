@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Constants from 'expo-constants';
@@ -19,10 +19,12 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
-    
     return (
 
         <View style={ [styles.card, { marginTop: primeiro ? 8 - Constants.statusBarHeight : 8 } ] }>
+
+            
+            
 
             <View style={styles.titulo}>
                 <Text style={styles.text_nome}>{nome}</Text>
