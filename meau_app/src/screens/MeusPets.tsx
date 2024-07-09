@@ -26,7 +26,7 @@ export default function MeusPets() {
             const meus_pets = [];
 
             snapshot.forEach((doc) => {
-                meus_pets.push({ id: doc.id, ...doc.data() });
+                meus_pets.push({ uid: doc.id, ...doc.data() });
                 //console.log(doc.id, " => ", doc.data());
             });
 
@@ -74,7 +74,7 @@ export default function MeusPets() {
 
                     {meusPets.map((animal, index : number) => (
                         
-                        <View key={animal.id} style={{ flexDirection: 'row',  width: '95.5%' }}>
+                        <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
                             
                             <CardAnimal
                                 primeiro={ index == 0 ? true : false}
@@ -86,6 +86,7 @@ export default function MeusPets() {
                                 cidade={""}
                                 estado={""}
                                 trocaIcone={true}
+                                id={animal.uid}
                             />
 
                         </View>

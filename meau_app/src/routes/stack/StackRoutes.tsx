@@ -10,6 +10,7 @@ import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroA
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import DrawerRoutes from '../drawer/DrawerRoutes';
 import MeusPets from '../../screens/MeusPets';
+import DetalhesAnimal from '../../screens/DetalhesAnimal';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
@@ -34,6 +35,8 @@ export default function StackRoutes() {
             <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
+
+            <Stack.Screen name="DetalhesAnimal" component={DetalhesAnimal}  />
 
         </Stack.Navigator>
     );

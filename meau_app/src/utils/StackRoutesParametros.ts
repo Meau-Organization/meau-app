@@ -13,4 +13,6 @@ export type StackRoutesParametros = {
     BoxLogin: undefined;
     MeusPets: undefined;
     Adotar: undefined;
+    CardAnimal: undefined;
+    DetalhesAnimal: { animal_id: string };
 };

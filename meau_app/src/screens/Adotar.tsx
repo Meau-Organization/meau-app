@@ -30,14 +30,15 @@ export default function Adotar() {
             const q = query(animalsRef);
 
             const snapshot = await getDocs(q);
-            const animais = [];
+            const animaisArray = [];
 
             snapshot.forEach((doc) => {
-                animais.push({ id: doc.id, ...doc.data() });
+                animaisArray.push({ uid: doc.id, ...doc.data() });
+                // uid (nome personalizado)
                 //console.log(doc.id, " => ", doc.data());
             });
 
-            setAnimais(animais);
+            setAnimais(animaisArray);
 
             setEsperando(false);
 
@@ -78,7 +79,7 @@ export default function Adotar() {
                     
                     {animais.map((animal, index : number) => (
                         
-                        <View key={animal.id} style={{ flexDirection: 'row',  width: '95.5%' }}>
+                        <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
                             
                             <CardAnimal
                                 primeiro={ index == 0 ? true : false}
@@ -89,6 +90,7 @@ export default function Adotar() {
                                 porte={animal.porte}
                                 cidade={animal.cidade}
                                 estado={animal.estado}
+                                id={animal.uid}
                             />
 
                         </View>

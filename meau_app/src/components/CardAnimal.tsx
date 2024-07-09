@@ -1,7 +1,10 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Constants from 'expo-constants';
+import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 
 interface CardProps {
     primeiro?: boolean;
@@ -13,11 +16,14 @@ interface CardProps {
     cidade: string;
     estado: string;
     trocaIcone?: boolean;
+    id: string;
 }
 
-export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false} : CardProps ) {
+export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id} : CardProps ) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
 
     return (
 
@@ -27,7 +33,12 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
             
 
             <View style={styles.titulo}>
-                <Text style={styles.text_nome}>{nome}</Text>
+                <TouchableOpacity
+                    onPress={
+                    () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                    }
+                ><Text style={styles.text_nome}>{nome}</Text></TouchableOpacity>
+                
                 {trocaIcone ?
                     <MaterialIcons name="error-outline" size={24} color="#434343" style={{marginRight: 15}}/>
                 :
@@ -35,9 +46,14 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                 }
             </View>
 
-            <View style={styles.foto}>
+
+            <TouchableOpacity
+                onPress={
+                    () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                }
+                style={styles.foto}>
                 <Text style={styles.text}>foto</Text>
-            </View>
+            </TouchableOpacity>
 
             <View style={styles.view_dados}>
 
