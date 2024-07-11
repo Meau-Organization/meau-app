@@ -68,6 +68,8 @@ export default function MeusPets() {
 
     if (currentUser && !esperando) {
 
+        //console.log(meusPets[0].imagemBase64);
+
         return(
             <ScrollView style={{backgroundColor: '#fafafa'}}>
                 <View style={styles.container}>
@@ -77,17 +79,19 @@ export default function MeusPets() {
                         <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
                             
                             <CardAnimal
+
+                                
                                 primeiro={ index == 0 ? true : false}
                                 modo={'space-between'}
                                 nome={animal.nomeAnimal}
-                                sexo={""}
-                                idade={"0 NOVOS INTERESSADOS"}
-                                porte={""}
-                                cidade={""}
-                                estado={""}
+                                sexo={animal.sexo}
+                                idade={animal.idade}
+                                porte={animal.porte}
+                                cidade={animal.cidade}
+                                estado={animal.estado}
                                 trocaIcone={true}
                                 id={animal.uid}
-                                imagem={animal.imagemBase64}
+                                foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
                             />
 
                         </View>

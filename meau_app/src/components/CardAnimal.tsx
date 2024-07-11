@@ -20,10 +20,10 @@ interface CardProps {
     estado: string;
     trocaIcone?: boolean;
     id: string;
-    imagem: any;
+    foto: { uri: string };
 }
 
-export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, imagem} : CardProps ) {
+export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto} : CardProps ) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
@@ -34,10 +34,6 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
     const curtir = () => {
         curtida ? setCurtida(false) : setCurtida(true);
     };
-
-    console.log(imagem);
-    // console.log(imagem.assets[0].base64);
-    // console.log(imagem.assets[0].mimeType);
 
     return (
 
@@ -72,16 +68,8 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                 onPress={
                     () => navigation.navigate("DetalhesAnimal", {animal_id: id })
                 }
-                
-                style={styles.foto}
-            >
-                
-                <ImageBackground
-                    source={{ uri: `data:${imagem.assets[0].mimeType};base64,${imagem.assets[0].base64}` }}
-                    imageStyle={{ borderRadius: 0}}
-                    resizeMode="cover"
-                    style={styles.foto}
-                ></ImageBackground>
+                style={styles.foto}>
+                <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />
 
             </TouchableOpacity>
 
@@ -175,13 +163,5 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fff',
-    },
-    mini_foto: {
-        width: 112,
-        height: 112,
-        borderRadius: 100,
-        backgroundColor: 'black',
-        marginTop: 16 - Constants.statusBarHeight,
-        
     },
 });
