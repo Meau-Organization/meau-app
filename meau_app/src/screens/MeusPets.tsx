@@ -87,6 +87,7 @@ export default function MeusPets() {
                                 estado={""}
                                 trocaIcone={true}
                                 id={animal.uid}
+                                imagem={animal.imagemBase64}
                             />
 
                         </View>

@@ -1,10 +1,13 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Constants from 'expo-constants';
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+
+const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 interface CardProps {
     primeiro?: boolean;
@@ -17,32 +20,50 @@ interface CardProps {
     estado: string;
     trocaIcone?: boolean;
     id: string;
+    imagem: any;
 }
 
-export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id} : CardProps ) {
+export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, imagem} : CardProps ) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
 
+    const [curtida, setCurtida] = useState(false);
+
+    const curtir = () => {
+        curtida ? setCurtida(false) : setCurtida(true);
+    };
+
+    console.log(imagem);
+    // console.log(imagem.assets[0].base64);
+    // console.log(imagem.assets[0].mimeType);
+
     return (
 
         <View style={ [styles.card, { marginTop: primeiro ? 8 - Constants.statusBarHeight : 8 } ] }>
-
-            
             
 
             <View style={styles.titulo}>
+                
                 <TouchableOpacity
                     onPress={
-                    () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                        () => navigation.navigate("DetalhesAnimal", {animal_id: id })
                     }
-                ><Text style={styles.text_nome}>{nome}</Text></TouchableOpacity>
+                >
+                    <Text style={styles.text_nome}>{nome}</Text>
+                </TouchableOpacity>
                 
                 {trocaIcone ?
                     <MaterialIcons name="error-outline" size={24} color="#434343" style={{marginRight: 15}}/>
                 :
-                    <MaterialCommunityIcons name="cards-heart-outline" size={24} color="#434343" style={{marginRight: 15}}/>
+                    <TouchableOpacity onPress={curtir}>
+                        { curtida ?
+                            <MaterialCommunityIcons name="cards-heart" size={24} color="#ff3030" style={{marginRight: 15}}/>
+                            :
+                            <MaterialCommunityIcons name="cards-heart-outline" size={24} color="#434343" style={{marginRight: 15}}/>
+                        }
+                    </TouchableOpacity>
                 }
             </View>
 
@@ -51,8 +72,17 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                 onPress={
                     () => navigation.navigate("DetalhesAnimal", {animal_id: id })
                 }
-                style={styles.foto}>
-                <Text style={styles.text}>foto</Text>
+                
+                style={styles.foto}
+            >
+                
+                <ImageBackground
+                    source={{ uri: `data:${imagem.assets[0].mimeType};base64,${imagem.assets[0].base64}` }}
+                    imageStyle={{ borderRadius: 0}}
+                    resizeMode="cover"
+                    style={styles.foto}
+                ></ImageBackground>
+
             </TouchableOpacity>
 
             <View style={styles.view_dados}>
@@ -145,5 +175,13 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fff',
+    },
+    mini_foto: {
+        width: 112,
+        height: 112,
+        borderRadius: 100,
+        backgroundColor: 'black',
+        marginTop: 16 - Constants.statusBarHeight,
+        
     },
 });

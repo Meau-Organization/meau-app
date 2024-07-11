@@ -72,6 +72,8 @@ export default function Adotar() {
     );
 
     if (currentUser && !esperando) {
+        // console.log(animais[0].imagemBase64.assets[0].base64);
+        // console.log(animais[0].imagemBase64.assets[0].mimeType);
 
         return(
             <ScrollView style={{backgroundColor: '#fafafa'}}>
@@ -91,6 +93,7 @@ export default function Adotar() {
                                 cidade={animal.cidade}
                                 estado={animal.estado}
                                 id={animal.uid}
+                                imagem={animal.imagemBase64}
                             />
 
                         </View>
