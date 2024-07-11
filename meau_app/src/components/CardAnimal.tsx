@@ -17,9 +17,10 @@ interface CardProps {
     estado: string;
     trocaIcone?: boolean;
     id: string;
+    foto: { uri: string };
 }
 
-export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id} : CardProps ) {
+export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto} : CardProps ) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
@@ -52,7 +53,8 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                     () => navigation.navigate("DetalhesAnimal", {animal_id: id })
                 }
                 style={styles.foto}>
-                <Text style={styles.text}>foto</Text>
+                <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />
+
             </TouchableOpacity>
 
             <View style={styles.view_dados}>
