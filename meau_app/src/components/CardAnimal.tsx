@@ -53,7 +53,7 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                     () => navigation.navigate("DetalhesAnimal", {animal_id: id })
                 }
                 style={styles.foto}>
-                <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />
+                <Image source={foto} style={{ width: '100%', height: 180}} resizeMode ="cover" />
 
             </TouchableOpacity>
 

@@ -91,6 +91,7 @@ export default function Adotar() {
                                 cidade={animal.cidade}
                                 estado={animal.estado}
                                 id={animal.uid}
+                                foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
                             />
 
                         </View>
