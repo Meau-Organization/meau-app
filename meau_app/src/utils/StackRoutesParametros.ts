@@ -1,4 +1,5 @@
 
+import CardAnimal from '../components/CardAnimal';
 export type StackRoutesParametros = {
     Inicial: { userEstado: number };
     AvisoCadastro: undefined;
@@ -11,5 +12,8 @@ export type StackRoutesParametros = {
     ProtectTelas: undefined;
     DrawerRoutes: undefined;
     BoxLogin: undefined;
-    MeusPets: { recarregar: boolean, usuario_id: string };
+    MeusPets: undefined;
+    Adotar: undefined;
+    DetalhesAnimal: undefined;
+    CardAnimal: undefined;
 };

@@ -26,7 +26,7 @@ export default function MeusPets({ route }) {
             const meus_pets = [];
 
             snapshot.forEach((doc) => {
-                meus_pets.push({ id: doc.id, ...doc.data() });
+                meus_pets.push({ uid: doc.id, ...doc.data() });
                 //console.log(doc.id, " => ", doc.data());
             });
 
@@ -46,9 +46,73 @@ export default function MeusPets({ route }) {
     useEffect(() => {
         const user = getAuth().currentUser;
 
+<<<<<<< Updated upstream
         if (user) {
             console.log("Logado - Pagina Meus Pets");
             buscarMeusPets(user.uid);
+=======
+            setCurrentUser(user);
+
+            if (user) {
+                console.log("Logado - Pagina Meus Pets");
+                buscarMeusPets(user.uid);
+
+            } else {
+                setEsperando(false);
+                console.log("SAIU");
+            }
+
+            return () => {
+                //console.log('Tela perdeu foco');
+            };
+
+        }, [])
+    );
+
+    if (currentUser && !esperando) {
+
+        return(
+            <ScrollView style={{backgroundColor: '#fafafa'}}>
+                <View style={styles.container}>
+
+                    {meusPets.map((animal, index : number) => (
+                        
+                        <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
+                            
+                            <CardAnimal
+                                primeiro={ index == 0 ? true : false}
+                                modo={'space-between'}
+                                nome={animal.nomeAnimal}
+                                sexo={""}
+                                idade={"0 NOVOS INTERESSADOS"}
+                                porte={""}
+                                cidade={""}
+                                estado={""}
+                                trocaIcone={true}
+                                id={animal.uid}
+                            />
+
+                        </View>
+                    ))}
+
+                    <View style={{marginTop:20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100}}></View>
+
+
+
+                </View>
+            </ScrollView>
+
+
+        );
+
+    } else {
+        if (esperando) {
+            return (
+                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={esperando} />
+                </Modal>
+            );
+>>>>>>> Stashed changes
 
         } else {
             
