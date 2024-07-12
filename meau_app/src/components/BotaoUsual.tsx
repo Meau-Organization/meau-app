@@ -9,9 +9,10 @@ interface BotaoProps {
     altura?: number;
     largura?: number;
     raio?: number;
+    marginRight?: number;
 }
 
-export default function BotaoUsual( { texto, cor = '#ffd358', corTexto, marginTop, marginBottom, altura = 40, largura = 232, raio = 5} : BotaoProps ) {
+export default function BotaoUsual( { texto, cor = '#ffd358', corTexto, marginTop, marginBottom, altura = 40, largura = 232, raio = 5, marginRight} : BotaoProps ) {
 
     return (
             <View
@@ -21,7 +22,8 @@ export default function BotaoUsual( { texto, cor = '#ffd358', corTexto, marginTo
                     marginBottom: marginBottom,
                     height: altura,
                     width: largura,
-                    borderRadius: raio
+                    borderRadius: raio,
+                    marginRight: marginRight
                 }]} >
 
                     <Text style={[styles.botao_texto, {color: corTexto}]}> {texto} </Text>
