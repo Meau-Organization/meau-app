@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import 'react-native-gesture-handler';
 
-// import './seedFirestore.js'
+// import './seedFirestore.js' // DESCOMENTAR APENAS PARA SEED
 
 import * as SplashScreen from 'expo-splash-screen';
 

@@ -52,23 +52,22 @@ const convertImageToBase64 = async (req, caminho_string) => {
 
 
 
-
 const seedAnimals = async (animals) => {
 
-    const animalsCollection = collection(db, 'Animals');
+        const animalsCollection = collection(db, 'Animals');
 
-    const promises = animals.map(async (animal) => {
-        try {
-            await addDoc(animalsCollection, animal);
-            console.log(`Animal ${animal.nomeAnimal} adionado!`);
-        } catch (error) {
-            console.error(`Erro ao adicionar animal ${animal.nomeAnimal}:`, error);
-            throw error;
-        }
-    });
+        const promises = animals.map(async (animal) => {
+            try {
+                await addDoc(animalsCollection, animal);
+                console.log(`Animal ${animal.nomeAnimal} adionado!`);
+            } catch (error) {
+                console.error(`Erro ao adicionar animal ${animal.nomeAnimal}:`, error);
+                throw error;
+            }
+        });
 
-    await Promise.all(promises);
-    console.log('Seed completo.');
+        await Promise.all(promises);
+        console.log('Seed completo.');
 };
 
 
@@ -119,12 +118,36 @@ const main = async () => {
 
 
     const animals = [
-        { nomeAnimal: 'animal1', imagemBase64: fotos[0] },
-        { nomeAnimal: 'animal2', imagemBase64: fotos[1] },
-        { nomeAnimal: 'animal3', imagemBase64: fotos[2] },
-        { nomeAnimal: 'animal4', imagemBase64: fotos[3] },
-        { nomeAnimal: 'animal5', imagemBase64: fotos[4] },
-        // Adicione mais animais conforme necessário
+        {nomeAnimal: "Bolt", especie: "Cachorro", sexo: "Macho", porte: "Grande",
+        idade: "Adulto", temperamento: ["Brincalhão", "Guarda"], saude: ["Vacinado", "Castrado"], doencasAnimal: "Sem doenças",
+        sobreAnimal: "Bolt é um cachorro cheio de energia que adora brincar no parque. Ele é muito leal e protege sua família com todo o coração.",
+        termosAdocao: true, exigenciaFotosCasa: true, visitaPrevia: false, tempoAcompanhamento: 2,
+        usuario_id: 'GbWYMcRT4pfy9iXd54wMVK1jZ8h1', cidade: "Braslia", estado: "DF", imagemBase64: fotos[0]},
+
+        {nomeAnimal: "Luna", especie: "Gato", sexo: "Fêmea", porte: "Pequeno",
+        idade: "Filhote", temperamento: ["Tímido", "Calmo"], saude: ["Vermifugado"], doencasAnimal: "Sem doenças",
+        sobreAnimal: "Luna é uma gatinha tímida que está à procura de um lar calmo e amoroso. Ela adora se esconder em lugares aconchegantes.",
+        termosAdocao: false, exigenciaFotosCasa: false, visitaPrevia: true, tempoAcompanhamento: 1,
+        usuario_id: 'GbWYMcRT4pfy9iXd54wMVK1jZ8h1', cidade: "Braslia", estado: "DF", imagemBase64: fotos[1]},
+
+        {nomeAnimal: "Max", especie: "Cachorro", sexo: "Macho", porte: "Médio",
+        idade: "Idoso", temperamento: ["Calmo", "Amoroso"], saude: ["Vacinado", "Castrado", "Doente"],doencasAnimal: "Sem doenças",
+        sobreAnimal: "Max é um cãozinho idoso que ainda tem muito amor para dar. Ele adora um carinho e passeios tranquilos pelo bairro.",
+        termosAdocao: true, exigenciaFotosCasa: true, visitaPrevia: true, tempoAcompanhamento: 3,
+        usuario_id: 'GbWYMcRT4pfy9iXd54wMVK1jZ8h1', cidade: "Braslia", estado: "DF", imagemBase64: fotos[2]},
+
+        {nomeAnimal: "Mia", especie: "Gato", sexo: "Fêmea", porte: "Pequeno",
+        idade: "Adulto", temperamento: ["Amoroso", "Preguiçoso"], saude: ["Vermifugado", "Castrado"], doencasAnimal: "Sem doenças",
+        sobreAnimal: "Mia é uma gata adulta muito carinhosa que adora passar o dia deitada no sol. Ela é perfeita para quem procura um companheiro tranquilo.",
+        termosAdocao: false, exigenciaFotosCasa: true, visitaPrevia: false, tempoAcompanhamento: 0,
+        usuario_id: 'GbWYMcRT4pfy9iXd54wMVK1jZ8h1', cidade: "Braslia", estado: "DF", imagemBase64: fotos[3]},
+
+        {nomeAnimal: "Rex", especie: "Cachorro", sexo: "Macho", porte: "Grande",
+        idade: "Filhote", temperamento: ["Brincalhão", "Amoroso"], saude: ["Vacinado", "Vermifugado"], doencasAnimal: "Sem doenças",
+        sobreAnimal: "Rex é um filhote de cachorro cheio de energia e amor. Ele está sempre pronto para uma brincadeira e adora receber carinho.",
+        termosAdocao: true, exigenciaFotosCasa: false, visitaPrevia: true, tempoAcompanhamento: 1,
+        usuario_id: 'GbWYMcRT4pfy9iXd54wMVK1jZ8h1', cidade: "Braslia", estado: "DF", imagemBase64: fotos[4]},
+
     ];
 
     try {
