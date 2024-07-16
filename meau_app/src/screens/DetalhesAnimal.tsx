@@ -9,7 +9,7 @@ import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import CardAnimal from '../components/CardAnimal';
+import CardAnimal from '../components/CardAnimal'; 
 
 const ani = require('../assets/images/animais-seed/5.jpg');
 
