@@ -9,6 +9,7 @@ import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import CardAnimal from '../components/CardAnimal';
 
 const ani = require('../assets/images/animais-seed/5.jpg');
 
@@ -141,12 +142,16 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                     <View style={styles.container}>
                     
                     <View style={styles.caixaFoto}>
-                        <ImageBackground
-                            source={{ uri: `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` }}
-                            imageStyle={{ borderRadius: 0}}
-                            resizeMode="cover"
+                        <CardAnimal
+                            primeiro={true}
+                            modo="center"
+                            foto={{  //Insere a foto do animal com base no CardAnimal.tsx
+                                uri: dadosAnimal.imagemBase64 ?
+                                    `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` :
+                                    'default_placeholder_image_uri'
+                            }}
                             style={styles.caixaFoto}
-                        ></ImageBackground>
+                        ></CardAnimal>
                         <View style={styles.caixaFoto2}></View>
                     </View>
 
