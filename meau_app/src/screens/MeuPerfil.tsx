@@ -10,6 +10,8 @@ import ModalLoanding from "../components/ModalLoanding";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
 
+const userPadrao = require('../assets/images/user.jpg');
+
 
 export default function MeuPerfil() {
 
@@ -80,14 +82,25 @@ export default function MeuPerfil() {
             <ScrollView>
             <View style={styles.container}>
 
-                <ImageBackground
-                    source={{ uri: `data:${dadosUser.imagemBase64.assets[0].mimeType};base64,${dadosUser.imagemBase64.assets[0].base64}` }}
-                    imageStyle={{ borderRadius: 100}}
-                    resizeMode="contain"
-                    style={styles.mini_foto}
-                >
-                    
-                </ImageBackground>
+                {dadosUser.imagemBase64 ? (
+                    <ImageBackground
+                        source={{ uri: `data:${dadosUser.imagemBase64.assets[0].mimeType};base64,${dadosUser.imagemBase64.assets[0].base64}` }}
+                        imageStyle={{ borderRadius: 100}}
+                        resizeMode="contain"
+                        style={styles.mini_foto}
+                    ></ImageBackground>
+
+                ) : (
+                    <ImageBackground
+                        source={userPadrao}
+                        imageStyle={{ borderRadius: 100}}
+                        resizeMode="contain"
+                        style={styles.mini_foto}
+                    ></ImageBackground>
+                )}
+
+                
+                
 
                 <Text style={{
                     fontSize: 16,

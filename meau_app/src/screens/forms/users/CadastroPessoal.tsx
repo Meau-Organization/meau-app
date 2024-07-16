@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert, Modal } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Alert, Modal, ImageBackground } from 'react-native'
 import React, { useState } from 'react';
 
 import { getAuth, createUserWithEmailAndPassword, db, setDoc, doc } from '../../../configs/firebaseConfig';
@@ -17,6 +17,9 @@ import { validarFinal, onChangeSenhaConfirm, onChangeSenha, validarEmail, onChan
 import BotaoUsual from '../../../components/BotaoUsual';
 import ModalLoanding from '../../../components/ModalLoanding';
 
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import ModalOpcaoImagem from '../../../components/ModalOpcaoImagem';
+
 export default function CadastroPessoal() {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
@@ -24,6 +27,8 @@ export default function CadastroPessoal() {
     const [abrirCamera, setAbrirCamera] = useState(false);
 
     const [image, setImage] = useState(null);
+
+    const [opcaoImagem, setOpcaoImagem] = useState(false);
 
     const [nome, setNome] = useState(''); const idNome = 0;
     const [idade, setIdade] = useState(''); const idIdade = 1;
@@ -146,6 +151,10 @@ export default function CadastroPessoal() {
 
     return (
         <>
+            <Modal visible={opcaoImagem} animationType='fade' transparent={true}>
+                <ModalOpcaoImagem adicionarImagem={adicionarImagem} setOpcaoImagem={setOpcaoImagem}></ModalOpcaoImagem>
+            </Modal>
+
             <TopBar
                 nome='Cadastro'
                 icone='voltar'
@@ -319,24 +328,48 @@ export default function CadastroPessoal() {
                             style={styles.imageButton}
                             onPress={() => {
                                 if (!abrirCamera) {
-                                    adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
+                                    //adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
+                                    setOpcaoImagem(true);
                                 } else {
                                     setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
                                 }
                             }}
                         >
                             {imagemBase64 ? (
-                                <Image
-                                    source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
-                                    style={styles.imageAddButton}
-                                />
+                                
+                                <>
+                                    {imagemBase64.assets ? (
+                                        <>
+                                            {console.log("base6400: " + imagemBase64)}
+                                            <ImageBackground
+                                                source={{ uri: `data:${imagemBase64.assets[0].mimeType};base64,${imagemBase64.assets[0].base64}` }}
+                                                resizeMode="cover"
+                                                style={styles.imageAddButton}
+                                            ></ImageBackground>
+                                            <View style={{backgroundColor: 'rgba(0, 0, 0, 0.65)', width: '80%', height: '80%', position: 'absolute', borderRadius: 4}}></View>
+                                            
+                                            <View style={{position: 'absolute' }}>
+                                                <MaterialIcons style={styles.AddButton} name="change-circle" size={24} color="#757575" />
+                                                <Text style={[styles.textButton, { } ]}> Trocar foto</Text>
+                                            </View>
+                                        </>
+
+                                    ) : (
+                                        <>
+                                            <MaterialIcons  name="add-circle-outline" size={24} color="#757575" />
+                                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                                        </>
+                                    )}
+                                </>
+
                             ) : (
-                                <Image
-                                    source={require('../../../assets/images/botao_adicionar.png')}
-                                    style={styles.imageAddButton}
-                                />
+                                <>
+                                    <MaterialIcons  name="add-circle-outline" size={24} color="#757575" />
+                                    <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                                </>
                             )}
-                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+
+
                         </TouchableOpacity>
                     </View>
 
@@ -410,9 +443,15 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     imageAddButton: {
+        width: 128,
+        height: 128,
+        resizeMode: "cover",
+        alignSelf: 'center',
+        borderRadius: 8,
+    },
+    AddButton:{
         width: 24,
-        height: 24,
-        resizeMode: "contain",
+        height: 24, 
         alignSelf: 'center'
     },
     image: {
