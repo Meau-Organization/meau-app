@@ -220,7 +220,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                             <Text style={styles.text}>Termo de apadrinhamento, auxílio financeiro com
                             alimentação</Text>
 
-                            <Text style={styles.label}>MAIS SOBRE PEQUI</Text>
+                            <Text style={styles.label}>MAIS SOBRE {dadosAnimal.nomeAnimal.toUpperCase()}</Text>
                             <Text style={styles.text}>Pequi é um cão muito dócil e de fácil convivência.
                             Adora caminhadas e se dá muito bem com
                             crianças. Tem muito medo de raios e chuva. Está

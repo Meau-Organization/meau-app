@@ -5,7 +5,8 @@ import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
-import {openImagePickerAsync}  from '../../../components/OpenImagePickerAsync';
+import OpenImagePicker  from '../../../components/OpenImagePickerAsync';
+
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
@@ -28,6 +29,8 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [loading, setLoading] = useState(true);
     const [esperando, setEsperando] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [imagemBase64, setImagemBase64] = useState(null);
 
     useEffect(() => {
 
@@ -59,7 +62,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [visitaPrevia,        setVisitaPrevia]        = useState<string[]>([]);
     const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
-    const [imagemBase64, setImagemBase64] = useState(null);
     const [abrirCamera, setAbrirCamera] = useState(false); 
 
     const novoAnimal = async () => {
@@ -124,16 +126,22 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
         novoAnimal();    
     }
    
-    const adicionarImagem = async () => {
+    /*const adicionarImagem = async () => {
         setModal(true);
-        const base64 = await openImagePickerAsync(abrirCamera);
+        const base64 = await OpenImagePicker(abrirCamera);
        
        console.log("teste"+ base64) 
         if (base64) {
             setImagemBase64(base64);
         }
         setModal(false);
-    }
+    }*/
+    const handleImagePicked = (pickerResult) => {
+        if (!pickerResult.cancelled && pickerResult.base64) {
+            setImagemBase64(`data:image/jpeg;base64,${pickerResult.base64}`);
+        }
+        setModalVisible(false);
+    };
 
     
 
@@ -163,13 +171,8 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                         <View style = {styles.imageButtonContainer}> 
                         <TouchableOpacity
                             style={styles.imageButton}
-                            onPress={() => {
-                                if (!abrirCamera) {
-                                    adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
-                                } else {
-                                    setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
-                                }
-                            }}
+                            onPress={() => setModalVisible(true)}
+                            
                         >
                             {imagemBase64 ? (
                                 <Image
@@ -182,7 +185,14 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                                     style={styles.imageAddButton}
                                 />
                             )}
-                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                            <Text style={styles.textButton}>Adicionar Foto</Text>
+                            {modalVisible && (
+                                <OpenImagePicker
+                                    isVisible={modalVisible}
+                                    onImagePicked={handleImagePicked}
+                                    onClose={() => setModalVisible(false)}
+                                />
+                    )}
                         </TouchableOpacity>
                         </View>
 
