@@ -162,23 +162,21 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                     <View style = {styles.container}>
 
                         <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
-
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
                         <TextInput style = {styles.textName} onChangeText={setNomeAnimal}> Nome do Animal </TextInput>
                         <View style = {styles.containerName}></View>
-
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
                         <View style = {styles.imageButtonContainer}> 
-                        <TouchableOpacity
-                            style={styles.imageButton}
-                            onPress={() => setModalVisible(true)}
+                            <TouchableOpacity
+                                style={styles.imageButton}
+                                onPress={() => setModalVisible(true)}
                             
-                        >
-                            {imagemBase64 ? (
-                                <Image
-                                    source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
-                                    style={styles.imageAddButton}
-                                />
+                            >
+                                {imagemBase64 ? (
+                                    <Image
+                                        source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
+                                        style={styles.imageAddButton}
+                                    />
                             ) : (
                                 <Image
                                     source={require('../../../assets/images/botao_adicionar.png')}
@@ -186,16 +184,14 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                                 />
                             )}
                             <Text style={styles.textButton}>Adicionar Foto</Text>
-                            {modalVisible && (
-                                <OpenImagePicker
-                                    isVisible={modalVisible}
-                                    onImagePicked={handleImagePicked}
-                                    onClose={() => setModalVisible(false)}
-                                />
-                    )}
-                        </TouchableOpacity>
-                        </View>
 
+                            </TouchableOpacity>
+                            <OpenImagePicker
+                                onImagePicked={handleImagePicked}
+                                onClose={() => setModalVisible(false)}
+                            />
+                        </View>
+                    
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
                         <View style = {styles.containerBotaoMarcavel} >
                             <BotaoMarcavelRedondo vetor_opcoes={['Cachorro', 'Gato']} setEstadoDoPai={setEspecie}/>

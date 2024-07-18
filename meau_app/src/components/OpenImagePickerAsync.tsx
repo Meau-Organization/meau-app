@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { Modal, View , Button, StyleSheet, Alert } from 'react-native'; 
 import * as ImagePicker from 'expo-image-picker';
 
-export default function OpenImagePicker({ onImagePicked }) {
-
-    const [modalVisible,setModalVisible] = useState(false);
+export default function OpenImagePicker({ onImagePicked, onClose }) {
 
     const openImagePickerAsync = async (fromCamera) => {
-        setModalVisible(false);
         let permissionResult;
         if (fromCamera) {
             permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -22,7 +19,6 @@ export default function OpenImagePicker({ onImagePicked }) {
     
         let pickerResult;
         if (fromCamera) {
-           
             pickerResult = await ImagePicker.launchCameraAsync({
                 base64: true,
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -42,24 +38,25 @@ export default function OpenImagePicker({ onImagePicked }) {
         if (!pickerResult.cancelled) {
             onImagePicked(pickerResult);
         }
+        onClose();
     }
     return (
         <>
-            <Button title="Open Picker" onPress={() => setModalVisible(true)} />
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Button title="Usar Câmera" onPress={() => openImagePickerAsync(true)} />
-                        <Button title="Abrir Galeria" onPress={() => openImagePickerAsync(false)} />
-                        <Button title="Cancelar" onPress={() => setModalVisible(false)} color="#FF6347" />
-                    </View>
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={true}
+            onRequestClose={onClose}
+
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    <Button title="Usar Câmera" onPress={() => openImagePickerAsync(true)} />
+                    <Button title="Abrir Galeria" onPress={() => openImagePickerAsync(false)} />
+                    <Button title="Cancelar" onPress={onClose} color="#FF6347" />
                 </View>
-            </Modal>
+            </View>
+        </Modal>
         </>
     );
 
