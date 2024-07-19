@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import Feather from '@expo/vector-icons/Feather';
 
 import { openImagePickerAsync } from '../../../components/OpenImagePickerAsync';
+import OpenImagePicker from '../../../components/OpenImagePickerAsync';
 import * as ImagePicker from 'expo-image-picker';
 import useVetorBool from '../../../hooks/useVetorBool';
 
@@ -21,7 +22,9 @@ export default function CadastroPessoal() {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
     const [imagemBase64, setImagemBase64] = useState(null);
-    const [abrirCamera, setAbrirCamera] = useState(false);
+    //const [abrirCamera, setAbrirCamera] = useState(false);
+
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [image, setImage] = useState(null);
 
@@ -58,7 +61,7 @@ export default function CadastroPessoal() {
         }
     };
 
-    const adicionarImagem = async () => {
+    /*const adicionarImagem = async () => {       // Codigo antigo para usar a camera
         setModal(true);
         const base64 = await openImagePickerAsync(abrirCamera);
 
@@ -68,6 +71,14 @@ export default function CadastroPessoal() {
         }
         setModal(false);
     }
+     */ 
+
+    const handleImagePicked = (pickerResult) => {
+        if (!pickerResult.cancelled && pickerResult.base64) {
+            setImagemBase64(`data:image/jpeg;base64,${pickerResult.base64}`);
+        }
+        setModalVisible(false);
+    };
 
 
     type SetStateFunction<String> = React.Dispatch<React.SetStateAction<string>>;
@@ -317,14 +328,7 @@ export default function CadastroPessoal() {
                     <View style={styles.imageButtonContainer}>
                         <TouchableOpacity
                             style={styles.imageButton}
-                            onPress={() => {
-                                if (!abrirCamera) {
-                                    adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
-                                } else {
-                                    setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
-                                }
-                            }}
-                        >
+                            onPress={() => setModalVisible(true)}>
                             {imagemBase64 ? (
                                 <Image
                                     source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
@@ -336,7 +340,11 @@ export default function CadastroPessoal() {
                                     style={styles.imageAddButton}
                                 />
                             )}
-                            <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                            {modalVisible && (<OpenImagePicker
+                                                    onImagePicked={handleImagePicked}
+                                                    onClose={() => setModalVisible(false)}>                                    
+                                                </OpenImagePicker>)}
+                            <Text style={styles.textButton}>Adicionar Foto</Text>
                         </TouchableOpacity>
                     </View>
 
