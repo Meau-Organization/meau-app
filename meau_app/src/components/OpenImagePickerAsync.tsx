@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, View , Button, StyleSheet, Alert } from 'react-native'; 
 import * as ImagePicker from 'expo-image-picker';
 
-export default function OpenImagePicker({ onImagePicked, onClose }) {
+export default function OpenImagePicker({ isVisible ,onImagePicked, onClose }) {
 
     const openImagePickerAsync = async (fromCamera) => {
         let permissionResult;
@@ -36,6 +36,7 @@ export default function OpenImagePicker({ onImagePicked, onClose }) {
         }
     
         if (!pickerResult.cancelled) {
+            console.log("Image picked:", pickerResult);
             onImagePicked(pickerResult);
         }
         onClose();

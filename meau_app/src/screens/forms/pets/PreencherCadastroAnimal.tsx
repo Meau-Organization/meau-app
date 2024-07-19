@@ -62,7 +62,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [visitaPrevia,        setVisitaPrevia]        = useState<string[]>([]);
     const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
-    const [abrirCamera, setAbrirCamera] = useState(false); 
 
     const novoAnimal = async () => {
         try {
@@ -137,7 +136,9 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
         setModal(false);
     }*/
     const handleImagePicked = (pickerResult) => {
+        console.log("Image Picked:",pickerResult)
         if (!pickerResult.cancelled && pickerResult.base64) {
+            console.log(pickerResult)
             setImagemBase64(`data:image/jpeg;base64,${pickerResult.base64}`);
         }
         setModalVisible(false);
@@ -156,9 +157,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                     cor='#ffd358'
                 />
                 <ScrollView >
-
-                    
-
                     <View style = {styles.container}>
 
                         <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
@@ -169,12 +167,10 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                         <View style = {styles.imageButtonContainer}> 
                             <TouchableOpacity
                                 style={styles.imageButton}
-                                onPress={() => setModalVisible(true)}
-                            
-                            >
+                                onPress={() => setModalVisible(true)}>
                                 {imagemBase64 ? (
                                     <Image
-                                        source={{ uri: `data:image/jpeg;base64,${imagemBase64}` }}
+                                        source={{ uri: imagemBase64}}
                                         style={styles.imageAddButton}
                                     />
                             ) : (
@@ -183,13 +179,15 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                                     style={styles.imageAddButton}
                                 />
                             )}
-                            <Text style={styles.textButton}>Adicionar Foto</Text>
 
+                            {modalVisible && (<OpenImagePicker
+                                                    onImagePicked={handleImagePicked}
+                                                    onClose={() => setModalVisible(false)}>                                    
+                                                </OpenImagePicker>)}
+
+                            <Text style={styles.textButton}>Adicionar Foto</Text>
                             </TouchableOpacity>
-                            <OpenImagePicker
-                                onImagePicked={handleImagePicked}
-                                onClose={() => setModalVisible(false)}
-                            />
+
                         </View>
                     
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
