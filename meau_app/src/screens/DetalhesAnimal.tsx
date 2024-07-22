@@ -9,6 +9,7 @@ import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import CardAnimal from '../components/CardAnimal'; 
 
 const ani = require('../assets/images/animais-seed/5.jpg');
 
@@ -139,7 +140,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                 <ScrollView style={{backgroundColor: '#fafafa'}}>
 
                     <View style={styles.container}>
-                    
+
                     <View style={styles.caixaFoto}>
                         <ImageBackground
                             source={{ uri: `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` }}
@@ -149,6 +150,24 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                         ></ImageBackground>
                         <View style={styles.caixaFoto2}></View>
                     </View>
+                    
+                    {/* Removi a alteração de utilizar o componente, pois o componete CardAnimal irá introduzir o CARD
+                            completo no lugar da foto,ou seja, ele não tras apenas a foto consigo mas todo o card. Então
+                                faz mais sentido apenas usar a TAG  (ImageBackground ou Image) para puxar a imagem */}
+
+                    {/* <View style={styles.caixaFoto}>
+                        <CardAnimal
+                            primeiro={true}
+                            modo="center"
+                            foto={{  //Insere a foto do animal com base no CardAnimal.tsx
+                                uri: dadosAnimal.imagemBase64 ?
+                                    `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` :
+                                    'default_placeholder_image_uri'
+                            }}
+                            style={styles.caixaFoto}
+                        ></CardAnimal>
+                        <View style={styles.caixaFoto2}></View>
+                    </View> */}
 
                     
 
@@ -215,7 +234,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                             <Text style={styles.text}>Termo de apadrinhamento, auxílio financeiro com
                             alimentação</Text>
 
-                            <Text style={styles.label}>MAIS SOBRE PEQUI</Text>
+                            <Text style={styles.label}>MAIS SOBRE {dadosAnimal.nomeAnimal.toUpperCase()}</Text>
                             <Text style={styles.text}>Pequi é um cão muito dócil e de fácil convivência.
                             Adora caminhadas e se dá muito bem com
                             crianças. Tem muito medo de raios e chuva. Está

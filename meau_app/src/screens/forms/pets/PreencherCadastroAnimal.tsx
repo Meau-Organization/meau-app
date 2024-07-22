@@ -5,7 +5,8 @@ import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
-import {openImagePickerAsync}  from '../../../components/OpenImagePickerAsync';
+import OpenImagePicker  from '../../../components/OpenImagePickerAsync';
+
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
@@ -32,8 +33,9 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [loading, setLoading] = useState(true);
     const [esperando, setEsperando] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [imagemBase64, setImagemBase64] = useState(null);
 
-    const [opcaoImagem, setOpcaoImagem] = useState(false);
 
     useEffect(() => {
 
@@ -65,8 +67,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
     const [visitaPrevia,        setVisitaPrevia]        = useState<string[]>([]);
     const [acompanhamento,      setAcompanhamento]      = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
-    const [imagemBase64, setImagemBase64] = useState(null);
-    const [abrirCamera, setAbrirCamera] = useState(false); 
 
     const novoAnimal = async () => {
         try {
@@ -130,20 +130,34 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
         novoAnimal();    
     }
    
-    const adicionarImagem = async () => {
+    /*const adicionarImagem = async () => {
         setModal(true);
-        const base64 = await openImagePickerAsync(abrirCamera);
+        const base64 = await OpenImagePicker(abrirCamera);
        
        console.log("teste"+ base64) 
         if (base64) {
             setImagemBase64(base64);
         }
         setModal(false);
-    }
+    }*/
+    const handleImagePicked = (pickerResult) => {
+        //console.log("Image Picked:",pickerResult)
+        if (pickerResult.assets) {                                                      // Para evitar um WARNING no App é necessario testar se o
+                                                                                        //      objeto não esta vazio, em caso de o user não escolher a foto
+                                                                                        //          e fechar a janela. O método cancelled so funciona se o objeto foi setado
 
-    if (imagemBase64) {
-        console.log('imagem base');
-    }
+            if (!pickerResult.assets[0].cancelled && pickerResult.assets[0].base64) {   // Inseri o assets[0] pois o pickerResult é um vetor
+                //setImagemBase64(`data:{image/jpeg};base64,${pickerResult.base64}`);   // Necessario mudar para setar o objeto da imagem corretamente
+                setImagemBase64(pickerResult);
+            }
+        }
+        setModalVisible(false);
+        
+    };
+
+    // if (imagemBase64) {
+    //     console.log('imagem base');
+    // }
 
     
 
@@ -151,9 +165,6 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
 
         return(
             <>
-                <Modal visible={opcaoImagem} animationType='fade' transparent={true}>
-                    <ModalOpcaoImagem adicionarImagem={adicionarImagem} setOpcaoImagem={setOpcaoImagem}></ModalOpcaoImagem>
-                </Modal>
 
                 <TopBar
                     nome='Cadastro do Animal'
@@ -162,36 +173,23 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                     cor='#ffd358'
                 />
                 <ScrollView >
-
-                    
-
                     <View style = {styles.container}>
 
                         <Text style={{fontSize : 16, marginTop:8, marginLeft:24 }}>Adoção</Text>
-
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>NOME DO ANIMAL</Text>
                         <TextInput style = {styles.textName} onChangeText={setNomeAnimal}> Nome do Animal </TextInput>
                         <View style = {styles.containerName}></View>
-
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginLeft:24 }}>FOTOS DO ANIMAL</Text>
-                        <View style = {styles.imageButtonContainer}> 
-                            <TouchableOpacity
-                                style={styles.imageButton}
-                                onPress={() => {
-                                    if (!abrirCamera) {
-                                        //adicionarImagem(); // Chama a função para adicionar imagem se abrirCamera for false
-                                        setOpcaoImagem(true);
-                                    } else {
-                                        setAbrirCamera(!abrirCamera); // Alterna entre abrir e fechar a câmera se abrirCamera for true
-                                    }
-                                }}
-                            >
+
+                        <View style = {styles.imageButtonContainer}>
+
+                            <TouchableOpacity style={styles.imageButton} onPress={() => {setModalVisible(true)}}>
                                 {imagemBase64 ? (
                                 
                                     <>
                                         {imagemBase64.assets ? (
                                             <>
-                                                {console.log("base6400: " + imagemBase64)}
+                                                {/* {console.log("base6400: " + imagemBase64)} */}
                                                 <ImageBackground
                                                     source={{ uri: `data:${imagemBase64.assets[0].mimeType};base64,${imagemBase64.assets[0].base64}` }}
                                                     resizeMode="cover"
@@ -208,7 +206,7 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                                         ) : (
                                             <>
                                                 <MaterialIcons  name="add-circle-outline" size={24} color="#757575" />
-                                                <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                                                <Text style={styles.textButton}>"Adicionar foto"</Text>
                                             </>
                                         )}
                                     </>
@@ -216,13 +214,19 @@ export default function PreencherCadastroAnimal({ navigation } : MeusPetsProps){
                                 ) : (
                                     <>
                                         <MaterialIcons  name="add-circle-outline" size={24} color="#757575" />
-                                        <Text style={styles.textButton}> {abrirCamera ? "Tirar foto" : "Adicionar foto"}</Text>
+                                        <Text style={styles.textButton}>"Adicionar foto"</Text>
                                     </>
                                 )}
                                 
+
+                                {modalVisible && (<OpenImagePicker
+                                                        onImagePicked={handleImagePicked}
+                                                        onClose={() => setModalVisible(false)}>                                    
+                                                    </OpenImagePicker>)}
+
                             </TouchableOpacity>
                         </View>
-
+                    
                         <Text style={{fontSize : 16, marginTop: 20, color:'#f7a800', marginBottom: 8, marginLeft:24 }}>ESPÉCIE</Text>
                         <View style = {styles.containerBotaoMarcavel} >
                             <BotaoMarcavelRedondo vetor_opcoes={['Cachorro', 'Gato']} setEstadoDoPai={setEspecie}/>
