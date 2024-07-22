@@ -73,7 +73,21 @@ export default function CadastroPessoal() {
     }
      */ 
 
-    const handleImagePicked = (pickerResult) => {
+    //Metodo trata a imagem
+    async function handleImagePicked (fromCamera, onImagePicked, onClose) {
+        const options = {
+            base64: true,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        };
+
+        let pickerResult;
+        if (fromCamera){
+            pickerResult = await ImagePicker.launchCameraAsync(options);
+        } else {
+            pickerResult = await ImagePicker.launchImageLibraryAsync(options);
+        }
         if (!pickerResult.cancelled && pickerResult.base64) {
             setImagemBase64(`data:image/jpeg;base64,${pickerResult.base64}`);
         }
