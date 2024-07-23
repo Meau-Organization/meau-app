@@ -92,6 +92,7 @@ export default function MeusPets() {
                                 trocaIcone={true}
                                 id={animal.uid}
                                 foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
+                                tela={"DetalhesAnimal"}
                             />
 
                         </View>

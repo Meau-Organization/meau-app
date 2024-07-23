@@ -15,4 +15,5 @@ export type StackRoutesParametros = {
     Adotar: undefined;
     CardAnimal: undefined;
     DetalhesAnimal: { animal_id: string };
+    DetalhesAnimalAdocao: { animal_id: string };
 };

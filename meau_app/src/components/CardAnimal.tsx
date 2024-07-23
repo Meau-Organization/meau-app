@@ -6,6 +6,7 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
+import { Screen } from "react-native-screens";
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
@@ -21,9 +22,10 @@ interface CardProps {
     trocaIcone?: boolean;
     id: string;
     foto: { uri: string };
+    tela: any;
 }
 
-export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto} : CardProps ) {
+export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto, tela} : CardProps ) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
@@ -44,7 +46,8 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
                 
                 <TouchableOpacity
                     onPress={
-                        () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                        // () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                        () => navigation.navigate(tela, {animal_id: id })
                     }
                 >
                     <Text style={styles.text_nome}>{nome}</Text>
@@ -66,7 +69,8 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
 
             <TouchableOpacity
                 onPress={
-                    () => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                    //() => navigation.navigate("DetalhesAnimal", {animal_id: id })
+                    () => navigation.navigate(tela, {animal_id: id })
                 }
                 style={styles.foto}>
                 <Image source={foto} style={{ width: '100%', height: 180}} resizeMode ="cover" />
