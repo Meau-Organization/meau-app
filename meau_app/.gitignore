@@ -36,3 +36,5 @@ yarn-error.*
 
 src/configs/envConfig.js
 .env
+
+src/assets/images/animais-seed
