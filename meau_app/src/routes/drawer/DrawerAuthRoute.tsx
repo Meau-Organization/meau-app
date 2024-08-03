@@ -10,6 +10,7 @@ import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
+//import Chat from '../../screens/Chat';
 
 const DrawerAuth = createDrawerNavigator();
 
@@ -42,18 +43,21 @@ export default function DrawerRouteAuth() {
         Login: '#88c9bf',
         CadastroPessoal: '#88c9bf',
         AvisoCadastro: '#88c9bf',
+        Chat : '#787945',
     };
 
     const coresIconeHeader: coresPaginas = {
         Login: '#88c9bf',
         CadastroPessoal: '#434343',
         AvisoCadastro: '#434343',
+        Chat : '#7374',
     };
 
     const titulos_paginas: titulosPaginas = {
         Login: 'Login',
         CadastroPessoal: 'Cadastro Pessoal',
         AvisoCadastro: 'Aviso de Cadastro',
+        Chat : 'Chat',
     };
 
     return(
