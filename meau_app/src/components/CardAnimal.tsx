@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Screen } from "react-native-screens";
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
@@ -31,9 +32,18 @@ export default function CardAnimal( { primeiro, modo, nome, sexo, idade, porte, 
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
 
+    const { user } = useAutenticacaoUser();
+
     const [curtida, setCurtida] = useState(false);
 
     const curtir = () => {
+        if (!user){
+            // Se o usuário não estiver autenticado, redirecione para a tela de aviso
+            navigation.navigate("AvisoCadastro");
+        } else {
+            // Caso contrário, navegue para a tela de detalhes
+            navigation.navigate(tela, { animal_id: id });
+        }
         curtida ? setCurtida(false) : setCurtida(true);
     };
 

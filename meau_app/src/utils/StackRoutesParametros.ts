@@ -10,6 +10,7 @@ export type StackRoutesParametros = {
     TesteLogado: undefined;
     ProtectTelas: undefined;
     DrawerRoutes: undefined;
+    DrawerRouteAuth: undefined;
     BoxLogin: undefined;
     MeusPets: undefined;
     Adotar: undefined;

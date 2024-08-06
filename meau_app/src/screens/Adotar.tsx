@@ -10,7 +10,6 @@ import ModalLoanding from "../components/ModalLoanding";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import CardAnimal from "../components/CardAnimal";
 
-
 export default function Adotar() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
@@ -59,57 +58,45 @@ export default function Adotar() {
     );
 
     if (esperando) {
-        // console.log(animais[0].imagemBase64.assets[0].base64);
-        // console.log(animais[0].imagemBase64.assets[0].mimeType);
-
-        return(
-            <ScrollView style={{backgroundColor: '#fafafa'}}>
-                <View style={styles.container}>
-                    
-                    {animais.map((animal, index : number) => (
-                        
-                        <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
-                            
-                            <CardAnimal
-                                primeiro={ index == 0 ? true : false}
-                                modo={'space-between'}
-                                nome={animal.nomeAnimal}
-                                sexo={animal.sexo}
-                                idade={animal.idade}
-                                porte={animal.porte}
-                                cidade={animal.cidade}
-                                estado={animal.estado}
-                                id={animal.uid}
-                                foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
-                                tela={"DetalhesAnimalAdocao"}
-                            />
-                            
-
-                        </View>
-                    ))}
-
-                    <View style={{marginTop:20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100}}></View>
-
-
-
-                </View>
-            </ScrollView>
-
-
+        return (
+            <ModalLoanding spinner={esperando} />
         );
-
-    } else {
-
-        if (esperando) 
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
-                </Modal>
-            );
-        else
-            return <AvisoCadastro topbar={false} />;
-
     }
+    return(
+        <ScrollView style={{backgroundColor: '#fafafa'}}>
+            <View style={styles.container}>
+                
+                {animais.map((animal, index : number) => (
+                    
+                    <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
+                        
+                        <CardAnimal
+                            primeiro={ index == 0 ? true : false}
+                            modo={'space-between'}
+                            nome={animal.nomeAnimal}
+                            sexo={animal.sexo}
+                            idade={animal.idade}
+                            porte={animal.porte}
+                            cidade={animal.cidade}
+                            estado={animal.estado}
+                            id={animal.uid}
+                            foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
+                            tela={"DetalhesAnimalAdocao"}
+                        />
+                        
+
+                    </View>
+                ))}
+
+                <View style={{marginTop:20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100}}></View>
+
+
+
+            </View>
+        </ScrollView>
+
+
+    );
 
 }
 

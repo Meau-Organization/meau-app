@@ -59,8 +59,7 @@ export function BoxLogin() {
             const user = userCredential.user;
             setUser(user);
             console.log('Entrou:', user.email);
-            navigation.navigate("DrawerRoutes");
-            
+            navigation.navigate("DrawerRoutes");//redefinindo a navegação e direcionando para tela inicial do usuario Autenticado
         })
         .catch((error) => {
             
