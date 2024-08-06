@@ -19,8 +19,6 @@ export default function Adotar() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const [currentUser, setCurrentUser] = useState(null);
-
     const [esperando, setEsperando] = useState(true);
     const [modal, setModal] = useState(true);
 
@@ -55,19 +53,8 @@ export default function Adotar() {
     useFocusEffect(
         useCallback(() => {
             setEsperando(true);
-
-            const user = getAuth().currentUser;
-
-            setCurrentUser(user);
-
-            if (user) {
-                console.log("Logado - Pagina Adotar");
-                buscarAnimais();
-
-            } else {
-                setEsperando(false);
-                console.log("SAIU");
-            }
+            
+            buscarAnimais();
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -76,11 +63,7 @@ export default function Adotar() {
         }, [])
     );
 
-    if (currentUser && !esperando) {
-        // console.log("base64 comprimido: " + animais[0].imagemComprimidaBase64.base64.length + " bytes : " + animais[0].nomeAnimal);
-        // console.log("base64 comprimido: " + animais[1].imagemComprimidaBase64.base64.length + " bytes : " + animais[1].nomeAnimal);
-        // console.log("base64 comprimido: " + animais[2].imagemComprimidaBase64.base64.length + " bytes : " + animais[2].nomeAnimal);
-
+    if (!esperando) {
 
         return (
             <ScrollView style={{ backgroundColor: '#fafafa' }}>
@@ -119,14 +102,11 @@ export default function Adotar() {
 
     } else {
 
-        if (esperando)
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
-                </Modal>
-            );
-        else
-            return <AvisoCadastro topbar={false} />;
+        return (
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} />
+            </Modal>
+        );
 
     }
 

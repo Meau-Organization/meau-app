@@ -21,7 +21,7 @@ interface DetalhesAnimalProps {
     };
 }
 
-import * as FileSystem from 'expo-file-system';
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 
 
@@ -29,7 +29,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user } = useAutenticacaoUser();
+
     const [dadosAnimal, setDadosAnimal] = useState(null);
 
     const [esperando, setEsperando] = useState(true);
@@ -37,7 +38,12 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const [curtida, setCurtida] = useState(false);
     const curtir = () => {
-        curtida ? setCurtida(false) : setCurtida(true);
+        if (!user){
+            navigation.navigate("AvisoCadastro", {topbar: true} )
+        } else {
+            curtida ? setCurtida(false) : setCurtida(true);
+        }
+        
     };
 
     const { animal_id } = route.params;
@@ -74,22 +80,10 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     useFocusEffect(
         useCallback(() => {
+            
             setEsperando(true);
 
-            const user = getAuth().currentUser;
-
-            setCurrentUser(user);
-
-            if (user) {
-
-                buscarDadosAnimais(animal_id);
-
-                console.log("Logado - Pagina Detalhes animal");
-
-            } else {
-                setEsperando(false);
-                console.log("SAIU");
-            }
+            buscarDadosAnimais(animal_id);
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -102,7 +96,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     //     //console.log(dadosAnimal);
     // }
 
-    if (currentUser && !esperando) {
+    if (!esperando) {
 
         // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
 
@@ -298,7 +292,15 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
                         </View>
 
-                        <TouchableOpacity activeOpacity={0.5}>
+                        <TouchableOpacity
+                        onPress={() =>
+                            user ?
+                                alert('Em construção')
+                            :
+                                navigation.navigate("AvisoCadastro", {topbar: true} )
+                            }
+                        activeOpacity={0.5}>
+
                             <BotaoUsual texto='PRETENDO ADOTAR' cor='#fdcf58' marginTop={28} marginBottom={28} largura={232} altura={40} />
                         </TouchableOpacity>
 
@@ -311,15 +313,11 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         )
     } else {
 
-        if (esperando)
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
-                </Modal>
-            );
-        else
-            return <AvisoCadastro topbar={false} />;
-
+        return (
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} />
+            </Modal>
+        );
     }
 
 

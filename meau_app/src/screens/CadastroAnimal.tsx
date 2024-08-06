@@ -44,10 +44,7 @@ export default function CadastroAnimal(){
 
                 <TouchableOpacity
                     onPress={
-                        () => navigation.navigate('MeusPets', {
-                            recarregar: true,
-                            usuario_id: getAuth().currentUser ? getAuth().currentUser.uid : '',
-                        })
+                        () => navigation.navigate('MeusPets')
                     }
                     activeOpacity={0.5}
                 >

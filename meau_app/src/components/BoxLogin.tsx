@@ -9,14 +9,16 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 import { useNavigation } from '@react-navigation/native';
 import ModalLoanding from './ModalLoanding';
-
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 
 export function BoxLogin() {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
-    const [esperando, setEsperando] = useState(true);
+    const { setUser } = useAutenticacaoUser();
+
+    const [esperando, setEsperando] = useState(false);
     const [modal, setModal] = useState(false);
 
     const [userTexto, setUserTexto] = useState('');
@@ -49,14 +51,15 @@ export function BoxLogin() {
 
 
     const login = async (user: string, senha: string) => {
+        setEsperando(true);
         await signInWithEmailAndPassword(getAuth(), user, senha)
         .then((userCredential) => {
             
             setEsperando(false);
             const user = userCredential.user;
+            setUser(user);
             console.log('Entrou:', user.email);
-            navigation.navigate("DrawerRoutes");
-            
+            navigation.navigate("DrawerRoutes");//redefinindo a navegação e direcionando para tela inicial do usuario Autenticado
         })
         .catch((error) => {
             
@@ -64,6 +67,7 @@ export function BoxLogin() {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.error('Deu ruim:', errorMessage);
+            Alert.alert('Erro','Falha ao fazer login. Verifique sua internet ou suas credenciais e tente novamente.');
         });
     };
 

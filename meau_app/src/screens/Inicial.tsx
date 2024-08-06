@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
@@ -20,11 +21,9 @@ type InicialProps = {
 
 export default function Inicial({ navigation } : InicialProps) {
 
-
-
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
-    const [userEstado, setUserEstado] = useState(false);
+    const { user, setUser } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
 
     useEffect(() => {
         async function carregarFontes() {
@@ -39,19 +38,25 @@ export default function Inicial({ navigation } : InicialProps) {
 
         console.log("rotas na pilha " + navigation.getState().routeNames);
 
-    }, []);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user); // Atualiza o estado global com o usuário autenticado
+            } else {
+                setUser(null);  // Atualiza o estado para null se não houver usuário
+                console.log("Usuario off ");
+            }
+        });
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            setUserEstado(true);
-        }
-    });
+        return () => unsubscribe();
 
+    }, [setUser]);
 
     const acoesLogout = () => {
         logout();
-        setUserEstado(false);
-        navigation.navigate("DrawerRoutes");
+        /*navigation.reset({ // Codigo para limpar a navegação após o logout.
+            index : 0,
+            routes : [{name:'DrawerRoutes'}], // Tela inicial de AuthStack
+        }) */
     };
 
    
@@ -65,7 +70,7 @@ export default function Inicial({ navigation } : InicialProps) {
 
         signOut(auth)
             .then(() => {
-                setUserEstado(false);
+                setUser(null); //Define o estaudo global como null após logout
                 console.log('Usuario Saiu');
             })
             .catch((error) => {
@@ -106,13 +111,20 @@ export default function Inicial({ navigation } : InicialProps) {
                     <BotaoUsual texto='AJUDAR' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity> */}
 
-                <TouchableOpacity onPress={() => navigation.navigate("PreencherCadastroAnimal")}  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() =>
+                    user ?
+                        navigation.navigate("PreencherCadastroAnimal")
+                    :
+                        navigation.navigate("AvisoCadastro", {topbar: true} )
+                    }
+                activeOpacity={0.5}>
+
                     <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>
                 </TouchableOpacity>
 
             </View>
 
-            { !userEstado ?
+            { !user ?
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                     <View style={styles.login} >
                         <Text style={styles.loginText}>login</Text>

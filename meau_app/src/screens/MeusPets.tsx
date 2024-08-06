@@ -7,9 +7,12 @@ import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
 import AvisoCadastro from "./AvisoCadastro";
 import CardAnimal from "../components/CardAnimal";
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 
 export default function MeusPets() {
+
+    const { user } = useAutenticacaoUser();
 
     const [modal, setModal] = useState(true);
 
@@ -39,7 +42,6 @@ export default function MeusPets() {
         }
     };
 
-    const [currentUser, setCurrentUser] = useState(null);
     const [esperando, setEsperando] = useState(true);
 
     const updateEstadoAnimal = async (id : string, estado: boolean) => {
@@ -63,18 +65,7 @@ export default function MeusPets() {
 
             setEsperando(true);
             
-            const user = getAuth().currentUser;
-
-            setCurrentUser(user);
-
-            if (user) {
-                console.log("Logado - Pagina Meus Pets");
-                buscarMeusPets(user.uid);
-
-            } else {
-                setEsperando(false);
-                console.log("SAIU");
-            }
+            buscarMeusPets(user.uid);
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -83,7 +74,7 @@ export default function MeusPets() {
         }, [])
     );
 
-    if (currentUser && !esperando) {
+    if (!esperando) {
 
         //console.log(meusPets[0].imagemBase64);
 
@@ -124,16 +115,12 @@ export default function MeusPets() {
         );
 
     } else {
-        if (esperando) {
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
-                </Modal>
-            );
 
-        } else {
-            return <AvisoCadastro topbar={false} />;
-        }
+        return (
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+            </Modal>
+        );
 
     }
 

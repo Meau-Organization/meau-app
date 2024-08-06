@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Screen } from "react-native-screens";
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 import SelectDropdown from 'react-native-select-dropdown'
 
@@ -38,9 +39,18 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
 
+    const { user } = useAutenticacaoUser();
+
     const [curtida, setCurtida] = useState(false);
 
     const curtir = () => {
+        if (!user){
+            // Se o usuário não estiver autenticado, redirecione para a tela de aviso
+            navigation.navigate("AvisoCadastro", {topbar: true} )
+        } else {
+            // Caso contrário, navegue para a tela de detalhes
+            // navigation.navigate(tela, { animal_id: id });
+        }
         curtida ? setCurtida(false) : setCurtida(true);
     };
 
@@ -69,12 +79,7 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
 
             <View style={[styles.titulo, { backgroundColor: corCard }]}>
 
-                <TouchableOpacity
-                    onPress={
-                        // () => navigation.navigate("DetalhesAnimal", {animal_id: id })
-                        () => navigation.navigate(tela, { animal_id: id })
-                    }
-                >
+                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id })}>
                     <Text style={styles.text_nome}>{nome}</Text>
                 </TouchableOpacity>
 

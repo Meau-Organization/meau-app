@@ -9,7 +9,6 @@ import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import CardAnimal from '../components/CardAnimal'; 
 
 const ani = require('../assets/images/animais-seed/5.jpg');
 
@@ -28,7 +27,6 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
-    const [currentUser, setCurrentUser] = useState(null);
     const [dadosAnimal, setDadosAnimal] = useState(null);
 
     const [esperando, setEsperando] = useState(true);
@@ -65,22 +63,10 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
     useFocusEffect(
         useCallback(() => {
+            
             setEsperando(true);
             
-            const user = getAuth().currentUser;
-
-            setCurrentUser(user);
-
-            if (user) {
-
-                buscarDadosAnimais(animal_id);
-
-                console.log("Logado - Pagina Detalhes animal");
-
-            } else {
-                setEsperando(false);
-                console.log("SAIU");
-            }
+            buscarDadosAnimais(animal_id);
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -91,7 +77,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
  
 
-    if (currentUser && !esperando) {
+    if (!esperando) {
 
         return (
             <>
@@ -114,24 +100,6 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                         ></ImageBackground>
                         <View style={styles.caixaFoto2}></View>
                     </View>
-                    
-                    {/* Removi a alteração de utilizar o componente, pois o componete CardAnimal irá introduzir o CARD
-                            completo no lugar da foto,ou seja, ele não tras apenas a foto consigo mas todo o card. Então
-                                faz mais sentido apenas usar a TAG  (ImageBackground ou Image) para puxar a imagem */}
-
-                    {/* <View style={styles.caixaFoto}>
-                        <CardAnimal
-                            primeiro={true}
-                            modo="center"
-                            foto={{  //Insere a foto do animal com base no CardAnimal.tsx
-                                uri: dadosAnimal.imagemBase64 ?
-                                    `data:${dadosAnimal.imagemBase64.mimeType};base64,${dadosAnimal.imagemBase64.base64}` :
-                                    'default_placeholder_image_uri'
-                            }}
-                            style={styles.caixaFoto}
-                        ></CardAnimal>
-                        <View style={styles.caixaFoto2}></View>
-                    </View> */}
 
                     
 
@@ -231,14 +199,11 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
         )
     } else {
 
-        if (esperando) 
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
-                </Modal>
-            );
-        else
-            return <AvisoCadastro topbar={false} />;
+        return (
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
+            </Modal>
+        );
 
     }
 

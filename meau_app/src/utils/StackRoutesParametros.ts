@@ -1,7 +1,7 @@
 
 export type StackRoutesParametros = {
     Inicial: { userEstado: number };
-    AvisoCadastro: undefined;
+    AvisoCadastro: { topbar: boolean };
     Login: undefined;
     CadastroPessoal: undefined;
     CadastroAnimal: undefined;
@@ -10,6 +10,7 @@ export type StackRoutesParametros = {
     TesteLogado: undefined;
     ProtectTelas: undefined;
     DrawerRoutes: undefined;
+    DrawerRouteAuth: undefined;
     BoxLogin: undefined;
     MeusPets: undefined;
     Adotar: undefined;

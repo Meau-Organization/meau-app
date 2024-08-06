@@ -9,6 +9,7 @@ import AvisoCadastro from "./AvisoCadastro";
 import ModalLoanding from "../components/ModalLoanding";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 const userPadrao = require('../assets/images/user.jpg');
 
@@ -17,7 +18,8 @@ export default function MeuPerfil() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user } = useAutenticacaoUser();
+
     const [dadosUser, setDadosUser] = useState(null);
 
     const [esperando, setEsperando] = useState(true);
@@ -50,22 +52,9 @@ export default function MeuPerfil() {
 
     useFocusEffect(
         useCallback(() => {
-            setEsperando(true);
             
-            const user = getAuth().currentUser;
-
-            setCurrentUser(user);
-
-            if (user) {
-
-                buscarDadosUsuario(user.uid);
-
-                console.log("Logado - Pagina Meu Perfil");
-
-            } else {
-                setEsperando(false);
-                console.log("SAIU");
-            }
+            setEsperando(true);
+            buscarDadosUsuario(user.uid);
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -77,7 +66,7 @@ export default function MeuPerfil() {
     
 
 
-    if (currentUser && !esperando) {
+    if (!esperando) {
 
         return(
             <ScrollView>
@@ -147,15 +136,11 @@ export default function MeuPerfil() {
 
     } else {
 
-        if (esperando) 
-            return (
-                <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
-                </Modal>
-            );
-        else
-            return <AvisoCadastro topbar={false} />;
-
+        return (
+            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
+            </Modal>
+        );
     }
 
 }

@@ -10,6 +10,7 @@ import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
+import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 
 const Drawer = createDrawerNavigator();
 
@@ -23,6 +24,8 @@ interface titulosPaginas {
 
 
 export default function DrawerRoutes() {
+
+    const { user } = useAutenticacaoUser();
 
     const estadoNavegacao = useNavigationState(estado => estado);
   
@@ -73,44 +76,68 @@ export default function DrawerRoutes() {
                     },
                     headerShadowVisible: false,
                 }}>
+                
+                {user ? (
+                    <>
+                        <Drawer.Screen
+                            name = "Home"
+                            component={Inicial}
+                            options={{
+                                drawerLabel: 'Inicio',
+                                drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
+                            }}
+                        />
+        
+                        <Drawer.Screen
+                            name = "MeuPerfil"
+                            component={MeuPerfil}
+                            options={{
+                                drawerLabel: 'Meu Perfil',
+                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                            }}
+                        />
+        
+                        <Drawer.Screen
+                            name = "MeusPets"
+                            component={MeusPets}
+                            options={{
+                                drawerLabel: 'Meus Pets',
+                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                            }}
+                            //initialParams={{ recarregar: false, usuario_id: '' }}
+                        />
+        
+                        <Drawer.Screen
+                            name = "Adotar"
+                            component={Adotar}
+                            options={{
+                                drawerLabel: 'Adotar',
+                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                            }}
+                        />
+                    </>
 
+                ):(// Navegação para usuários não autenticados
+                <>
+                    <Drawer.Screen
+                        name = "Home"
+                        component={Inicial}
+                        options={{
+                            drawerLabel: 'Inicio',
+                            drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
+                        }}
+                    />
+                    
+                    <Drawer.Screen
+                        name = "Adotar"
+                        component={Adotar}
+                        options={{
+                            drawerLabel: 'Adotar',
+                            drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                        }}
+                    />
+                </>) }
 
-                <Drawer.Screen
-                    name = "Home"
-                    component={Inicial}
-                    options={{
-                        drawerLabel: 'Inicio',
-                        drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
-                    }}
-                />
-
-                <Drawer.Screen
-                    name = "MeuPerfil"
-                    component={MeuPerfil}
-                    options={{
-                        drawerLabel: 'Meu Perfil',
-                        drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                    }}
-                />
-
-                <Drawer.Screen
-                    name = "MeusPets"
-                    component={MeusPets}
-                    options={{
-                        drawerLabel: 'Meus Pets',
-                        drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                    }}
-                    //initialParams={{ recarregar: false, usuario_id: '' }}
-                />
-
-                <Drawer.Screen
-                    name = "Adotar"
-                    component={Adotar}
-                    options={{
-                        drawerLabel: 'Adotar',
-                        drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                    }}
-                />
 
             </Drawer.Navigator>
         </View>
