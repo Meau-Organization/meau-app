@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import Feather from '@expo/vector-icons/Feather';
 
-import OpenImagePicker from '../../../components/OpenImagePickerAsync';
+import OpenImagePicker from '../../../components/OpenImagePicker';
 import * as ImagePicker from 'expo-image-picker';
 import useVetorBool from '../../../hooks/useVetorBool';
 
@@ -22,8 +22,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 export default function CadastroPessoal() {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
-    const [imagemBase64, setImagemBase64] = useState(null);
-    //const [abrirCamera, setAbrirCamera] = useState(false);
+    
+    const [pacoteImagemBase64, setPacoteImagemBase64] = useState(null);
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -51,63 +51,10 @@ export default function CadastroPessoal() {
     const [vetorBoolFoco, AlternarFoco] = useVetorBool(10);
     const [vetorBoolError, AlternarError] = useVetorBool(10);
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-        console.log(result);
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
-    };
+    const handleImagePicked = (pacoteImagem) => {
 
-    /*const adicionarImagem = async () => {       // Codigo antigo para usar a camera
-        setModal(true);
-        const base64 = await openImagePickerAsync(abrirCamera);
-
-        console.log("teste" + base64)
-        if (base64) {
-            setImagemBase64(base64);
-        }
-        setModal(false);
-    }
-     */ 
-
-    //Metodo trata a imagem                                                             // Substitui essa funcão pela outra função sua 'handleImagePicked'
-                                                                                        //      que estava funcionando corretamente em 'PreencherCadastroAnimal'
-    // async function handleImagePicked (fromCamera, onImagePicked, onClose) {
-    //     const options = {
-    //         base64: true,
-    //         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //         allowsEditing: true,
-    //         quality: 1,
-    //     };
-
-    //     let pickerResult;
-    //     if (fromCamera){
-    //         pickerResult = await ImagePicker.launchCameraAsync(options);
-    //     } else {
-    //         pickerResult = await ImagePicker.launchImageLibraryAsync(options);
-    //     }
-    //     if (!pickerResult.cancelled && pickerResult.base64) {
-    //         setImagemBase64(`data:image/jpeg;base64,${pickerResult.base64}`);
-    //     }
-    //     setModalVisible(false);
-    // };
-
-    const handleImagePicked = (pickerResult) => {
-        //console.log("Image Picked:",pickerResult)
-        if (pickerResult.assets) {                                                      // Para evitar um WARNING no App é necessario testar se o
-                                                                                        //      objeto não esta vazio, em caso de o user não escolher a foto
-                                                                                        //          e fechar a janela. O método cancelled so funciona se o objeto foi setado
-
-            if (!pickerResult.assets[0].cancelled && pickerResult.assets[0].base64) {   // Inseri o assets[0] pois o pickerResult é um vetor
-                //setImagemBase64(`data:{image/jpeg};base64,${pickerResult.base64}`);   // Necessario mudar para setar o objeto da imagem corretamente
-                setImagemBase64(pickerResult);
-            }
+        if (!pacoteImagem.canceled) {                                                      
+            setPacoteImagemBase64(pacoteImagem);
         }
         setModalVisible(false);
         
@@ -169,7 +116,7 @@ export default function CadastroPessoal() {
                         endereco: endereco,
                         telefone: telefone,
                         username: username,
-                        imagemBase64: imagemBase64,
+                        imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal
                     });
                     // console.log("Document written with ID: ", docRef.id);
                 }
@@ -200,7 +147,7 @@ export default function CadastroPessoal() {
             
 
             <Modal visible={isLoading && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={isLoading} />
+                <ModalLoanding spinner={isLoading} cor={'#cfe9e5'}/>
             </Modal>
 
             <ScrollView>
@@ -360,16 +307,17 @@ export default function CadastroPessoal() {
 
                     <View style={styles.imageButtonContainer}>
                         <TouchableOpacity
-                            style={styles.imageButton}
+                            style={[styles.imageButton, { borderColor: pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#e6e7e7' : '#fb6565' : '#e6e7e7' } ]}
+
                             onPress={() => setModalVisible(true)}>
-                            {imagemBase64 ? (
+                            {pacoteImagemBase64 ? (
                                 
                                 <>
-                                    {imagemBase64.assets ? (
+                                    {pacoteImagemBase64.imagemPrincipal ? (
                                         <>
-                                            {console.log("base6400: " + imagemBase64)}
+                                            {/* {console.log("base6400: " + pacoteImagemBase64)} */}
                                             <ImageBackground
-                                                source={{ uri: `data:${imagemBase64.assets[0].mimeType};base64,${imagemBase64.assets[0].base64}` }}
+                                                source={{ uri: `data:${pacoteImagemBase64.imagemPrincipal.mimeType};base64,${pacoteImagemBase64.imagemPrincipal.base64}` }}
                                                 resizeMode="cover"
                                                 style={styles.imageAddButton}
                                             ></ImageBackground>
@@ -404,7 +352,25 @@ export default function CadastroPessoal() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity disabled={isLoading} onPress={cadastrarNovaConta} activeOpacity={0.5}>
+                    <Text style={[styles.textFotoTam,
+                        { color:
+                        pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#589b9b' : '#fb6565' : '#589b9b'
+                        }
+                    
+                    ]}>Limite arquivo: 1.5 Megabytes</Text>
+
+                    <TouchableOpacity
+                        disabled={isLoading}
+                        onPress={
+                            e => {
+                                pacoteImagemBase64.tamBase64Principal <= 1 ?
+                                    cadastrarNovaConta()
+                                    :
+                                    Alert.alert('Arquivo de foto excedeu o limite de 1.5 Megabytes')
+                            }
+                        }
+                        activeOpacity={0.5} >
+
                         <BotaoUsual texto='FAZER CADASTRO' marginTop={32} marginBottom={24} cor='#88c9bf' />
                     </TouchableOpacity>
 
@@ -465,6 +431,7 @@ const styles = StyleSheet.create({
             height: 8
         },
         elevation: 15,
+        borderWidth: 3,
     },
     textButton: {
         alignSelf: 'center',
@@ -474,11 +441,12 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     imageAddButton: {
-        width: 128,
-        height: 128,
-        resizeMode: "cover",
-        alignSelf: 'center',
-        borderRadius: 8,
+        borderRadius: 100,
+        width: 122,
+        height: 122,
+        //resizeMode: "cover",
+        //alignSelf: 'center',
+        
     },
     AddButton:{
         width: 24,
@@ -506,6 +474,13 @@ const styles = StyleSheet.create({
     },
     inputError: {
         borderColor: 'red',
+    },
+    textFotoTam: {
+        marginTop: 8,
+        fontSize: 14,
+        fontFamily: 'Roboto',
+        //backgroundColor: 'red',
+        width: 189
     },
 
 })

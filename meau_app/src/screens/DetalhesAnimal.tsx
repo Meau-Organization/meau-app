@@ -36,11 +36,13 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
     const { animal_id } = route.params; // Extrai o id do animal dos parâmetros da rota.
 
-    const buscarDadosAnimais = async (animalId : string) => {
+    const buscarDadosAnimais = async (animalId: string) => {
         try {
-                
-            const animalDocRef = doc(db, 'Animals', animalId);
-            const animalDoc = await getDoc(animalDocRef);
+            
+            const detalhesRef = doc(db, `Animals/${animalId}/Detalhes/${animalId}`);
+
+
+            const animalDoc = await getDoc(detalhesRef);
 
             if (animalDoc.exists()) {
                 setDadosAnimal(animalDoc.data());
@@ -63,6 +65,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
     useFocusEffect(
         useCallback(() => {
+            setEsperando(true);
             
             const user = getAuth().currentUser;
 
@@ -86,46 +89,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
         }, [])
     );
 
-    // if (!esperando) {
-    //     console.log(dadosAnimal);
-    // }
-
-    
-    // const [animal, setAnimal] = useState<any>(null); // Define um estado para armazenar os dados do animal.
-    // const [loading, setLoading] = useState(true); // Define um estado para controlar o carregamento.
-    // const [modal, setModal] = useState(true); // Define um estado para controlar a visibilidade do modal.
-    // const [currentUser, setCurrentUser] = useState<any>(null); // Define um estado para armazenar o usuário atual.
-    // const [esperando, setEsperando] = useState(true); // Define um estado para controlar o estado de espera.
-
-    /*useEffect(() => {
-      const user = getAuth().currentUser; // Obtém o usuário atual autenticado.
-      setCurrentUser(user); // Armazena o usuario no estado.
-
-      if (user){
-        console.log("Logado - Pagina Detalhes Animal");
-        fetchAnimalDetalhes(animal_id); // Busca os detalhes do animal se o usuário estiver logado.
-      } else {
-        setEsperando(false);
-        console.log("SAIU");
-      }
-    },[animal_id]); */
-
-    /*const fetchAnimalDetalhes = async (id: string) => {
-      try {
-          const animalDocRef = doc(db, 'Animals', id); // Referencia o documento do animal no Firestore.
-          const animalDoc = await getDoc(animalDocRef); // Obtém o documento do animal.
-
-          if (animalDoc.exists()) {
-              setAnimal(animalDoc.data()); // Define os dados do animal no estado.
-          } else {
-              console.log('Dados do animal não encontrados');
-          }
-          setLoading(false); // Define o estado de carregamento como falso.
-      } catch (error) {
-          console.error('Erro ao buscar detalhes do animal: ', error);
-          setLoading(false); // Define o estado de carregamento como falso em caso de erro.
-      }
-  };*/
+ 
 
     if (currentUser && !esperando) {
 
@@ -143,7 +107,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
                     <View style={styles.caixaFoto}>
                         <ImageBackground
-                            source={{ uri: `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` }}
+                            source={{ uri: `data:${dadosAnimal.imagemPrincipalBase64.mimeType};base64,${dadosAnimal.imagemPrincipalBase64.base64}` }}
                             imageStyle={{ borderRadius: 0}}
                             resizeMode="cover"
                             style={styles.caixaFoto}
@@ -161,7 +125,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                             modo="center"
                             foto={{  //Insere a foto do animal com base no CardAnimal.tsx
                                 uri: dadosAnimal.imagemBase64 ?
-                                    `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` :
+                                    `data:${dadosAnimal.imagemBase64.mimeType};base64,${dadosAnimal.imagemBase64.base64}` :
                                     'default_placeholder_image_uri'
                             }}
                             style={styles.caixaFoto}
@@ -270,7 +234,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
         if (esperando) 
             return (
                 <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
+                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
                 </Modal>
             );
         else

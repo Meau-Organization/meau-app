@@ -50,6 +50,7 @@ export default function MeuPerfil() {
 
     useFocusEffect(
         useCallback(() => {
+            setEsperando(true);
             
             const user = getAuth().currentUser;
 
@@ -82,9 +83,9 @@ export default function MeuPerfil() {
             <ScrollView>
             <View style={styles.container}>
 
-                {dadosUser.imagemBase64 ? (
+                {dadosUser.imagemPrincipalBase64 ? (
                     <ImageBackground
-                        source={{ uri: `data:${dadosUser.imagemBase64.assets[0].mimeType};base64,${dadosUser.imagemBase64.assets[0].base64}` }}
+                        source={{ uri: `data:${dadosUser.imagemPrincipalBase64.mimeType};base64,${dadosUser.imagemPrincipalBase64.base64}` }}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="contain"
                         style={styles.mini_foto}
@@ -149,7 +150,7 @@ export default function MeuPerfil() {
         if (esperando) 
             return (
                 <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
+                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
                 </Modal>
             );
         else

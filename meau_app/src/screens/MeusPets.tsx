@@ -1,7 +1,7 @@
 import { FlatList, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, collection, query, where, getDocs } from '../configs/firebaseConfig';
+import { getAuth, db, collection, query, where, getDocs, doc, updateDoc } from '../configs/firebaseConfig';
 import { useCallback, useEffect, useState } from "react";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
@@ -26,8 +26,7 @@ export default function MeusPets() {
             const meus_pets = [];
 
             snapshot.forEach((doc) => {
-                meus_pets.push({ uid: doc.id, ...doc.data() });
-                //console.log(doc.id, " => ", doc.data());
+                meus_pets.push({ uid: doc.id, ...doc.data()});
             });
 
             setMeusPets(meus_pets);
@@ -43,8 +42,26 @@ export default function MeusPets() {
     const [currentUser, setCurrentUser] = useState(null);
     const [esperando, setEsperando] = useState(true);
 
+    const updateEstadoAnimal = async (id : string, estado: boolean) => {
+        try {
+          // Referência ao documento específico
+          const documentReference = doc(db, 'Animals', id);
+      
+          // Atualizar o campo específico
+          await updateDoc(documentReference, {
+            disponivel: estado
+          });
+      
+          console.log('Campo atualizado com sucesso!');
+        } catch (error) {
+          console.error('Erro ao atualizar o campo: ', error);
+        }
+      };
+
     useFocusEffect(
         useCallback(() => {
+
+            setEsperando(true);
             
             const user = getAuth().currentUser;
 
@@ -80,19 +97,17 @@ export default function MeusPets() {
                             
                             <CardAnimal
 
-                                
-                                primeiro={ index == 0 ? true : false}
-                                modo={'space-between'}
-                                nome={animal.nomeAnimal}
-                                sexo={animal.sexo}
-                                idade={animal.idade}
-                                porte={animal.porte}
-                                cidade={animal.cidade}
-                                estado={animal.estado}
-                                trocaIcone={true}
                                 id={animal.uid}
-                                foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
+                                nome={animal.nomeAnimal}
                                 tela={"DetalhesAnimal"}
+                                foto={{ uri: `data:${"image/" + (animal.imagemComprimidaBase64.uri.split('.').pop() || 'unknown')};base64,${animal.imagemComprimidaBase64.base64}` }}
+                                modo={'space-around'}
+                                primeiro={ index == 0 ? true : false}
+                                trocaIcone={true}
+                                corCard={'#cfe9e5'}
+                                meusPets={true}
+                                disponivel={animal.disponivel}
+                                updateEstadoAnimal={updateEstadoAnimal}
                             />
 
                         </View>
@@ -112,7 +127,7 @@ export default function MeusPets() {
         if (esperando) {
             return (
                 <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
+                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
                 </Modal>
             );
 

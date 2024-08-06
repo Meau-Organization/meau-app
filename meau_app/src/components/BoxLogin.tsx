@@ -108,7 +108,7 @@ export function BoxLogin() {
             </TouchableOpacity>
 
             <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} />
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
             </Modal>
             
         </View>

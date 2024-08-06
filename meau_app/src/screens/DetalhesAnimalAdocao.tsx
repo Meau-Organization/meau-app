@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import { getAuth, db, doc, getDoc } from "../configs/firebaseConfig";
+import { getAuth, db, doc, getDoc, collection } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
 import AvisoCadastro from "./AvisoCadastro";
 import BotaoUsual from "../components/BotaoUsual";
@@ -21,6 +21,7 @@ interface DetalhesAnimalProps {
     };
 }
 
+import * as FileSystem from 'expo-file-system';
 
 
 
@@ -43,9 +44,11 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const buscarDadosAnimais = async (animalId: string) => {
         try {
+            
+            const detalhesRef = doc(db, `Animals/${animalId}/Detalhes/${animalId}`);
 
-            const animalDocRef = doc(db, 'Animals', animalId);
-            const animalDoc = await getDoc(animalDocRef);
+
+            const animalDoc = await getDoc(detalhesRef);
 
             if (animalDoc.exists()) {
                 setDadosAnimal(animalDoc.data());
@@ -66,8 +69,12 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         }
     };
 
+
+    
+
     useFocusEffect(
         useCallback(() => {
+            setEsperando(true);
 
             const user = getAuth().currentUser;
 
@@ -97,6 +104,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     if (currentUser && !esperando) {
 
+        // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
+
         return (
             <>
                 <TopBar
@@ -111,7 +120,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
                         <View style={styles.caixaFoto}>
                             <ImageBackground
-                                source={{ uri: `data:${dadosAnimal.imagemBase64.assets[0].mimeType};base64,${dadosAnimal.imagemBase64.assets[0].base64}` }}
+                                source={{ uri: `data:${dadosAnimal.imagemPrincipalBase64.mimeType};base64,${dadosAnimal.imagemPrincipalBase64.base64}` }}
                                 imageStyle={{ borderRadius: 0 }}
                                 resizeMode="cover"
                                 style={styles.caixaFoto}

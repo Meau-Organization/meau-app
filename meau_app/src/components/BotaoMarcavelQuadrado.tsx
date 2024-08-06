@@ -6,13 +6,14 @@ interface BotaoMarcavelRedondoProps {
     setEstadoDoPai: React.Dispatch<React.SetStateAction< string[] >>;
     width?: number;
     marginBottom?: number;
+    marginLeft?: number;
 }
 
 interface nomesBotao {
   [key: string]: Boolean;
 }
 
-export default function BotaoMarcavelRedondo({ vetor_opcoes, setEstadoDoPai, width = 115, marginBottom = 28 } : BotaoMarcavelRedondoProps) {
+export default function BotaoMarcavelRedondo({ vetor_opcoes, setEstadoDoPai, width = 115, marginBottom = 28, marginLeft = 0 } : BotaoMarcavelRedondoProps) {
 
     const [mapaDeNomes, setMapaDeNomes] = useState<nomesBotao>(() => {
 
@@ -54,7 +55,7 @@ export default function BotaoMarcavelRedondo({ vetor_opcoes, setEstadoDoPai, wid
         <>
             {vetor_opcoes.map( opcao => (
                 
-                <View key={opcao} style={[styles.container, {width: width, marginBottom: marginBottom} ]}>
+                <View key={opcao} style={[styles.container, {width: width, marginBottom: marginBottom, marginLeft: marginLeft} ]}>
 
                     <TouchableOpacity style={styles.radioButton} onPress={() => marcar(opcao)}>
 

@@ -1,7 +1,7 @@
-import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, doc, getDoc, collection, query, where, getDocs } from '../configs/firebaseConfig';
+import { getAuth, db, doc, getDoc, collection, query, where, getDocs, updateDoc } from '../configs/firebaseConfig';
 import { useCallback, useEffect, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
@@ -10,8 +10,12 @@ import ModalLoanding from "../components/ModalLoanding";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import CardAnimal from "../components/CardAnimal";
 
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+
+import * as FileSystem from 'expo-file-system';
 
 export default function Adotar() {
+
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
@@ -20,14 +24,14 @@ export default function Adotar() {
     const [esperando, setEsperando] = useState(true);
     const [modal, setModal] = useState(true);
 
-    const [animais, setAnimais]  = useState([]);
+    const [animais, setAnimais] = useState([]);
 
     const buscarAnimais = async () => {
 
         try {
             const animalsRef = collection(db, 'Animals');
 
-            const q = query(animalsRef);
+            const q = query(animalsRef, where('disponivel', '==', true));
 
             const snapshot = await getDocs(q);
             const animaisArray = [];
@@ -42,7 +46,7 @@ export default function Adotar() {
 
             setEsperando(false);
 
-        } catch(error) {
+        } catch (error) {
             setEsperando(false);
             console.log(error);
         }
@@ -50,7 +54,8 @@ export default function Adotar() {
 
     useFocusEffect(
         useCallback(() => {
-            
+            setEsperando(true);
+
             const user = getAuth().currentUser;
 
             setCurrentUser(user);
@@ -72,37 +77,39 @@ export default function Adotar() {
     );
 
     if (currentUser && !esperando) {
-        // console.log(animais[0].imagemBase64.assets[0].base64);
-        // console.log(animais[0].imagemBase64.assets[0].mimeType);
+        // console.log("base64 comprimido: " + animais[0].imagemComprimidaBase64.base64.length + " bytes : " + animais[0].nomeAnimal);
+        // console.log("base64 comprimido: " + animais[1].imagemComprimidaBase64.base64.length + " bytes : " + animais[1].nomeAnimal);
+        // console.log("base64 comprimido: " + animais[2].imagemComprimidaBase64.base64.length + " bytes : " + animais[2].nomeAnimal);
 
-        return(
-            <ScrollView style={{backgroundColor: '#fafafa'}}>
+
+        return (
+            <ScrollView style={{ backgroundColor: '#fafafa' }}>
                 <View style={styles.container}>
-                    
-                    {animais.map((animal, index : number) => (
+
+                    {animais.map((animal, index: number) => (
+
                         
-                        <View key={animal.uid} style={{ flexDirection: 'row',  width: '95.5%' }}>
-                            
+
+                        <View key={animal.uid} style={{ flexDirection: 'row', width: '95.5%' }}>
                             <CardAnimal
-                                primeiro={ index == 0 ? true : false}
-                                modo={'space-between'}
+                                id={animal.uid}
                                 nome={animal.nomeAnimal}
+                                tela={"DetalhesAnimalAdocao"}
+                                foto={{ uri: `data:${"image/" + (animal.imagemComprimidaBase64.uri.split('.').pop() || 'unknown')};base64,${animal.imagemComprimidaBase64.base64}` }}
+                                modo={'space-between'}
+                                primeiro={index == 0 ? true : false}
                                 sexo={animal.sexo}
                                 idade={animal.idade}
                                 porte={animal.porte}
                                 cidade={animal.cidade}
                                 estado={animal.estado}
-                                id={animal.uid}
-                                foto = {{uri: `data:${animal.imagemBase64.assets[0].mimeType};base64,${animal.imagemBase64.assets[0].base64}`}}
-                                tela={"DetalhesAnimalAdocao"}
+                                disponivel={animal.disponivel}
                             />
 
                         </View>
                     ))}
 
-                    <View style={{marginTop:20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100}}></View>
-
-
+                    <View style={{ marginTop: 20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100 }}></View>
 
                 </View>
             </ScrollView>
@@ -112,7 +119,7 @@ export default function Adotar() {
 
     } else {
 
-        if (esperando) 
+        if (esperando)
             return (
                 <Modal visible={esperando && modal} animationType='fade' transparent={true}>
                     <ModalLoanding spinner={esperando} />
