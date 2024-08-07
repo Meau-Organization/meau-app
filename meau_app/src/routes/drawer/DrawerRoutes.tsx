@@ -49,21 +49,21 @@ export default function DrawerRoutes() {
         MeusPets: '#88c9bf',
         MeuPerfil: '#cfe9e5',
         Adotar: '#ffd358',
-        Chats: '#ffd358',
+        Conversas: '#589b9b',
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
         MeusPets: '#434343',
         MeuPerfil: '#434343',
         Adotar: '#434343',
-        Chat: '#ffd358',
+        Conversas: '#434343',
     };
     const titulos_paginas: titulosPaginas = {
         Home: '',
         MeusPets: 'Meus Pets',
         MeuPerfil: 'Meu Perfil',
         Adotar: 'Adotar',
-        Chats: 'Chats'
+        Conversas: 'Chats'
     };
 
 

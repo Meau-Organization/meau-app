@@ -76,7 +76,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     };
 
 
-    const sendMessage = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
+    const createChat = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
 
         const data = new Date();
 
@@ -325,7 +325,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         onPress={() =>
                             user ?
                                 //alert('Em construção')
-                                sendMessage(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
+                                createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
                             :
                                 navigation.navigate("AvisoCadastro", {topbar: true} )
                             }

@@ -6,6 +6,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { Text, TouchableOpacity, View } from "react-native";
+import ChatComponent from "../components/chatComponent";
 
 
 
@@ -30,6 +32,7 @@ export default function Conversas() {
 
             const userChats = snapshot.val();
             const chatPromises = Object.keys(userChats).map(chatId => {
+                console.log(chatId);
                 const chatRef = ref(db, `chats/${chatId}`);
                 return get(chatRef).then(chatSnapshot => chatSnapshot.val());
             });
@@ -42,13 +45,23 @@ export default function Conversas() {
         }
     };
 
-    fetchChatsForUser();
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
 
     return (
         <ScrollView style={{ backgroundColor: '#fafafa' }}>
+
+            <TouchableOpacity onPress={fetchChatsForUser} ><Text>a</Text></TouchableOpacity>
+
+            <ChatComponent></ChatComponent>
+            <ChatComponent></ChatComponent>
+            <ChatComponent></ChatComponent>
+            <ChatComponent></ChatComponent>
+            <ChatComponent></ChatComponent>
+
+            
+            
         </ScrollView>
     );
 
