@@ -17,7 +17,12 @@ import { getAuth, db, addDoc, collection, doc, getDoc } from '../../../configs/f
 import AvisoCadastro from '../../AvisoCadastro';
 import ModalLoanding from '../../../components/ModalLoanding';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+<<<<<<< Updated upstream
 import ModalOpcaoImagem from '../../../components/ModalOpcaoImagem';
+=======
+import { useState } from 'react';
+import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+>>>>>>> Stashed changes
 
 const PlaceLogoImage = require('../../../assets/images/animais-seed/1.jpg');
 

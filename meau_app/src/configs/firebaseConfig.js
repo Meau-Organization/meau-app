@@ -9,7 +9,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore, addDoc, getDoc, setDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
 
 
-import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, MEASUREMENT_ID } from '@env';
+import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, MEASUREMENT_ID, DATABASE_URL } from '@env';
 
 const firebaseConfig = {
   apiKey: API_KEY,
@@ -18,7 +18,8 @@ const firebaseConfig = {
   storageBucket: STORAGE_BUCKET,
   messagingSenderId: MESSAGING_SENDER_ID,
   appId: APP_ID,
-  measurementId: MEASUREMENT_ID
+  measurementId: MEASUREMENT_ID,
+  databaseURL: DATABASE_URL, 
 };
 const app = initializeApp(firebaseConfig);
 

@@ -21,6 +21,10 @@ interface DetalhesAnimalProps {
     };
 }
 
+<<<<<<< Updated upstream
+=======
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+>>>>>>> Stashed changes
 
 
 
@@ -289,7 +293,19 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
                         </View>
 
+<<<<<<< Updated upstream
                         <TouchableOpacity activeOpacity={0.5}>
+=======
+                        <TouchableOpacity
+                        onPress={() =>
+                            user ?
+                                navigation.navigate("Chat", {topbar: true} )
+                            :
+                                navigation.navigate("AvisoCadastro", {topbar: true} )
+                            }
+                        activeOpacity={0.5}>
+
+>>>>>>> Stashed changes
                             <BotaoUsual texto='PRETENDO ADOTAR' cor='#fdcf58' marginTop={28} marginBottom={28} largura={232} altura={40} />
                         </TouchableOpacity>
 

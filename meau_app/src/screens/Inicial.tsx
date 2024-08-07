@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
-import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 

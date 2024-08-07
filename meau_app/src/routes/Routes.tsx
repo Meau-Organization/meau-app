@@ -5,7 +5,7 @@ import AuthStack from "./stack/AuthStack";
 import DrawerRoutes from "./drawer/DrawerRoutes";
 import DrawerRouteAuth from "./drawer/DrawerRouteAuth";
 
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
 export default function Routes() {

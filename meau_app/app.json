@@ -40,7 +40,8 @@
       "APP_ID": "${APP_ID}",
       "MEASUREMENT_ID": "${MEASUREMENT_ID}",
       "eas": {
-        "projectId": "c5621118-1fb1-4f6e-a816-819e1a7fd995"
+        "projectId": "c5621118-1fb1-4f6e-a816-819e1a7fd995",
+      "DATABASE_URL": "${DATABASE_URL}"
       }
     }
   }

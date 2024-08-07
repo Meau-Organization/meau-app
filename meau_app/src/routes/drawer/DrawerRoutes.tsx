@@ -10,7 +10,7 @@ import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
-import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 const Drawer = createDrawerNavigator();
 

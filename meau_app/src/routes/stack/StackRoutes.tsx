@@ -6,6 +6,7 @@ import AvisoCadastro from '../../screens/AvisoCadastro';
 import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import CadastroAnimal from '../../screens/CadastroAnimal';
 import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
+import ChatScreen from '../../screens/ChatScreen';
 
 import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import DrawerRoutes from '../drawer/DrawerRoutes';
@@ -13,13 +14,11 @@ import MeusPets from '../../screens/MeusPets';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import { useNavigationState , NavigationState} from '@react-navigation/native';
-import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
 export default function StackRoutes() {
-
-    const { user } = useAutenticacaoUser();
 
     const estadoNavegacao = useNavigationState(state => state);
 
@@ -44,7 +43,7 @@ export default function StackRoutes() {
 
             <Stack.Screen name="DrawerRoutes" component={DrawerRoutes} />
 
-            <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}} options={{title:'Inicial', animationTypeForReplace: user === null  ? 'pop' : 'push',}}/>
+            <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}}/>
 
             <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} />
 

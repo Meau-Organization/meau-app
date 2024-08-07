@@ -8,7 +8,7 @@ import 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 
 import Routes from './src/routes/Routes';
-import { AutenticacaoUserProvider } from './assets/contexts/AutenticacaoUserContext';
+import { AutenticacaoUserProvider } from './src/assets/contexts/AutenticacaoUserContext';
 import { auth, getAuth, onAuthStateChanged} from './src/configs/firebaseConfig';
 
 

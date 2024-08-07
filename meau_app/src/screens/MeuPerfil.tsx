@@ -9,6 +9,10 @@ import AvisoCadastro from "./AvisoCadastro";
 import ModalLoanding from "../components/ModalLoanding";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
+<<<<<<< Updated upstream
+=======
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+>>>>>>> Stashed changes
 
 const userPadrao = require('../assets/images/user.jpg');
 
