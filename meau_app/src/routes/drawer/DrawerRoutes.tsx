@@ -11,6 +11,7 @@ import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
 import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import Conversas from '../../screens/Conversas';
 
 const Drawer = createDrawerNavigator();
 
@@ -48,18 +49,21 @@ export default function DrawerRoutes() {
         MeusPets: '#88c9bf',
         MeuPerfil: '#cfe9e5',
         Adotar: '#ffd358',
+        Chats: '#ffd358',
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
         MeusPets: '#434343',
         MeuPerfil: '#434343',
         Adotar: '#434343',
+        Chat: '#ffd358',
     };
     const titulos_paginas: titulosPaginas = {
         Home: '',
         MeusPets: 'Meus Pets',
         MeuPerfil: 'Meu Perfil',
         Adotar: 'Adotar',
+        Chats: 'Chats'
     };
 
 
@@ -114,6 +118,17 @@ export default function DrawerRoutes() {
                                 drawerLabel: 'Adotar',
                                 drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
                             }}
+
+                        />
+
+                        <Drawer.Screen
+                            name = "Conversas"
+                            component={Conversas}
+                            options={{
+                                drawerLabel: 'Conversas',
+                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                            }}
+                            
                         />
                     </>
 
