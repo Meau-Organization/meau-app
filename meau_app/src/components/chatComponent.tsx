@@ -33,7 +33,7 @@ export default function ChatComponent({ titulo }: chatProps) {
             </View>
 
             <View style={{marginLeft: 10, width: '78%'}}>
-                <Text>JOAO DAS NEVES</Text>
+                <Text>{titulo}</Text>
                 <Text style={{fontSize: 10, marginTop: 4, maxWidth: '60%'}}>OPA, BÃO asdasdas as adasd asdasd adasd asda dsd ad as dada d......</Text>
 
                 <Text style={{alignSelf: 'flex-end'}} > <Text>12:51</Text> </Text>
