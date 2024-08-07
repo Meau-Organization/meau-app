@@ -3,7 +3,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { ScrollView } from "react-native-gesture-handler";
-import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal } from "../configs/firebaseConfig";
+import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -14,12 +14,9 @@ import ChatComponent from "../components/chatComponent";
 export default function Conversas() {
     const { user } = useAutenticacaoUser();
 
+
     const fetchChatsForUser = async () => {
-
-        console.log('fetch');
-
-        const userId = user.uid;
-        const db = realtime;
+        const db = realtime
         const userChatsRef = ref(db, `userChats/${user.uid}`);
 
         try {
@@ -31,19 +28,43 @@ export default function Conversas() {
             }
 
             const userChats = snapshot.val();
-            const chatPromises = Object.keys(userChats).map(chatId => {
-                console.log(chatId);
+            const chatPromises = Object.keys(userChats).map(async chatId => {
                 const chatRef = ref(db, `chats/${chatId}`);
-                return get(chatRef).then(chatSnapshot => chatSnapshot.val());
+                const chatSnapshot = await get(chatRef);
+                const chatData = chatSnapshot.val();
+
+                // Query para obter a última mensagem enviada
+                const messagesRef = ref(db, `chats/${chatId}/messages`);
+                const lastMessageQuery = queryReal(messagesRef, orderByKey(), limitToLast(1));
+                const lastMessageSnapshot = await get(lastMessageQuery);
+                const lastMessage = lastMessageSnapshot.exists() ? Object.values(lastMessageSnapshot.val())[0] : null;
+
+                return { chatId, chatData, lastMessage };
             });
 
             const chats = await Promise.all(chatPromises);
-            console.log(chats);
+
+            // Processando os chats para extrair o ID do outro usuário, o ID do animal, e a última mensagem
+            const processedChats = chats.map(({ chatId, chatData, lastMessage }) => {
+                const [_, userId1, userId2, animalId] = chatId.split('-');
+                const otherUserId = userId1 === user.uid ? userId2 : user.uid;
+                return {
+                    chatId,
+                    otherUserId,
+                    animalId,
+                    lastMessage,
+                    chatData
+                };
+            });
+
+            console.log(processedChats);
 
         } catch (error) {
             console.error(error);
         }
+
     };
+
 
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
@@ -60,8 +81,8 @@ export default function Conversas() {
             <ChatComponent></ChatComponent>
             <ChatComponent></ChatComponent>
 
-            
-            
+
+
         </ScrollView>
     );
 

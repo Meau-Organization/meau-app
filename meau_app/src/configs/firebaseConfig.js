@@ -6,7 +6,7 @@ import { initializeAuth, getAuth, getReactNativePersistence, signInWithEmailAndP
 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-import { getDatabase, ref, child, get, set, query as queryReal, orderByKey, startAt, endAt } from "firebase/database";
+import { getDatabase, ref, child, get, set, query as queryReal, orderByKey, startAt, endAt, limitToLast } from "firebase/database";
 
 import { getFirestore, addDoc, getDoc, setDoc, doc, collection, query, where, getDocs, updateDoc} from "firebase/firestore";
 
@@ -39,7 +39,7 @@ const realtime = getDatabase(app);
   
 export {
     getAuth, auth, signInWithEmailAndPassword, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, db,
-    addDoc, getDoc, setDoc, doc, collection, query, where, getDocs, updateDoc, realtime, ref, child, get, set, orderByKey, startAt, endAt, queryReal
+    addDoc, getDoc, setDoc, doc, collection, query, where, getDocs, updateDoc, realtime, ref, child, get, set, orderByKey, startAt, endAt, queryReal, limitToLast
 };
 
 if (app && auth) {
