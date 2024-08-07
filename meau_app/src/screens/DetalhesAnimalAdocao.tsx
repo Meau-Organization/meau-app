@@ -82,11 +82,21 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
 
         try {
-            set(ref(realtime, 'chats/' + 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36) ), {
+
+            const idChat = 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal;
+            
+
+
+            const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
+            const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
+
+            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
                 conteudo: msg,
                 dataMsg: data,
                 sender: idInteressado,
             });
+            await set(userChatRef1, true);
+            await set(userChatRef2, true);
 
 
             console.log('Criou o chat');

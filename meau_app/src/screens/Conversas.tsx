@@ -9,28 +9,44 @@ import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserConte
 
 
 
-export default function Conversas(){
-    const { user } = useAutenticacaoUser();  
-    const chatsRef = ref(realtime, 'chats');  
-    
-    const fetchChatsForUser = async (userId) => {
-    const dbRef = ref(realtime);
-    get(child(dbRef, `chats/chat-${user.uid}`)).then((snapshot) => {
-    if (snapshot.exists()) {
-        console.log(snapshot.val());
-    } else {
-        console.log("No data available");
-    }
-    }).catch((error) => {
-    console.error(error);
-    });
+export default function Conversas() {
+    const { user } = useAutenticacaoUser();
 
-   
-    }
+    const fetchChatsForUser = async () => {
+
+        console.log('fetch');
+
+        const userId = user.uid;
+        const db = realtime;
+        const userChatsRef = ref(db, `userChats/${user.uid}`);
+
+        try {
+            const snapshot = await get(userChatsRef);
+
+            if (!snapshot.exists()) {
+                console.log("No chats available for this user");
+                return;
+            }
+
+            const userChats = snapshot.val();
+            const chatPromises = Object.keys(userChats).map(chatId => {
+                const chatRef = ref(db, `chats/${chatId}`);
+                return get(chatRef).then(chatSnapshot => chatSnapshot.val());
+            });
+
+            const chats = await Promise.all(chatPromises);
+            console.log(chats);
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchChatsForUser();
+
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
-    
-    fetchChatsForUser(user.uid);
-    
+
+
     return (
         <ScrollView style={{ backgroundColor: '#fafafa' }}>
         </ScrollView>
