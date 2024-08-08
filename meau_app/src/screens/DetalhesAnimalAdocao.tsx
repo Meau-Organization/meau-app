@@ -22,6 +22,7 @@ interface DetalhesAnimalProps {
 }
 
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { formatarData } from "../utils/utils";
 
 
 
@@ -77,36 +78,38 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     };
 
 
-    const createChat = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
+    // const createChat = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
 
-        const data = new Date();
+    //     const data = Date.now();
+
+    //     //const Dataformatada = formatarData(data);
 
 
-        try {
+    //     try {
 
-            const idChat = 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal;
+    //         const idChat = 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal;
             
 
 
-            const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
-            const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
+    //         const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
+    //         const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
 
-            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
-                conteudo: msg,
-                dataMsg: data,
-                sender: idInteressado,
-            });
-            await set(userChatRef1, true);
-            await set(userChatRef2, true);
+    //         set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+    //             conteudo: msg,
+    //             dataMsg: data,
+    //             sender: idInteressado,
+    //         });
+    //         await set(userChatRef1, true);
+    //         await set(userChatRef2, true);
 
 
-            console.log('Criou o chat');
+    //         console.log('Criou o chat');
 
-        } catch (error) {
-            console.log('erro ao criar chat');
-        }
+    //     } catch (error) {
+    //         console.log('erro ao criar chat');
+    //     }
 
-    };
+    // };
 
     useFocusEffect(
         useCallback(() => {
@@ -327,7 +330,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         onPress={() =>
                             user ?
                                 //alert('Em construção')
-                                createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
+                                //createChat(dadosAnimal.usuario_id, user.uid, animal_id, "responde nois ae")
+                                navigation.navigate("ChatScreen", {idDono: dadosAnimal.usuario_id, idInteressado: user.uid, idAnimal: animal_id} )
                             :
                                 navigation.navigate("AvisoCadastro", {topbar: true} )
                             }

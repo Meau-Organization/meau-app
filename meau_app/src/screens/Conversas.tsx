@@ -3,7 +3,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { ScrollView } from "react-native-gesture-handler";
-import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast } from "../configs/firebaseConfig";
+import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast, orderByChild } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -14,8 +14,6 @@ import ChatComponent from "../components/chatComponent";
 export default function Conversas() {
     
     const { user } = useAutenticacaoUser();
-
-    const [chatsA, setChatsA] = useState(null);
     
     const [processedChatsFinal, setProcessedChatsFinal] = useState(null);
 
@@ -56,7 +54,9 @@ export default function Conversas() {
 
                 // Query para obter a última mensagem enviada
                 const messagesRef = ref(realtime, `chats/${chatId}/messages`);
-                const lastMessageQuery = queryReal(messagesRef, orderByKey(), limitToLast(1));
+                
+                const lastMessageQuery = queryReal(messagesRef, orderByChild('dataMsg'), limitToLast(1));
+                
                 const lastMessageSnapshot = await get(lastMessageQuery);
                 const lastMessage = lastMessageSnapshot.exists() ? Object.values(lastMessageSnapshot.val())[0] : null;
 
@@ -82,10 +82,6 @@ export default function Conversas() {
             const processedChatsR = await Promise.all(processedChats);
 
             //console.log(processedChatsR);
-            if (processedChatsR) {
-                setChatsA(processedChatsR);
-                //console.log(chatsA)
-            }
 
             return processedChatsR;
             
@@ -147,6 +143,7 @@ export default function Conversas() {
                         <ChatComponent
                             titulo={chat.nomeOtherUserId}
                             msgPreview={chat.lastMessage.conteudo}
+                            data={chat.lastMessage.dataMsg}
                         />
 
                     </View>

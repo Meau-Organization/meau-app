@@ -59,20 +59,7 @@ export default function Adotar() {
         useCallback(() => {
             setEsperando(true);
 
-            const id = 'phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32';
-
-            const dbRef = ref(realtime);
-            get(child(dbRef, `messages/chat-phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32-` + id)).then((snapshot) => {
-            if (snapshot.exists()) {
-                console.log(snapshot.val());
-            } else {
-                console.log("No data available");
-            }
-            }).catch((error) => {
-                console.error(error);
-            });
-            
-            
+        
             
             buscarAnimais();
 

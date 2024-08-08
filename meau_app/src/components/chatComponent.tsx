@@ -11,16 +11,19 @@ import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserConte
 
 import SelectDropdown from 'react-native-select-dropdown'
 
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 interface chatProps {
     titulo?: string;
     msgPreview?: string;
+    data?: string;
 }
 
-export default function ChatComponent({ titulo, msgPreview }: chatProps) {
-
+export default function ChatComponent({ titulo, msgPreview, data }: chatProps) {
 
 
     return (
@@ -36,7 +39,7 @@ export default function ChatComponent({ titulo, msgPreview }: chatProps) {
                 <Text>{titulo}</Text>
                 <Text style={{fontSize: 10, marginTop: 4, maxWidth: '60%'}}>{msgPreview}</Text>
 
-                <Text style={{alignSelf: 'flex-end'}} > <Text>12:51</Text> </Text>
+                <Text style={{alignSelf: 'flex-end'}} > <Text>{ format(new Date(data), 'HH:mm', { locale: ptBR })}</Text> </Text>
             </View>
 
             

@@ -17,4 +17,5 @@ export type StackRoutesParametros = {
     CardAnimal: undefined;
     DetalhesAnimal: { animal_id: string };
     DetalhesAnimalAdocao: { animal_id: string };
+    ChatScreen: { idDono: string, idInteressado: string, idAnimal: string };
 };
