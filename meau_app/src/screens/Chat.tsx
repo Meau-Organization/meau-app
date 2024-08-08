@@ -1,71 +1,79 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { signOut } from "firebase/auth";
-import { useLayoutEffect, useState } from "react";
-import { auth } from "../configs/firebaseConfig";
+import React,{ useLayoutEffect, useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { View, Text } from 'react-native';
 
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, IMessage } from "react-native-gifted-chat";
 import { AntDesign } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-
-
-export default function ChatScreen() {
-    const [messages, setMessages] = useState([]);
-    const route = useRoute();
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
-
-    const { chatId, otherUserId, nomeOtherUserId, animalId, chatData } = route.params;
-
-    const onSighOut = () => {
-        signOut(auth).catch(error => console.error(error));
+import { set, ref, realtime, push, onValue } from "../configs/firebaseConfig";
+//getDataBase = ref
+interface ChatScreenProps {
+    route: {
+        params: {
+        chatId: string;
+        otherUserId: string;
+        nomeOtherUserId: string;
+        animalId?: string;  
+        chatData: any;
+        };
     };
+}
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity
-                style={{marginRight: 10}}
-                onPress={onSighOut}>
-                    <AntDesign name="logout" size={24} color="#434343" style={{marginRight: 10}} />
-                </TouchableOpacity>
-            )
+export default function ChatScreen({ route } : ChatScreenProps) {
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
+    const { chatId, otherUserId, nomeOtherUserId, animalId, chatData } = route.params;
+    
+    const [messages, setMessages] = useState<IMessage[]>([]);
+
+    const messagesRef = ref(realtime, `chats/${chatId}/messages`);      //chats/$(chatId}/messages
+
+    useEffect(() => {
+        const unsubscribe = onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const messagesList = data ? Object.keys(data).map(key => ({
+                _id: key,
+                text: data[key].conteudo,
+                createdAt: new Date(),//.toISOString(),
+                user: {
+                    _id: data[key].sender,
+                    name: nomeOtherUserId
+                }
+            })) : [];
+            setMessages(messagesList);
         });
-    },[navigation]);
-
-    useLayoutEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if(user) {
-                setMessages([
-                    {
-                        _id: user.uid,
-                        text: 'Bem-vindo ao Chat! ${nomeOtherUserId}',
-                        createdAt: new Date(),
-                        user: {
-                            _id: user.uid,
-                            name: user.email,
-                            avatar: 'https://placeimg.com/140/140/any',
-                        },
-                    },
-                ])
-            }
-        })
 
         return () => unsubscribe();
-    })
+    },[chatId]);
+
+    const onSend = (newMessages: IMessage[]) => {
+        const updates = {};
+        newMessages.forEach(message => {
+            const newMessageRef = push(messagesRef);
+            updates[`chats/${chatId}/messages/${newMessageRef.key}`] = {
+                conteudo: message.text,
+                sender: message.user._id
+            };
+        });
+        set(ref(realtime, `chats/${chatId}/messages`), updates);
+    };
 
     return (
-        <GiftedChat
-            messages={messages}
-            onSend={msgs => setMessages(GiftedChat.append(messages, msgs))}
-            user={{
-                _id: auth.currentUser?.uid,
-                name: auth.currentUser?.email
-            }}
-        />
+        <View style={{ flex: 1 }}>
+            <GiftedChat
+                messages={messages}
+                onSend={onSend}
+                user={{
+                    _id: otherUserId
+                }}
+            />
+        </View>
     );
 
 

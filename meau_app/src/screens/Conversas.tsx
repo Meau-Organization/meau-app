@@ -84,7 +84,7 @@ export default function Conversas() {
                     chatId,
                     otherUserId,
                     animalId,
-                    lastMessage: lastMessage as {conteudo:string},
+                    lastMessage: lastMessage as {conteudo:string, createdAt: string },
                     chatData,
                 };
             });
@@ -96,6 +96,8 @@ export default function Conversas() {
                 const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId)); // Buscando dados do dono no Firestore
 
                 console.log("dadosOtherUserId.data().nome: " + dadosOtherUserId.data().nome);
+
+                console.log("Ultima mensagem : " + processedChatsR[index].lastMessage.conteudo)
 
                 return {
                     chatId: processedChatsR[index].chatId,
