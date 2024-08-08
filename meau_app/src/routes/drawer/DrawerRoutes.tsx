@@ -49,7 +49,7 @@ export default function DrawerRoutes() {
         MeusPets: '#88c9bf',
         MeuPerfil: '#cfe9e5',
         Adotar: '#ffd358',
-        Conversas: '#589b9b',
+        Conversas: '#88c9bf', //#589b9b
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
