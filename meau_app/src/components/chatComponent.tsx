@@ -19,7 +19,7 @@ interface chatProps {
     msgPreview?: string;
 }
 
-export default function ChatComponent({ titulo }: chatProps) {
+export default function ChatComponent({ titulo, msgPreview }: chatProps) {
 
 
 
@@ -34,7 +34,7 @@ export default function ChatComponent({ titulo }: chatProps) {
 
             <View style={{marginLeft: 10, width: '78%'}}>
                 <Text>{titulo}</Text>
-                <Text style={{fontSize: 10, marginTop: 4, maxWidth: '60%'}}>OPA, BÃO asdasdas as adasd asdasd adasd asda dsd ad as dada d......</Text>
+                <Text style={{fontSize: 10, marginTop: 4, maxWidth: '60%'}}>{msgPreview}</Text>
 
                 <Text style={{alignSelf: 'flex-end'}} > <Text>12:51</Text> </Text>
             </View>

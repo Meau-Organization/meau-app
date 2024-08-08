@@ -48,31 +48,6 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const { animal_id } = route.params;
 
-    const [dadosUser, setDadosUser] = useState(null);
-    const buscarDadosUsuario = async (userId : string) => {
-        try {
-                
-            const userDocRef = doc(db, 'Users', userId);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                setDadosUser(userDoc.data());
-
-            } else {
-                console.log('Dados do usuario não encontrados');
-
-            }
-            setEsperando(false);
-
-        } catch (error) {
-            console.error('Erro ao buscar dados do user: ', error);
-            setEsperando(false);
-
-        } finally {
-            setEsperando(false);
-
-        }
-    };
 
     const buscarDadosAnimais = async (animalId: string) => {
         try {
@@ -115,8 +90,6 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
             const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
             const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
-            const userChatRef3 = ref(realtime, `userChats/${idInteressado}/${dadosUser.nome}`);
-            const userChatRef4 = ref(realtime, `userChats/${idDono}/${dadosAnimal.dono}`);
 
             set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
                 conteudo: msg,
@@ -125,8 +98,6 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             });
             await set(userChatRef1, true);
             await set(userChatRef2, true);
-            await set(userChatRef3, true);
-            await set(userChatRef4, true);
 
 
             console.log('Criou o chat');
@@ -142,7 +113,6 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             
             setEsperando(true);
             
-            buscarDadosUsuario(user.uid);
 
             buscarDadosAnimais(animal_id);
 

@@ -100,7 +100,6 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
                     usuario_id: user.uid,
                     cidade: userDoc.data().cidade,
                     estado: userDoc.data().estado,
-                    dono: userDoc.data().nome,
                     imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal,
                     disponivel: true,
                 });

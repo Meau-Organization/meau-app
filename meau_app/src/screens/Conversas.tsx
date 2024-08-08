@@ -12,9 +12,26 @@ import ChatComponent from "../components/chatComponent";
 
 
 export default function Conversas() {
+    
     const { user } = useAutenticacaoUser();
 
     const [chatsA, setChatsA] = useState(null);
+    
+    const [processedChatsFinal, setProcessedChatsFinal] = useState(null);
+
+    const [esperando, setEsperando] = useState(true);
+
+    useFocusEffect(
+        useCallback(() => {
+            setEsperando(true);
+            teste();
+
+            return () => {
+                //console.log('Tela perdeu foco');
+            };
+
+        }, [])
+    );
     
 
     const fetchChatsForUser = async () => {
@@ -30,6 +47,8 @@ export default function Conversas() {
             }
 
             const userChats = snapshot.val();
+            //console.log(userChats);
+
             const chatPromises = Object.keys(userChats).map(async chatId => {
                 const chatRef = ref(realtime, `chats/${chatId}`);
                 const chatSnapshot = await get(chatRef);
@@ -50,7 +69,7 @@ export default function Conversas() {
             const processedChats = chats.map(({ chatId, chatData, lastMessage }) => {
                 const [_, userId1, userId2, animalId] = chatId.split('-');
                 const otherUserId = userId1 === user.uid ? userId2 : userId1;
-                console.log("otherUserId: " + otherUserId);
+                //console.log("otherUserId: " + otherUserId);
                 return {
                     chatId,
                     otherUserId,
@@ -60,11 +79,15 @@ export default function Conversas() {
                 };
             });
 
-            console.log(processedChats);
-            if (processedChats) {
-                setChatsA(processedChats);
-                console.log(chatsA)
+            const processedChatsR = await Promise.all(processedChats);
+
+            //console.log(processedChatsR);
+            if (processedChatsR) {
+                setChatsA(processedChatsR);
+                //console.log(chatsA)
             }
+
+            return processedChatsR;
             
             //buscarDadosUsuario(chats[0].lastMessage.otherUserId)
             
@@ -75,36 +98,72 @@ export default function Conversas() {
     };
 
 
+
+
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
 
-    return (
-        <ScrollView style={{ backgroundColor: '#fafafa' }}>
+    const teste = async () => {
 
-            <TouchableOpacity onPress={fetchChatsForUser} ><Text>a</Text></TouchableOpacity>
+        const processedChatsR = await fetchChatsForUser();
+        //console.log(processedChatsR[0].lastMessage);
+    
+            const processedChatsComNomes = processedChatsR.map(async (chat, index: number) => {
+        
+        
+                const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId));
+                const dadosUser = await getDoc(doc(db, "Users", user.uid));
+        
+                console.log("dadosOtherUserId.data().nome: " + dadosOtherUserId.data().nome);
+        
+                return {
+                    chatId: processedChatsR[index].chatId,
+                    otherUserId: processedChatsR[index].otherUserId,
+                    animalId: processedChatsR[index].animalId,
+                    lastMessage: processedChatsR[index].lastMessage,
+                    chatData: processedChatsR[index].chatData,
+                    nomeOtherUserId: dadosOtherUserId.data().nome,
+                    nomeUser: dadosUser.data().nome,
+                };
+            });
 
-            {/* {chatsA.map((chat, index: number) => (
+            const processedChatsFinal = await Promise.all(processedChatsComNomes);
+        
+            console.log(processedChatsFinal[0].lastMessage);
+            setProcessedChatsFinal(processedChatsFinal);
 
-                        
+            setEsperando(false);
+        
+    }
 
-                <View key={chat.chatId} style={{ flexDirection: 'row', width: '95.5%' }}>
-                    <ChatComponent
-                        titulo={chat.animalId}
-                    />
+    if (!esperando) {
+        return (
+            <ScrollView style={{ backgroundColor: '#fafafa' }}>
 
-                </View>
-            ))} */}
+                {processedChatsFinal.map((chat, index: number) => (
+        
 
-            {/* <ChatComponent></ChatComponent>
-            <ChatComponent></ChatComponent>
-            <ChatComponent></ChatComponent>
-            <ChatComponent></ChatComponent>
-            <ChatComponent></ChatComponent> */}
+                    <View key={chat.chatId} style={{ flexDirection: 'row', width: '95.5%' }}>
+                        <ChatComponent
+                            titulo={chat.nomeOtherUserId}
+                            msgPreview={chat.lastMessage.conteudo}
+                        />
+
+                    </View>
+                    
+                ))}
+
+                {/* <ChatComponent></ChatComponent>
+                <ChatComponent></ChatComponent>
+                <ChatComponent></ChatComponent>
+                <ChatComponent></ChatComponent>
+                <ChatComponent></ChatComponent> */}
 
 
 
-        </ScrollView>
-    );
+            </ScrollView>
+        );
+    }
 
 
 }
