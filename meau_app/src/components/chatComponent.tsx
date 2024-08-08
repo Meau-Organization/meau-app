@@ -18,15 +18,21 @@ const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 interface chatProps {
     titulo?: string;
     msgPreview?: string;
+    chatId: string;
+    otherUserId: string;
+    nomeOtherUserId: string;
+    animalId: string;
+    chatData: any;  // Ajuste conforme o tipo de dados que você está usando
+    onPress: () => void;  // Passar a função de navegação como prop
 }
 
-export default function ChatComponent({ titulo, msgPreview }: chatProps) {
+export default function ChatComponent({ titulo, msgPreview, onPress }: chatProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros>>();
 
     return (
    
-            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{
+            <TouchableOpacity onPress={onPress} style={{
                         flexDirection: 'row',
                         padding: 23,
                         borderBottomWidth: 1,

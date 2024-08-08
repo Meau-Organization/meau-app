@@ -11,20 +11,30 @@ import ChatComponent from "../components/chatComponent";
 
 import BotaoUsual from "../components/BotaoUsual";
 
+// Definir a interface para os dados dos chats
+interface ChatData {
+    chatId: string;
+    otherUserId: string;
+    animalId: string;
+    lastMessage: {
+        conteudo: string;
+    };
+    chatData: any;  // Ajuste conforme o tipo de dados que você está usando
+    nomeOtherUserId: string;
+}
+
 export default function Conversas() {
     
     const { user } = useAutenticacaoUser();
-
-    const [chatsA, setChatsA] = useState(null);
     
-    const [processedChatsFinal, setProcessedChatsFinal] = useState(null);
+    const [processedChatsFinal, setProcessedChatsFinal] = useState<ChatData[] | null>(null);
 
     const [esperando, setEsperando] = useState(true);
 
     useFocusEffect(
         useCallback(() => {
             setEsperando(true);
-            teste();
+            fetchChatsForUser();
 
             return () => {
                 //console.log('Tela perdeu foco');
@@ -74,20 +84,35 @@ export default function Conversas() {
                     chatId,
                     otherUserId,
                     animalId,
-                    lastMessage,
+                    lastMessage: lastMessage as {conteudo:string},
                     chatData,
                 };
             });
 
             const processedChatsR = await Promise.all(processedChats); // Aguardando o processamento final
 
-            //console.log(processedChatsR);
-            if (processedChatsR) {
-                setChatsA(processedChatsR); // Atualizando o estado com os chats processados
-                //console.log(chatsA)
-            }
+            const processedChatsComNomes = processedChatsR.map(async (chat, index: number) => {
+                
+                const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId)); // Buscando dados do dono no Firestore
 
-            return processedChatsR;
+                console.log("dadosOtherUserId.data().nome: " + dadosOtherUserId.data().nome);
+
+                return {
+                    chatId: processedChatsR[index].chatId,
+                    otherUserId: processedChatsR[index].otherUserId,
+                    animalId: processedChatsR[index].animalId,
+                    lastMessage: processedChatsR[index].lastMessage,
+                    chatData: processedChatsR[index].chatData,
+                    nomeOtherUserId: dadosOtherUserId.data().nome,
+                };
+            });
+
+            const processedChatsFinal = await Promise.all(processedChatsComNomes); // Esperando os nomes serem adicionados aos dados dos chats
+
+            console.log(processedChatsFinal[0].lastMessage); 
+            setProcessedChatsFinal(processedChatsFinal);  // Atualizando o estado com os chats finais
+
+            setEsperando(false); //Carregamento acabou
             
             //buscarDadosUsuario(chats[0].lastMessage.otherUserId)
             
@@ -103,7 +128,7 @@ export default function Conversas() {
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
 
-    const teste = async () => {
+   /* const teste = async () => {
 
         const processedChatsR = await fetchChatsForUser();
         console.log(processedChatsR[0].lastMessage);
@@ -137,12 +162,12 @@ export default function Conversas() {
             setEsperando(false); //Carregamento acabou
         
     }
-
+    */
     if (!esperando) {
         return (
             <ScrollView style={{ backgroundColor: '#fafafa', alignSelf :'center' }}>
 
-                {processedChatsFinal.map((chat, index: number) => (
+                {processedChatsFinal.map((chat) => (
         
                     
                         <View key={chat.chatId} style={{ flexDirection: 'row', width: '98.5%' }}>
@@ -150,6 +175,18 @@ export default function Conversas() {
                             <ChatComponent
                                 titulo={chat.nomeOtherUserId}
                                 msgPreview={chat.lastMessage.conteudo}
+                                chatId={chat.chatId}
+                                otherUserId={chat.otherUserId}
+                                nomeOtherUserId={chat.nomeOtherUserId}
+                                animalId={chat.animalId}
+                                chatData={chat.chatData}
+                                onPress={() => navigation.navigate('ChatScreen', {
+                                    chatId: chat.chatId,
+                                    otherUserId: chat.otherUserId,
+                                    nomeOtherUserId: chat.nomeOtherUserId,
+                                    animalId: chat.animalId,
+                                    chatData: chat.chatData
+                                })}
                             />
                             
 
