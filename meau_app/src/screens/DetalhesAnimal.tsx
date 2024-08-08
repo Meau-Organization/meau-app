@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
 import Constants from 'expo-constants';
 import { useCallback, useEffect, useState } from "react";
-import { getAuth, db, doc, getDoc } from "../configs/firebaseConfig";
+import { getAuth, db, doc, getDoc, set, ref, realtime } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
 import AvisoCadastro from "./AvisoCadastro";
 import BotaoUsual from "../components/BotaoUsual";
@@ -75,7 +75,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
         }, [])
     );
 
- 
+
 
     if (!esperando) {
 

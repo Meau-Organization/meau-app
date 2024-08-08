@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import { getAuth, db, doc, getDoc, collection } from "../configs/firebaseConfig";
+import { getAuth, db, doc, getDoc, collection, set, ref, realtime } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
 import AvisoCadastro from "./AvisoCadastro";
 import BotaoUsual from "../components/BotaoUsual";
@@ -48,6 +48,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const { animal_id } = route.params;
 
+
     const buscarDadosAnimais = async (animalId: string) => {
         try {
             
@@ -76,12 +77,42 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     };
 
 
-    
+    const createChat = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
+
+        const data = new Date();
+
+
+        try {
+
+            const idChat = 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal;
+            
+
+
+            const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
+            const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
+
+            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+                conteudo: msg,
+                dataMsg: data,
+                sender: idInteressado,
+            });
+            await set(userChatRef1, true);
+            await set(userChatRef2, true);
+
+
+            console.log('Criou o chat');
+
+        } catch (error) {
+            console.log('erro ao criar chat');
+        }
+
+    };
 
     useFocusEffect(
         useCallback(() => {
             
             setEsperando(true);
+            
 
             buscarDadosAnimais(animal_id);
 
@@ -295,7 +326,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         <TouchableOpacity
                         onPress={() =>
                             user ?
-                                alert('Em construção')
+                                //alert('Em construção')
+                                createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
                             :
                                 navigation.navigate("AvisoCadastro", {topbar: true} )
                             }

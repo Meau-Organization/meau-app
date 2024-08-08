@@ -1,7 +1,7 @@
 import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, doc, getDoc, collection, query, where, getDocs, updateDoc } from '../configs/firebaseConfig';
+import { getAuth, db, doc, getDoc, collection, query, where, getDocs, realtime, ref, child, get } from '../configs/firebaseConfig';
 import { useCallback, useEffect, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
@@ -13,6 +13,7 @@ import CardAnimal from "../components/CardAnimal";
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import * as FileSystem from 'expo-file-system';
+
 
 export default function Adotar() {
 
@@ -50,18 +51,39 @@ export default function Adotar() {
         }
     };
 
+    const [data2, setData] = useState<any>(null);
+
+    
+
     useFocusEffect(
         useCallback(() => {
             setEsperando(true);
+
+            const id = 'phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32';
+
+            const dbRef = ref(realtime);
+            get(child(dbRef, `messages/chat-phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32-` + id)).then((snapshot) => {
+            if (snapshot.exists()) {
+                console.log(snapshot.val());
+            } else {
+                console.log("No data available");
+            }
+            }).catch((error) => {
+                console.error(error);
+            });
+            
+            
             
             buscarAnimais();
 
-            return () => {
+            return () =>  {
                 //console.log('Tela perdeu foco');
+                console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 2" + data2);
             };
 
         }, [])
     );
+
 
     if (!esperando) {
 
@@ -93,6 +115,8 @@ export default function Adotar() {
                     ))}
 
                     <View style={{ marginTop: 20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100 }}></View>
+
+                    <TouchableOpacity></TouchableOpacity>
 
                 </View>
             </ScrollView>
