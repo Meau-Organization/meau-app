@@ -6,18 +6,21 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { GiftedChat } from "react-native-gifted-chat";
 import { AntDesign } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
 
-export default function Chat() {
+
+export default function ChatScreen() {
     const [msg, setMsg] = useState([]);
-    const nav = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
 
     const onSighOut = () => {
         signOut(auth).catch(error => console.error(error));
     };
 
     useLayoutEffect(() => {
-        nav.setOptions({
+        navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity
                 style={{marginRight: 10}}
@@ -26,7 +29,7 @@ export default function Chat() {
                 </TouchableOpacity>
             )
         });
-    },[nav]);
+    },[navigation]);
 
     useLayoutEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {

@@ -9,7 +9,7 @@ import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserConte
 import { Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/chatComponent";
 
-
+import BotaoUsual from "../components/BotaoUsual";
 
 export default function Conversas() {
     
@@ -36,22 +36,22 @@ export default function Conversas() {
 
     const fetchChatsForUser = async () => {
 
-        const userChatsRef = ref(realtime, `userChats/${user.uid}`);
+        const userChatsRef = ref(realtime, `userChats/${user.uid}`); // Referência ao nó de chats do usuário
 
         try {
-            const snapshot = await get(userChatsRef);
+            const snapshot = await get(userChatsRef);  // Obtendo dados dos chats
 
             if (!snapshot.exists()) {
                 console.log("No chats available for this user");
                 return;
             }
 
-            const userChats = snapshot.val();
+            const userChats = snapshot.val(); // Dados dos chats do usuário
             //console.log(userChats);
 
             const chatPromises = Object.keys(userChats).map(async chatId => {
-                const chatRef = ref(realtime, `chats/${chatId}`);
-                const chatSnapshot = await get(chatRef);
+                const chatRef = ref(realtime, `chats/${chatId}`);// Referência para cada chat
+                const chatSnapshot = await get(chatRef);// Obtendo dados de cada chat
                 const chatData = chatSnapshot.val();
 
                 // Query para obter a última mensagem enviada
@@ -60,15 +60,15 @@ export default function Conversas() {
                 const lastMessageSnapshot = await get(lastMessageQuery);
                 const lastMessage = lastMessageSnapshot.exists() ? Object.values(lastMessageSnapshot.val())[0] : null;
 
-                return { chatId, chatData, lastMessage };
+                return { chatId, chatData, lastMessage };  // Retornando dados do chat com a última mensagem
             });
 
-            const chats = await Promise.all(chatPromises);
+            const chats = await Promise.all(chatPromises); // Esperando todas as promises de chats
 
             // Processando os chats para extrair o ID do outro usuário, o ID do animal, e a última mensagem
             const processedChats = chats.map(({ chatId, chatData, lastMessage }) => {
                 const [_, userId1, userId2, animalId] = chatId.split('-');
-                const otherUserId = userId1 === user.uid ? userId2 : userId1;
+                const otherUserId = userId1 === user.uid ? userId2 : userId1; // Determinando o ID do outro usuário
                 //console.log("otherUserId: " + otherUserId);
                 return {
                     chatId,
@@ -79,11 +79,11 @@ export default function Conversas() {
                 };
             });
 
-            const processedChatsR = await Promise.all(processedChats);
+            const processedChatsR = await Promise.all(processedChats); // Aguardando o processamento final
 
             //console.log(processedChatsR);
             if (processedChatsR) {
-                setChatsA(processedChatsR);
+                setChatsA(processedChatsR); // Atualizando o estado com os chats processados
                 //console.log(chatsA)
             }
 
@@ -106,13 +106,16 @@ export default function Conversas() {
     const teste = async () => {
 
         const processedChatsR = await fetchChatsForUser();
-        //console.log(processedChatsR[0].lastMessage);
+        console.log(processedChatsR[0].lastMessage);
     
             const processedChatsComNomes = processedChatsR.map(async (chat, index: number) => {
         
         
-                const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId));
-                const dadosUser = await getDoc(doc(db, "Users", user.uid));
+                const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId)); // Buscando dados do dono no Firestore
+
+                const processaDadosUser = await getDoc(doc(db, "Users", user.uid));// Buscando dados do usuário atual no Firestore
+
+                console.log(dadosOtherUserId.data());
         
                 console.log("dadosOtherUserId.data().nome: " + dadosOtherUserId.data().nome);
         
@@ -123,35 +126,45 @@ export default function Conversas() {
                     lastMessage: processedChatsR[index].lastMessage,
                     chatData: processedChatsR[index].chatData,
                     nomeOtherUserId: dadosOtherUserId.data().nome,
-                    nomeUser: dadosUser.data().nome,
                 };
             });
 
-            const processedChatsFinal = await Promise.all(processedChatsComNomes);
+            const processedChatsFinal = await Promise.all(processedChatsComNomes); // Esperando os nomes serem adicionados aos dados dos chats
         
             console.log(processedChatsFinal[0].lastMessage);
-            setProcessedChatsFinal(processedChatsFinal);
+            setProcessedChatsFinal(processedChatsFinal);  // Atualizando o estado com os chats finais
 
-            setEsperando(false);
+            setEsperando(false); //Carregamento acabou
         
     }
 
     if (!esperando) {
         return (
-            <ScrollView style={{ backgroundColor: '#fafafa' }}>
+            <ScrollView style={{ backgroundColor: '#fafafa', alignSelf :'center' }}>
 
                 {processedChatsFinal.map((chat, index: number) => (
         
+                    
+                        <View key={chat.chatId} style={{ flexDirection: 'row', width: '98.5%' }}>
 
-                    <View key={chat.chatId} style={{ flexDirection: 'row', width: '95.5%' }}>
-                        <ChatComponent
-                            titulo={chat.nomeOtherUserId}
-                            msgPreview={chat.lastMessage.conteudo}
-                        />
+                            <ChatComponent
+                                titulo={chat.nomeOtherUserId}
+                                msgPreview={chat.lastMessage.conteudo}
+                            />
+                            
 
-                    </View>
+                        </View>
+                    
                     
                 ))}
+
+            <TouchableOpacity style={{
+                 // Posiciona o botão 24dp acima da parte inferior da tela
+                alignSelf: 'center'
+            }} onPress={() => console.log('Botão pressionado')}>
+                <BotaoUsual texto='FINALIZAR UM PROCESSO' cor='#88c9bf' marginTop={52}
+                />
+            </TouchableOpacity>
 
                 {/* <ChatComponent></ChatComponent>
                 <ChatComponent></ChatComponent>
@@ -162,6 +175,8 @@ export default function Conversas() {
 
 
             </ScrollView>
+            
+            
         );
     }
 

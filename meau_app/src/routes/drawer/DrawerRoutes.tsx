@@ -126,7 +126,7 @@ export default function DrawerRoutes() {
                             component={Conversas}
                             options={{
                                 drawerLabel: 'Conversas',
-                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
+                                drawerIcon: ({color, size}) => <Ionicons name="chatbubbles" size={24} color={'#434343'} />
                             }}
                             
                         />
