@@ -6,10 +6,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/chatComponent";
 
 import BotaoUsual from "../components/BotaoUsual";
+import ModalLoanding from "../components/ModalLoanding";
 
 // Definir a interface para os dados dos chats
 interface ChatData {
@@ -34,6 +35,7 @@ export default function Conversas() {
     useFocusEffect(
         useCallback(() => {
             setEsperando(true);
+
             fetchChatsForUser();
 
             return () => {
@@ -165,6 +167,7 @@ export default function Conversas() {
         
     }
     */
+    console.log("esperando: " + esperando);
     if (!esperando) {
         return (
             <ScrollView style={{ backgroundColor: '#fafafa', alignSelf :'center' }}>
@@ -215,6 +218,13 @@ export default function Conversas() {
             </ScrollView>
             
             
+        );
+    } else {
+
+        return (
+            <Modal visible={esperando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
+            </Modal>
         );
     }
 

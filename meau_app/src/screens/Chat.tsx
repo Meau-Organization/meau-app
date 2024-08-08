@@ -1,20 +1,19 @@
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import React, { useLayoutEffect, useState, useEffect, useCallback } from "react";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { View, Text } from 'react-native';
+
+import { View, Text, Modal } from 'react-native';
 import { TopBar } from "../components/TopBar";
 import { GiftedChat, IMessage } from "react-native-gifted-chat";
-import { AntDesign } from '@expo/vector-icons';
+
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
-
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-import { set, ref, realtime, push, onValue, getDoc, doc, db, get, queryReal, limitToLast } from "../configs/firebaseConfig";
+import { set, ref, realtime, onValue, get, queryReal, limitToLast } from "../configs/firebaseConfig";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 import { orderByChild } from "firebase/database";
-//getDataBase = ref
+import ModalLoanding from "../components/ModalLoanding";
+
+
 interface ChatScreenProps {
     route: {
         params: {
@@ -36,7 +35,18 @@ interface Message {
 
 export default function ChatScreen({ route }: ChatScreenProps) {
 
+    const { chatId, otherUserId, nomeOtherUser, animalId } = route.params;
+    //console.log("Dados rota: " + " chatId: " + chatId + " otherUserId: " + otherUserId + " nomeOtherUser: " + nomeOtherUser + " animalId: " + animalId);
+
+    const { user } = useAutenticacaoUser();
+
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
+
+    const [mensagens, setMensagens] = useState<IMessage[]>([]);
+    const [esperando, setEsperando] = useState(false);
+    const [criarChat, setCriarChat] = useState(false);
+
+    let idChat: string;
 
     useFocusEffect(
         useCallback(() => {
@@ -51,27 +61,96 @@ export default function ChatScreen({ route }: ChatScreenProps) {
         }, [])
     );
 
-    const { user } = useAutenticacaoUser();
 
-    const { chatId, otherUserId, nomeOtherUser, animalId } = route.params;
-    console.log("Dados rota: " + " chatId: " + chatId + " otherUserId: " + otherUserId + " nomeOtherUser: " + nomeOtherUser + " animalId: " + animalId);
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerTitle: nomeOtherUser
+        });
 
-    let idChat: string;
-
+    }, [navigation, nomeOtherUser]);
 
     if (chatId == undefined) {
         idChat = 'chat-' + otherUserId + '-' + user.uid + '-' + animalId;
     } else {
         idChat = chatId;
     }
+    //console.log("idChat: " + idChat);
 
-    console.log("idChat: " + idChat);
-    
+    const createChat = async (msg: string) => {
 
-    const [mensagens, setMensagens] = useState<IMessage[]>([]);
+        const data = Date.now();
 
-    const [esperando, setEsperando] = useState(true);
-    const [criarChat, setCriarChat] = useState(false);
+        try {
+            const userChatRef1 = ref(realtime, `userChats/${otherUserId}/${idChat}`);
+            const userChatRef2 = ref(realtime, `userChats/${user.uid}/${idChat}`);
+
+            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+                conteudo: msg,
+                dataMsg: data,
+                sender: user.uid,
+            });
+            await set(userChatRef1, true);
+            await set(userChatRef2, true);
+
+            atualizarMensagens();
+
+            console.log('Criou o chat');
+            setCriarChat(false);
+
+        } catch (error) {
+            console.log('erro ao criar chat');
+        }
+    };
+
+    const enviarMensagem = async (msg: string) => {
+
+        const data = Date.now();
+
+        console.log(idChat);
+
+        try {
+
+
+            await set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+                conteudo: msg,
+                dataMsg: data,
+                sender: user.uid,
+            });
+
+            atualizarMensagens();
+
+            console.log('enviou');
+
+        } catch (error) {
+            console.log('erro ao enviar');
+        }
+
+    };
+
+    const acoesChat = async (novasMensagens: IMessage[]) => {
+
+
+
+        novasMensagens.forEach((novaMensagem) => {
+
+            const texto = novaMensagem.text;
+            console.log(texto);
+
+            if (user.uid != otherUserId) {
+
+                if (criarChat) {
+                    createChat(texto);
+
+                } else {
+                    enviarMensagem(texto);
+                }
+
+            } else {
+                alert("Você não pode enviar mensagens para si mesmo");
+            }
+        });
+    };
+
 
     const buscarMensagens = async () => {
         console.log('Buscando mensagens');
@@ -102,7 +181,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 console.log('Chat deve ser criado.');
             } else {
                 setCriarChat(false);
-                inserirNovasMensagens(msgs);
+                inserirNovasMensagens(msgs.reverse());
                 console.log('Chat ja existe');
             }
 
@@ -114,30 +193,6 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
 
     }
-
-    const acoesChat = async (novasMensagens: IMessage[]) => {
-
-
-
-        novasMensagens.forEach((novaMensagem) => {
-
-            const texto = novaMensagem.text;
-            console.log(texto);
-
-            if (user.uid != otherUserId) {
-
-                if (criarChat) {
-                    createChat(texto);
-                    
-                } else {
-                    enviarMensagem(texto);
-                }
-
-            } else {
-                alert("Você não pode enviar mensagens para si mesmo");
-            }
-        });
-    };
 
     const atualizarMensagens = async () => {
         console.log('Atualizando mensagens');
@@ -155,6 +210,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                     msgs.push({ key: childSnapshot.key, ...ultimaMensagem });
                 });
             });
+            //console.log(msgs.length);
 
             inserirNovasMensagens(msgs);
 
@@ -163,66 +219,6 @@ export default function ChatScreen({ route }: ChatScreenProps) {
         }
 
     };
-    const createChat = async (msg: string) => {
-
-        const data = Date.now();
-
-        try {
-            const userChatRef1 = ref(realtime, `userChats/${otherUserId}/${idChat}`);
-            const userChatRef2 = ref(realtime, `userChats/${user.uid}/${idChat}`);
-
-            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
-                conteudo: msg,
-                dataMsg: data,
-                sender: user.uid,
-            });
-            await set(userChatRef1, true);
-            await set(userChatRef2, true);
-
-            atualizarMensagens();
-
-            console.log('Criou o chat');
-            setCriarChat(false);
-
-        } catch (error) {
-            console.log('erro ao criar chat');
-        }
-    };
-
-    const enviarMensagem = (msg: string) => {
-
-        const data = Date.now();
-
-        console.log(idChat);
-
-        try {
-
-
-            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
-                conteudo: msg,
-                dataMsg: data,
-                sender: user.uid,
-            });
-
-            atualizarMensagens();
-
-            console.log('enviou');
-
-        } catch (error) {
-            console.log('erro ao enviar');
-        }
-
-    };
-
-    const messagesRef = ref(realtime, `chats/${idChat}/messages`);
-
-
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: nomeOtherUser
-        });
-
-    }, [navigation, nomeOtherUser]);
 
     const inserirNovasMensagens = (novasMensagens: Message[]) => {
         setMensagens((mensagensAnteriores: IMessage[]) => {
@@ -236,6 +232,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                     user: {
                         _id: msg.sender,
                         name: msg.sender == otherUserId ? nomeOtherUser : 'teste',
+                        avatar: null,
                     },
                 };
 
@@ -249,6 +246,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
 
     if (!esperando) {
+
         return (
             <View style={{ flex: 1 }}>
                 <TopBar
@@ -258,15 +256,23 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                     cor='#88c9bf'
                 />
                 <GiftedChat
-                    messages={mensagens.reverse()}
+                    messages={mensagens}
                     onSend={acoesChat}
                     user={{
-                        _id: otherUserId
+                        _id: user.uid
                     }}
                 />
             </View>
         );
+    } else {
+
+        return (
+            <Modal visible={esperando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+            </Modal>
+        );
     }
+
 
 
 }
