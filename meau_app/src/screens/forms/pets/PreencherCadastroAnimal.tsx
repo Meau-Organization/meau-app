@@ -18,8 +18,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useState } from 'react';
 import { useAutenticacaoUser } from '../../../../assets/contexts/AutenticacaoUserContext';
 
-const PlaceLogoImage = require('../../../assets/images/animais-seed/1.jpg');
-
 
 type MeusPetsProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'PreencherCadastroAnimal'>;

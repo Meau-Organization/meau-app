@@ -55,6 +55,7 @@ export default function Conversas() {
 
             if (!snapshot.exists()) {
                 console.log("No chats available for this user");
+                setEsperando(false); //Carregamento acabou
                 return;
             }
 
@@ -172,7 +173,7 @@ export default function Conversas() {
         return (
             <ScrollView style={{ backgroundColor: '#fafafa', alignSelf :'center' }}>
 
-                {processedChatsFinal.map((chat) => (
+                {processedChatsFinal ? processedChatsFinal.map((chat) => (
         
                     
                         <View key={chat.chatId} style={{ flexDirection: 'row', width: '98.5%' }}>
@@ -197,7 +198,7 @@ export default function Conversas() {
                         </View>
                     
                     
-                ))}
+                )) : <></> }
 
             <TouchableOpacity style={{
                  // Posiciona o botão 24dp acima da parte inferior da tela

@@ -1,16 +1,14 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
 import Constants from 'expo-constants';
-import { useCallback, useEffect, useState } from "react";
-import { getAuth, db, doc, getDoc, set, ref, realtime } from "../configs/firebaseConfig";
+import { useCallback, useState } from "react";
+import { db, doc, getDoc } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
-import AvisoCadastro from "./AvisoCadastro";
+
 import BotaoUsual from "../components/BotaoUsual";
 import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-
-const ani = require('../assets/images/animais-seed/5.jpg');
 
 interface DetalhesAnimalProps {
     route: {
