@@ -327,7 +327,12 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         onPress={() =>
                             user ?
                                 //alert('Em construção')
-                                createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
+                                //createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
+                                navigation.navigate('ChatScreen', {
+                                    nomeOtherUser: dadosAnimal.dono,
+                                    otherUserId: dadosAnimal.usuario_id,
+                                    animalId: animal_id,
+                                })
                             :
                                 navigation.navigate("AvisoCadastro", {topbar: true} )
                             }

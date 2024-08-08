@@ -20,7 +20,7 @@ interface ChatData {
         conteudo: string;
     };
     chatData: any;  // Ajuste conforme o tipo de dados que você está usando
-    nomeOtherUserId: string;
+    nomeOtherUser: string;
 }
 
 export default function Conversas() {
@@ -105,7 +105,7 @@ export default function Conversas() {
                     animalId: processedChatsR[index].animalId,
                     lastMessage: processedChatsR[index].lastMessage,
                     chatData: processedChatsR[index].chatData,
-                    nomeOtherUserId: dadosOtherUserId.data().nome,
+                    nomeOtherUser: dadosOtherUserId.data().nome,
                 };
             });
 
@@ -152,7 +152,7 @@ export default function Conversas() {
                     animalId: processedChatsR[index].animalId,
                     lastMessage: processedChatsR[index].lastMessage,
                     chatData: processedChatsR[index].chatData,
-                    nomeOtherUserId: dadosOtherUserId.data().nome,
+                    nomeOtherUser: dadosOtherUserId.data().nome,
                 };
             });
 
@@ -175,19 +175,18 @@ export default function Conversas() {
                         <View key={chat.chatId} style={{ flexDirection: 'row', width: '98.5%' }}>
 
                             <ChatComponent
-                                titulo={chat.nomeOtherUserId}
+                                titulo={chat.nomeOtherUser}
                                 msgPreview={chat.lastMessage.conteudo}
                                 chatId={chat.chatId}
                                 otherUserId={chat.otherUserId}
-                                nomeOtherUserId={chat.nomeOtherUserId}
+                                nomeOtherUser={chat.nomeOtherUser}
                                 animalId={chat.animalId}
                                 chatData={chat.chatData}
+
                                 onPress={() => navigation.navigate('ChatScreen', {
                                     chatId: chat.chatId,
-                                    otherUserId: chat.otherUserId,
-                                    nomeOtherUserId: chat.nomeOtherUserId,
+                                    nomeOtherUser: chat.nomeOtherUser,
                                     animalId: chat.animalId,
-                                    chatData: chat.chatData
                                 })}
                             />
                             

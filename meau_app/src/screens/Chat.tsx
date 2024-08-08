@@ -1,5 +1,5 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
-import React,{ useLayoutEffect, useState, useEffect } from "react";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import React, { useLayoutEffect, useState, useEffect, useCallback } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { View, Text } from 'react-native';
 import { TopBar } from "../components/TopBar";
@@ -11,129 +11,262 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { set, ref, realtime, push, onValue, getDoc, doc, db, chat, get } from "../configs/firebaseConfig";
+import { set, ref, realtime, push, onValue, getDoc, doc, db, get, queryReal, limitToLast } from "../configs/firebaseConfig";
+import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { orderByChild } from "firebase/database";
 //getDataBase = ref
 interface ChatScreenProps {
     route: {
         params: {
-        chatId: string;
-        otherUserId: string;
-        nomeOtherUserId: string;
-        animalId?: string;  
-        chatData: any;
+            chatId?: string;
+            otherUserId?: string;
+            nomeOtherUser?: string;
+            animalId?: string;
+            chatData?: any;
         };
     };
 }
 
-export default function ChatScreen({ route } : ChatScreenProps) {
+interface Message {
+    key: string;
+    conteudo: string;
+    dataMsg: string;
+    sender: string;
+}
+
+export default function ChatScreen({ route }: ChatScreenProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
-    const { chatId, otherUserId, nomeOtherUserId, animalId, chatData } = route.params;
+
+    useFocusEffect(
+        useCallback(() => {
+            setEsperando(true);
+
+            buscarMensagens();
+
+            return () => {
+                //console.log('Tela perdeu foco');
+            };
+
+        }, [])
+    );
+
+    const { user } = useAutenticacaoUser();
+
+    const { chatId, otherUserId, nomeOtherUser, animalId } = route.params;
+    console.log("Dados rota: " + " chatId: " + chatId + " otherUserId: " + otherUserId + " nomeOtherUser: " + nomeOtherUser + " animalId: " + animalId);
+
+    let idChat: string;
+
+
+    if (chatId == undefined) {
+        idChat = 'chat-' + otherUserId + '-' + user.uid + '-' + animalId;
+    } else {
+        idChat = chatId;
+    }
+
+    console.log("idChat: " + idChat);
     
-    const [messages, setMessages] = useState<IMessage[]>([]);
-    const [nomeOtherUser, setNomeOtherUser] = useState<string>("");
 
-    const messagesRef = ref(realtime, `chats/${chatId}/messages`);//chats/$(chatId}/messages
+    const [mensagens, setMensagens] = useState<IMessage[]>([]);
 
-    //const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId));
+    const [esperando, setEsperando] = useState(true);
+    const [criarChat, setCriarChat] = useState(false);
 
-    useEffect(() => {
-        const fetchNomeOtherUser = async () => {
-            try {
-                const dadosOtherUserId = await getDoc(doc(db, "Users", otherUserId));
-                if (dadosOtherUserId.exists()) {
-                    setNomeOtherUser(dadosOtherUserId.data().nome);
+    const buscarMensagens = async () => {
+        console.log('Buscando mensagens');
+
+        try {
+
+            const msgsRef = ref(realtime, `chats/${idChat}/messages`);
+            const messagesQuery = queryReal(msgsRef, orderByChild('dataMsg'));
+
+            const msgs = [];
+            await get(messagesQuery).then((snapshot) => {
+                if (snapshot.exists()) {
+                    //console.log(snapshot.val());
+                    snapshot.forEach((childSnapshot) => {
+
+                        const ultimaMensagem = childSnapshot.val();
+                        msgs.push({ key: childSnapshot.key, ...ultimaMensagem });
+                    });
                 } else {
-                    console.log("No such document!");
+                    console.log("No data available");
                 }
-            } catch (error) {
-                console.error("Error getting document:", error);
+            }).catch((error) => {
+                console.error(error);
+            });
+
+            if (msgs.length < 1) {
+                setCriarChat(true);
+                console.log('Chat deve ser criado.');
+            } else {
+                setCriarChat(false);
+                inserirNovasMensagens(msgs);
+                console.log('Chat ja existe');
             }
-        };
 
-        fetchNomeOtherUser();
-    }, [otherUserId]);
+            setEsperando(false);
 
-    console.log(chatId);
+        } catch (error) {
+            console.error("Erro ao buscar mensagens: " + error);
+        }
+
+
+    }
+
+    const acoesChat = async (novasMensagens: IMessage[]) => {
+
+
+
+        novasMensagens.forEach((novaMensagem) => {
+
+            const texto = novaMensagem.text;
+            console.log(texto);
+
+            if (user.uid != otherUserId) {
+
+                if (criarChat) {
+                    createChat(texto);
+                    
+                } else {
+                    enviarMensagem(texto);
+                }
+
+            } else {
+                alert("Você não pode enviar mensagens para si mesmo");
+            }
+        });
+    };
+
+    const atualizarMensagens = async () => {
+        console.log('Atualizando mensagens');
+
+        try {
+            const msgsRef = ref(realtime, `chats/${idChat}/messages`);
+            const messagesQuery = queryReal(msgsRef, orderByChild('dataMsg'), limitToLast(1));
+
+            const msgs = [];
+            onValue(messagesQuery, (snapshot) => {
+
+                snapshot.forEach((childSnapshot) => {
+
+                    const ultimaMensagem = childSnapshot.val();
+                    msgs.push({ key: childSnapshot.key, ...ultimaMensagem });
+                });
+            });
+
+            inserirNovasMensagens(msgs);
+
+        } catch (error) {
+            console.error("Erro ao atualizar mensagens: " + error);
+        }
+
+    };
+    const createChat = async (msg: string) => {
+
+        const data = Date.now();
+
+        try {
+            const userChatRef1 = ref(realtime, `userChats/${otherUserId}/${idChat}`);
+            const userChatRef2 = ref(realtime, `userChats/${user.uid}/${idChat}`);
+
+            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+                conteudo: msg,
+                dataMsg: data,
+                sender: user.uid,
+            });
+            await set(userChatRef1, true);
+            await set(userChatRef2, true);
+
+            atualizarMensagens();
+
+            console.log('Criou o chat');
+            setCriarChat(false);
+
+        } catch (error) {
+            console.log('erro ao criar chat');
+        }
+    };
+
+    const enviarMensagem = (msg: string) => {
+
+        const data = Date.now();
+
+        console.log(idChat);
+
+        try {
+
+
+            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
+                conteudo: msg,
+                dataMsg: data,
+                sender: user.uid,
+            });
+
+            atualizarMensagens();
+
+            console.log('enviou');
+
+        } catch (error) {
+            console.log('erro ao enviar');
+        }
+
+    };
+
+    const messagesRef = ref(realtime, `chats/${idChat}/messages`);
+
 
     useLayoutEffect(() => {
         navigation.setOptions({
             headerTitle: nomeOtherUser
         });
+
     }, [navigation, nomeOtherUser]);
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            const snapshot = await get(messagesRef);
-            if (!snapshot.exists()) {
-                console.log("No chats available for this user");
-                return;
-            }
+    const inserirNovasMensagens = (novasMensagens: Message[]) => {
+        setMensagens((mensagensAnteriores: IMessage[]) => {
+            const mensagemMap = new Map(mensagensAnteriores.map((msg) => [msg._id, msg]));
 
-            const data = snapshot.val();
-            const messagesList = data ? Object.keys(data).map(key => ({
-                _id: key,
-                text: data[key].conteudo,
-                createdAt: new Date(Number(data[key].createdAt)),
-                user: {
-                    _id: data[key].sender,
-                    name: nomeOtherUserId
-                }
-            })) : [];
-            setMessages(messagesList);
-        };
+            novasMensagens.forEach((msg) => {
+                const iMessage: IMessage = {
+                    _id: msg.key,
+                    text: msg.conteudo,
+                    createdAt: new Date(parseInt(msg.dataMsg)),
+                    user: {
+                        _id: msg.sender,
+                        name: msg.sender == otherUserId ? nomeOtherUser : 'teste',
+                    },
+                };
 
-        fetchMessages();
+                mensagemMap.set(iMessage._id, iMessage);
+            });
 
-
-        const unsubscribe = onValue(messagesRef, (snapshot) => {
-            const data = snapshot.val();
-            const messagesList = data ? Object.keys(data).map(key => ({
-                _id: key,
-                text: data[key].conteudo,
-                createdAt: new Date(),//.toISOString(),
-                user: {
-                    _id: data[key].sender,
-                    name: nomeOtherUserId
-                }
-            })) : [];
-            setMessages(messagesList);
+            return Array.from(mensagemMap.values());
         });
-
-        return () => unsubscribe();
-    },[chatId]);
-
-    const onSend = (newMessages: IMessage[]) => {
-        const updates = {};
-        newMessages.forEach(message => {
-            const newMessageRef = push(messagesRef);
-            updates[`chats/${chatId}/messages/${newMessageRef.key}`] = {
-                conteudo: message.text,
-                sender: message.user._id
-            };
-        });
-        //set(ref(realtime, `chats/${chatId}/messages`), updates);
-        set(messagesRef, updates);
-        setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages))
     };
 
-    return (
-        <View style={{ flex: 1 }}>
-            <TopBar
+
+
+    if (!esperando) {
+        return (
+            <View style={{ flex: 1 }}>
+                <TopBar
                     nome={nomeOtherUser}
                     icone='voltar'
                     irParaPagina={() => navigation.goBack()}
                     cor='#88c9bf'
                 />
-            <GiftedChat
-                messages={messages}
-                onSend={onSend}
-                user={{
-                    _id: otherUserId
-                }}
-            />
-        </View>
-    );
+                <GiftedChat
+                    messages={mensagens.reverse()}
+                    onSend={acoesChat}
+                    user={{
+                        _id: otherUserId
+                    }}
+                />
+            </View>
+        );
+    }
 
 
 }

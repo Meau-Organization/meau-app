@@ -20,13 +20,14 @@ interface chatProps {
     msgPreview?: string;
     chatId: string;
     otherUserId: string;
-    nomeOtherUserId: string;
+    nomeOtherUser: string;
     animalId: string;
     chatData: any;  // Ajuste conforme o tipo de dados que você está usando
     onPress: () => void;  // Passar a função de navegação como prop
 }
 
-export default function ChatComponent({ titulo, msgPreview, onPress }: chatProps) {
+export default function ChatComponent({ titulo, msgPreview, onPress, animalId }: chatProps) {
+
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros>>();
 

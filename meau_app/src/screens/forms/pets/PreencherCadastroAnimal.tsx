@@ -98,6 +98,7 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
                     visitaPrevia: visitaPrevia.length == 0 ? false : true,
                     tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
                     usuario_id: user.uid,
+                    dono: userDoc.data().nome,
                     cidade: userDoc.data().cidade,
                     estado: userDoc.data().estado,
                     imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal,
