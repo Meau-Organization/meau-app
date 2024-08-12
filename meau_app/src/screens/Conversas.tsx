@@ -37,7 +37,9 @@ export default function Conversas() {
 
     useFocusEffect(
         useCallback(() => {
-            setEsperando(true);
+            if (!refreshing){
+                setEsperando(true);
+            }
 
             fetchChatsForUser();
 
@@ -131,6 +133,7 @@ export default function Conversas() {
     };
 
     const onRefresh = async () => {
+        console.log("refrescando");
         setRefreshing(true); // Inicia Animação do Refresh
          // Recarregar os dados
          await fetchChatsForUser();
@@ -140,42 +143,6 @@ export default function Conversas() {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
 
-
-   /* const teste = async () => {
-
-        const processedChatsR = await fetchChatsForUser();
-        console.log(processedChatsR[0].lastMessage);
-    
-            const processedChatsComNomes = processedChatsR.map(async (chat, index: number) => {
-        
-        
-                const dadosOtherUserId = await getDoc(doc(db, "Users", chat.otherUserId)); // Buscando dados do dono no Firestore
-
-                const processaDadosUser = await getDoc(doc(db, "Users", user.uid));// Buscando dados do usuário atual no Firestore
-
-                console.log(dadosOtherUserId.data());
-        
-                console.log("dadosOtherUserId.data().nome: " + dadosOtherUserId.data().nome);
-        
-                return {
-                    chatId: processedChatsR[index].chatId,
-                    otherUserId: processedChatsR[index].otherUserId,
-                    animalId: processedChatsR[index].animalId,
-                    lastMessage: processedChatsR[index].lastMessage,
-                    chatData: processedChatsR[index].chatData,
-                    nomeOtherUser: dadosOtherUserId.data().nome,
-                };
-            });
-
-            const processedChatsFinal = await Promise.all(processedChatsComNomes); // Esperando os nomes serem adicionados aos dados dos chats
-        
-            console.log(processedChatsFinal[0].lastMessage);
-            setProcessedChatsFinal(processedChatsFinal);  // Atualizando o estado com os chats finais
-
-            setEsperando(false); //Carregamento acabou
-        
-    }
-    */
     console.log("esperando: " + esperando);
     if (!esperando) {
         return (
