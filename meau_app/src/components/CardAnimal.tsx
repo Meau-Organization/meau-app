@@ -79,7 +79,7 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
 
             <View style={[styles.titulo, { backgroundColor: corCard }]}>
 
-                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id })}>
+                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })}>
                     <Text style={styles.text_nome}>{nome}</Text>
                 </TouchableOpacity>
 
@@ -103,7 +103,7 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
             <TouchableOpacity
                 onPress={
                     //() => navigation.navigate("DetalhesAnimal", {animal_id: id })
-                    () => navigation.navigate(tela, { animal_id: id })
+                    () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })
                 }
                 style={styles.foto}>
                 <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />

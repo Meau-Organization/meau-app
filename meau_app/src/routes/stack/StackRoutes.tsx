@@ -14,7 +14,7 @@ import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import { useNavigationState , NavigationState} from '@react-navigation/native';
 import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 
-import ChatScreen from '../../screens/Chat';
+import ChatScreen from '../../screens/ChatScreen';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     

@@ -16,12 +16,22 @@ export type StackRoutesParametros = {
     Adotar: undefined;
     CardAnimal: undefined;
     DetalhesAnimal: { animal_id: string };
-    DetalhesAnimalAdocao: { animal_id: string };
+    DetalhesAnimalAdocao: { animal_id: string; nome_animal: string; };
     ChatScreen : {
-        chatId?: string;
-        otherUserId?: string;
-        nomeOtherUser?: string;
-        animalId?: string;  
-        chatData?: any;
+        dadosAnimal: {
+            idAnimal: string;
+            idDono: string;
+            nomeAnimal?: string;
+            nomeDono?: string;
+            iconeDonoAnimal?: any;
+        },
+        dadosInteressado: {
+            idInteressado: string;
+            nomeInteressado?: string;
+            iconeInteressado?: any;
+        },
+        dadosChatRota?: any;
+        nomeTopBar?: string;
     };
+    Conversas: undefined;
 };

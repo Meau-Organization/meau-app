@@ -56,8 +56,8 @@ export default function OpenImagePicker({ onImagePicked, onClose }) {
             if (info.exists) {
                 const tamImagem : number = Number(((info.size/1024)/1024).toFixed(4));
 
-                if (tamImagem <= 0.8) {
-                    console.log("Arq Img original: ", tamImagem + " MB : Menor que 0.8 MB, não precisa de compressão");
+                if (tamImagem <= 0.7) {
+                    console.log("Arq Img original: ", tamImagem + " MB : Menor que 0.7 MB, não precisa de compressão");
 
                     imagemPrincipal = {
                         "base64": imagemOriginal.base64,

@@ -13,11 +13,12 @@ import OpenImagePicker from '../../../components/OpenImagePicker';
 import * as ImagePicker from 'expo-image-picker';
 import useVetorBool from '../../../hooks/useVetorBool';
 
-import { validarFinal, onChangeSenhaConfirm, onChangeSenha, validarEmail, onChangeGenerico, mostrarIconeCheckFunc, alertaErros } from '../../../utils/Valida';
+import { validarFinal, onChangeSenhaConfirm, onChangeSenha, validarEmail, onChangeGenerico, alertaErros } from '../../../utils/Valida';
 import BotaoUsual from '../../../components/BotaoUsual';
 import ModalLoanding from '../../../components/ModalLoanding';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 export default function CadastroPessoal() {
 
@@ -58,6 +59,14 @@ export default function CadastroPessoal() {
         }
         setModalVisible(false);
         
+    };
+
+    const mostrarIconeCheckFunc = (iconeState : Boolean) => {
+        if (iconeState) {
+            return <FontAwesome6 name="check" size={24} color="#589b9b" />
+        } else {
+            return null;
+        }
     };
 
     type SetStateFunction<String> = React.Dispatch<React.SetStateAction<string>>;

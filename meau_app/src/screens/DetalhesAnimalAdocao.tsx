@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal, Alert } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import { db, doc, getDoc, set, ref, realtime } from "../configs/firebaseConfig";
+import { db, doc, getDoc } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
 
 import BotaoUsual from "../components/BotaoUsual";
@@ -14,41 +14,43 @@ interface DetalhesAnimalProps {
     route: {
         params: {
             animal_id: string;
+            nome_animal: string;
         };
     };
 }
 
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { comprimirImagem } from "../utils/Utils";
 
 
 
 export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser } = useAutenticacaoUser();
 
     const [dadosAnimal, setDadosAnimal] = useState(null);
 
     const [esperando, setEsperando] = useState(true);
-    const [modal, setModal] = useState(true);
+    const [modal, setModal] = useState(false);
 
     const [curtida, setCurtida] = useState(false);
     const curtir = () => {
-        if (!user){
-            navigation.navigate("AvisoCadastro", {topbar: true} )
+        if (!user) {
+            navigation.navigate("AvisoCadastro", { topbar: true })
         } else {
             curtida ? setCurtida(false) : setCurtida(true);
         }
-        
+
     };
 
-    const { animal_id } = route.params;
+    const { animal_id, nome_animal } = route.params;
 
 
     const buscarDadosAnimais = async (animalId: string) => {
         try {
-            
+
             const detalhesRef = doc(db, `Animals/${animalId}/Detalhes/${animalId}`);
 
 
@@ -73,43 +75,51 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         }
     };
 
+    async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
+        const docRef = doc(db, colecao, id_documento);
+        const docSnap = await getDoc(docRef);
 
-    const createChat = async (idDono: string, idInteressado: string, idAnimal: string, msg : string) => {
-
-        const data = new Date();
-
-
-        try {
-
-            const idChat = 'chat-' + idDono + '-' + idInteressado + '-' + idAnimal;
-            
-
-
-            const userChatRef1 = ref(realtime, `userChats/${idDono}/${idChat}`);
-            const userChatRef2 = ref(realtime, `userChats/${idInteressado}/${idChat}`);
-
-            set(ref(realtime, 'chats/' + idChat + '/messages/' + Math.floor(Date.now() * Math.random()).toString(36)), {
-                conteudo: msg,
-                dataMsg: data,
-                sender: idInteressado,
-            });
-            await set(userChatRef1, true);
-            await set(userChatRef2, true);
-
-
-            console.log('Criou o chat');
-
-        } catch (error) {
-            console.log('erro ao criar chat');
+        if (docSnap.exists()) {
+            const campoEspecifico = await docSnap.get(campo);
+            //console.log("Valor do campo:", campoEspecifico);
+            return campoEspecifico;
+        } else {
+            console.log("Campo não encontrado");
         }
+    }
 
-    };
+    async function irChat() {
+
+
+        setModal(true);
+
+        const base64DonoAnimal = await buscarCampoEspecifico('Users', dadosAnimal.usuario_id, 'imagemPrincipalBase64');
+
+        navigation.navigate('ChatScreen', {
+            dadosAnimal: {
+                idAnimal: animal_id,
+                nomeAnimal: dadosAnimal.nomeAnimal,
+                idDono: dadosAnimal.usuario_id,
+                nomeDono: dadosAnimal.dono,
+                iconeDonoAnimal: await comprimirImagem(base64DonoAnimal, 0.1),
+            },
+            dadosInteressado: {
+                idInteressado: user.uid,
+                nomeInteressado: dadosUser.nome,
+                iconeInteressado: await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1),
+            },
+            nomeTopBar: dadosAnimal.dono,
+        })
+
+        setModal(false);
+
+    }
 
     useFocusEffect(
         useCallback(() => {
-            
+
             setEsperando(true);
-            
+
 
             buscarDadosAnimais(animal_id);
 
@@ -124,18 +134,20 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     //     //console.log(dadosAnimal);
     // }
 
-    if (!esperando) {
 
-        // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
 
-        return (
-            <>
-                <TopBar
-                    nome={dadosAnimal.nomeAnimal}
-                    icone='voltar'
-                    irParaPagina={() => navigation.goBack()}
-                    cor='#fee29b'
-                />
+    // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
+
+    return (
+        <>
+            <TopBar
+                nome={nome_animal}
+                icone='voltar'
+                irParaPagina={() => navigation.goBack()}
+                cor='#fee29b'
+            />
+
+            {!esperando ?
                 <ScrollView style={{ backgroundColor: '#fafafa' }}>
 
                     <View style={styles.container}>
@@ -148,24 +160,24 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                                 style={styles.caixaFoto}
                             ></ImageBackground>
                             <View style={styles.barraFina}></View>
-                            
+
                         </View>
 
                         <View style={styles.view_geral}>
-                            <Text style={{ fontFamily: 'Roboto', fontSize: 16, color: '#434343', marginTop: 16}}>{dadosAnimal.nomeAnimal}</Text>
+                            <Text style={{ fontFamily: 'Roboto', fontSize: 16, color: '#434343', marginTop: 16 }}>{dadosAnimal.nomeAnimal}</Text>
                             <View style={styles.caixaLike}>
                                 <TouchableOpacity onPress={curtir}>
                                     <View style={styles.circuloLike}>
-                                        
-                                            { curtida ?
-                                                <MaterialCommunityIcons name="cards-heart" size={24} color="#ff3030"/>
-                                                :
-                                                <MaterialCommunityIcons name="cards-heart-outline" size={24} color="#434343"/>
-                                            }
-                                        
+
+                                        {curtida ?
+                                            <MaterialCommunityIcons name="cards-heart" size={24} color="#ff3030" />
+                                            :
+                                            <MaterialCommunityIcons name="cards-heart-outline" size={24} color="#434343" />
+                                        }
+
                                     </View>
                                 </TouchableOpacity>
-                                
+
                             </View>
 
                             <View style={styles.linha}></View>
@@ -265,12 +277,12 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                                 <Text style={styles.text}>
                                     {dadosAnimal.termosAdocao ? <>Termo de adoção</> : <></>}
 
-                                    { !dadosAnimal.exigenciaFotosCasa
+                                    {!dadosAnimal.exigenciaFotosCasa
                                         && !dadosAnimal.visitaPrevia
-                                        && dadosAnimal.tempoAcompanhamento == 0  ?
-                                            <>.</>
-                                            :
-                                            <></>
+                                        && dadosAnimal.tempoAcompanhamento == 0 ?
+                                        <>.</>
+                                        :
+                                        <></>
                                     }
 
                                     {dadosAnimal.exigenciaFotosCasa ?
@@ -281,28 +293,28 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                                         <></>
                                     }
 
-                                    {!dadosAnimal.visitaPrevia && dadosAnimal.tempoAcompanhamento == 0  ? <>.</> : <></>}
+                                    {!dadosAnimal.visitaPrevia && dadosAnimal.tempoAcompanhamento == 0 ? <>.</> : <></>}
 
                                     {dadosAnimal.visitaPrevia ?
                                         <>
-                                            {   dadosAnimal.termosAdocao || dadosAnimal.exigenciaFotosCasa ?
-                                                    <>, visita prévia</>
-                                                    :
-                                                    <>Visita prévia</>
+                                            {dadosAnimal.termosAdocao || dadosAnimal.exigenciaFotosCasa ?
+                                                <>, visita prévia</>
+                                                :
+                                                <>Visita prévia</>
                                             }
                                         </>
                                         :
                                         <></>
                                     }
 
-                                    {dadosAnimal.tempoAcompanhamento == 0  ? <>.</> : <></>}
+                                    {dadosAnimal.tempoAcompanhamento == 0 ? <>.</> : <></>}
 
                                     {dadosAnimal.tempoAcompanhamento != 0 ?
                                         <>
-                                            {   dadosAnimal.termosAdocao || dadosAnimal.exigenciaFotosCasa || dadosAnimal.visitaPrevia ?
-                                                    <> e acompanhamento durante {dadosAnimal.tempoAcompanhamento} meses</>
-                                                    :
-                                                    <>Acompanhamento durante {dadosAnimal.tempoAcompanhamento} meses</>
+                                            {dadosAnimal.termosAdocao || dadosAnimal.exigenciaFotosCasa || dadosAnimal.visitaPrevia ?
+                                                <> e acompanhamento durante {dadosAnimal.tempoAcompanhamento} meses</>
+                                                :
+                                                <>Acompanhamento durante {dadosAnimal.tempoAcompanhamento} meses</>
                                             }
                                         </>
                                         :
@@ -321,19 +333,19 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         </View>
 
                         <TouchableOpacity
-                        onPress={() =>
-                            user ?
-                                //alert('Em construção')
-                                //createChat(dadosAnimal.usuario_id, user.uid, animal_id, "ola meu consagrado")
-                                navigation.navigate('ChatScreen', {
-                                    nomeOtherUser: dadosAnimal.dono,
-                                    otherUserId: dadosAnimal.usuario_id,
-                                    animalId: animal_id,
-                                })
-                            :
-                                navigation.navigate("AvisoCadastro", {topbar: true} )
+                            onPress={() =>
+                                user ?
+                                    user.uid != dadosAnimal.usuario_id ?
+                                        irChat()
+                                        :
+                                        Alert.alert('Você não pode adotar seu próprio animal!')
+
+
+                                    :
+                                    navigation.navigate("AvisoCadastro", { topbar: true })
+
                             }
-                        activeOpacity={0.5}>
+                            activeOpacity={0.5}>
 
                             <BotaoUsual texto='PRETENDO ADOTAR' cor='#fdcf58' marginTop={28} marginBottom={28} largura={232} altura={40} />
                         </TouchableOpacity>
@@ -343,16 +355,19 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
 
                 </ScrollView>
-            </>
-        )
-    } else {
+                :
+                <Modal visible={esperando} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={esperando} />
+                </Modal>
+            }
 
-        return (
-            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} />
+            <Modal visible={modal} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={modal} />
             </Modal>
-        );
-    }
+
+        </>
+    )
+
 
 
 }
@@ -426,7 +441,7 @@ const styles = StyleSheet.create({
             height: 8
         },
         elevation: 15,
-        
+
     },
     infoContainer: {
         marginTop: 16,
