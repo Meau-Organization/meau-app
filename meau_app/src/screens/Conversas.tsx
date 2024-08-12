@@ -2,12 +2,13 @@ import { TopBar } from "../components/TopBar";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-import { ScrollView } from "react-native-gesture-handler";
+import { FlatList, RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/chatComponent";
+
 
 import BotaoUsual from "../components/BotaoUsual";
 import ModalLoanding from "../components/ModalLoanding";
@@ -31,6 +32,8 @@ export default function Conversas() {
     const [processedChatsFinal, setProcessedChatsFinal] = useState<ChatData[] | null>(null);
 
     const [esperando, setEsperando] = useState(true);
+
+    const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -127,7 +130,12 @@ export default function Conversas() {
         }
     };
 
-
+    const onRefresh = async () => {
+        setRefreshing(true); // Inicia Animação do Refresh
+         // Recarregar os dados
+         await fetchChatsForUser();
+         setRefreshing(false);
+    }
 
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
@@ -171,54 +179,36 @@ export default function Conversas() {
     console.log("esperando: " + esperando);
     if (!esperando) {
         return (
-            <ScrollView style={{ backgroundColor: '#fafafa', alignSelf :'center' }}>
-
-                {processedChatsFinal ? processedChatsFinal.map((chat) => (
-        
-                    
-                        <View key={chat.chatId} style={{ flexDirection: 'row', width: '98.5%' }}>
-
-                            <ChatComponent
-                                titulo={chat.nomeOtherUser}
-                                msgPreview={chat.lastMessage.conteudo}
-                                chatId={chat.chatId}
-                                otherUserId={chat.otherUserId}
-                                nomeOtherUser={chat.nomeOtherUser}
-                                animalId={chat.animalId}
-                                chatData={chat.chatData}
-
-                                onPress={() => navigation.navigate('ChatScreen', {
-                                    chatId: chat.chatId,
-                                    nomeOtherUser: chat.nomeOtherUser,
-                                    animalId: chat.animalId,
-                                })}
-                            />
-                            
-
-                        </View>
-                    
-                    
-                )) : <></> }
-
-            <TouchableOpacity style={{
-                 // Posiciona o botão 24dp acima da parte inferior da tela
-                alignSelf: 'center'
-            }} onPress={() => console.log('Botão pressionado')}>
-                <BotaoUsual texto='FINALIZAR UM PROCESSO' cor='#88c9bf' marginTop={52}
+            <FlatList
+                data={processedChatsFinal}
+                keyExtractor={ item => item.chatId}
+                renderItem={({ item }) => (
+                    <View style={{flexDirection: 'row', width: '98.5%'}}>
+                        <ChatComponent
+                            titulo={item.nomeOtherUser}
+                            msgPreview={item.lastMessage.conteudo}
+                            chatId={item.chatId}
+                            otherUserId={item.otherUserId}
+                            nomeOtherUser={item.nomeOtherUser}
+                            animalId={item.animalId}
+                            chatData={item.chatData}
+                            onPress={() => navigation.navigate('ChatScreen', {
+                                chatId: item.chatId,
+                                nomeOtherUser: item.nomeOtherUser,
+                                animalId: item.animalId,
+                            })}
+                        />
+                    </View>
+            )}
+            contentContainerStyle={{ backgroundColor: '#fafafa', alignSelf: 'center'}}
+            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhuma conversa disponível</Text>}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
                 />
-            </TouchableOpacity>
-
-                {/* <ChatComponent></ChatComponent>
-                <ChatComponent></ChatComponent>
-                <ChatComponent></ChatComponent>
-                <ChatComponent></ChatComponent>
-                <ChatComponent></ChatComponent> */}
-
-
-
-            </ScrollView>
-            
-            
+            }
+            />
         );
     } else {
 
