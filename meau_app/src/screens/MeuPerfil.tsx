@@ -9,7 +9,7 @@ import AvisoCadastro from "./AvisoCadastro";
 import ModalLoanding from "../components/ModalLoanding";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 const userPadrao = require('../assets/images/user.jpg');
 
@@ -18,44 +18,26 @@ export default function MeuPerfil() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser, buscarDadosUsuario } = useAutenticacaoUser();
 
-    const [dadosUser, setDadosUser] = useState(null);
 
     const [esperando, setEsperando] = useState(true);
     const [modal, setModal] = useState(true);
 
-    const buscarDadosUsuario = async (userId : string) => {
-        try {
-                
-            const userDocRef = doc(db, 'Users', userId);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                setDadosUser(userDoc.data());
-
-            } else {
-                console.log('Dados do usuario não encontrados');
-
-            }
-            setEsperando(false);
-
-        } catch (error) {
-            console.error('Erro ao buscar dados do user: ', error);
-            setEsperando(false);
-
-        } finally {
-            setEsperando(false);
-
-        }
-    };
 
     useFocusEffect(
         useCallback(() => {
             
             setEsperando(true);
-            buscarDadosUsuario(user.uid);
+            
+            const fetchUserData = async () => {
+                await buscarDadosUsuario(user.uid);
+                setEsperando(false);
 
+            };
+
+            fetchUserData();
+            
             return () => {
                 //console.log('Tela perdeu foco');
             };

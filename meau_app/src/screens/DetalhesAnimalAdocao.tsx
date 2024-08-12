@@ -18,7 +18,7 @@ interface DetalhesAnimalProps {
     };
 }
 
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
 

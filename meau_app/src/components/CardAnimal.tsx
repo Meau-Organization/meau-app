@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Screen } from "react-native-screens";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 import SelectDropdown from 'react-native-select-dropdown'
 

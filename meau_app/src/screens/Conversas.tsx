@@ -5,7 +5,7 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { FlatList, RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { getAuth, db, doc, getDoc, collection, set, ref, realtime, get, child, query, orderByKey, startAt, endAt, queryReal, limitToLast } from "../configs/firebaseConfig";
 import { useCallback, useEffect, useState } from "react";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/chatComponent";
 

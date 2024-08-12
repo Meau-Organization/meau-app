@@ -9,7 +9,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
 import { set, ref, realtime, onValue, get, queryReal, limitToLast } from "../configs/firebaseConfig";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { orderByChild } from "firebase/database";
 import ModalLoanding from "../components/ModalLoanding";
 

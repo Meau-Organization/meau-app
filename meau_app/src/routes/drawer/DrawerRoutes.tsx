@@ -10,7 +10,7 @@ import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
 import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
-import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import Conversas from '../../screens/Conversas';
 
 const Drawer = createDrawerNavigator();
@@ -26,7 +26,7 @@ interface titulosPaginas {
 
 export default function DrawerRoutes() {
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser } = useAutenticacaoUser();
 
     const estadoNavegacao = useNavigationState(estado => estado);
   
@@ -42,7 +42,6 @@ export default function DrawerRoutes() {
 
     const nomeRotaAtiva = rotaAtiva(estadoNavegacao);
     console.log(nomeRotaAtiva);
-
     
     const coresHeader: coresPaginas = {
         Home: '#fafafa',
@@ -87,7 +86,7 @@ export default function DrawerRoutes() {
                             name = "Home"
                             component={Inicial}
                             options={{
-                                drawerLabel: 'Inicio',
+                                drawerLabel: dadosUser.nome,
                                 drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
                             }}
                         />

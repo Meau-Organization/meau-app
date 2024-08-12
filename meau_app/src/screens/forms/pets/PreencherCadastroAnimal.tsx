@@ -16,7 +16,7 @@ import { getAuth, db, addDoc, collection, doc, getDoc, setDoc } from '../../../c
 import ModalLoanding from '../../../components/ModalLoanding';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useState } from 'react';
-import { useAutenticacaoUser } from '../../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 
 
 type MeusPetsProps = {

@@ -12,7 +12,7 @@ import DrawerRoutes from '../drawer/DrawerRoutes';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import { useNavigationState , NavigationState} from '@react-navigation/native';
-import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 import ChatScreen from '../../screens/Chat';
 

@@ -7,7 +7,7 @@ import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
 import AvisoCadastro from "./AvisoCadastro";
 import CardAnimal from "../components/CardAnimal";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
 export default function MeusPets() {

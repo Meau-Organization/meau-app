@@ -9,7 +9,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 import { useNavigation } from '@react-navigation/native';
 import ModalLoanding from './ModalLoanding';
-import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 
 
 export function BoxLogin() {
