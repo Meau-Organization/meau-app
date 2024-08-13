@@ -1,4 +1,4 @@
-import { TopBar } from "../components/TopBar";
+
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
@@ -12,6 +12,7 @@ import ChatComponent from "../components/chatComponent";
 
 import BotaoUsual from "../components/BotaoUsual";
 import ModalLoanding from "../components/ModalLoanding";
+import { TopBar } from "../components/TopBar";
 
 // Definir a interface para os dados dos chats
 interface ChatData {
@@ -23,11 +24,18 @@ interface ChatData {
     };
     chatData: any;  // Ajuste conforme o tipo de dados que você está usando
     nomeOtherUser: string;
+    route: {
+        params: {
+            topbar: boolean;
+        };
+    };
 }
 
-export default function Conversas() {
+export default function Conversas({ route }: ChatData ) {
     
     const { user } = useAutenticacaoUser();
+
+    const { topbar } = route.params
     
     const [processedChatsFinal, setProcessedChatsFinal] = useState<ChatData[] | null>(null);
 
@@ -146,44 +154,48 @@ export default function Conversas() {
     console.log("esperando: " + esperando);
     if (!esperando) {
         return (
-            <View style={{ flex: 1 }}>
-            <TopBar
-                    nome='Algo'
-                    icone='voltar'
-                    irParaPagina={() => navigation.goBack()}
-                    cor='#88c9bf'
-                />
-            <FlatList
-                data={processedChatsFinal}
-                keyExtractor={ item => item.chatId}
-                renderItem={({ item }) => (
-                    <View style={{flexDirection: 'row', width: '98.5%'}}>
-                        <ChatComponent
-                            titulo={item.nomeOtherUser}
-                            msgPreview={item.lastMessage.conteudo}
-                            chatId={item.chatId}
-                            otherUserId={item.otherUserId}
-                            nomeOtherUser={item.nomeOtherUser}
-                            animalId={item.animalId}
-                            chatData={item.chatData}
-                            onPress={() => navigation.navigate('ChatScreen', {
-                                chatId: item.chatId,
-                                nomeOtherUser: item.nomeOtherUser,
-                                animalId: item.animalId,
-                            })}
-                            />
-                    </View>
-            )}
-            contentContainerStyle={{ backgroundColor: '#fafafa', alignSelf: 'center'}}
-            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhuma conversa disponível</Text>}
-            refreshControl={
-                <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                />
-            }
-            />
-            </View>
+            <>
+            {topbar ? (
+                    <TopBar
+                        nome='Cadastro'
+                        icone='voltar'
+                        irParaPagina={() => navigation.goBack()}
+                        cor='#88c9bf'
+                    />
+                ) : (
+                    <></>
+                )}
+                <FlatList
+                    data={processedChatsFinal}
+                    keyExtractor={ item => item.chatId}
+                    renderItem={({ item }) => (
+                        <View style={{flexDirection: 'row', width: '98.5%'}}>
+                            <ChatComponent
+                                titulo={item.nomeOtherUser}
+                                msgPreview={item.lastMessage.conteudo}
+                                chatId={item.chatId}
+                                otherUserId={item.otherUserId}
+                                nomeOtherUser={item.nomeOtherUser}
+                                animalId={item.animalId}
+                                chatData={item.chatData}
+                                onPress={() => navigation.navigate('ChatScreen', {
+                                    chatId: item.chatId,
+                                    nomeOtherUser: item.nomeOtherUser,
+                                    animalId: item.animalId,
+                                })}
+                                />
+                        </View>
+                    )}
+                    contentContainerStyle={{ backgroundColor: '#fafafa', alignSelf: 'center'}}
+                    ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhuma conversa disponível</Text>}
+                    refreshControl={
+                        <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+                />          
+            </>
         );
     } else {
         

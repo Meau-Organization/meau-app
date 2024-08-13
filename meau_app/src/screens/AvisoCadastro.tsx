@@ -38,7 +38,8 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
                         cor='#88c9bf'
                     />
                 ) : (
-                    <></>
+                    <>
+                    </>
                 )}
             
             <View style={styles.container}>

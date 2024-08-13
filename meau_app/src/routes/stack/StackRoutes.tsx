@@ -61,7 +61,7 @@ export default function StackRoutes() {
 
             <Stack.Screen name="DetalhesAnimalAdocao" component={DetalhesAnimalAdocao}  />
 
-            <Stack.Screen name="ChatScreen" component={ChatScreen}  />
+            <Stack.Screen name="ChatScreen" component={ChatScreen} />
 
         </Stack.Navigator>
     );

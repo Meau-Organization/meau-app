@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native"
 
 import { Entypo, Ionicons } from '@expo/vector-icons'
+import React from "react";
 
 
 

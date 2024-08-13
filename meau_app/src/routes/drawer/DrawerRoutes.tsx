@@ -4,10 +4,11 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemL
 
 import { Ionicons , AntDesign} from '@expo/vector-icons';
 
-import { View, StatusBar, Text, Image, StyleSheet, ImageBackground } from 'react-native';
+import { View, StatusBar, Text, Image, StyleSheet, ImageBackground, SafeAreaView } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 
 import Inicial from '../../screens/Inicial';
+import { TopBar } from '../../components/TopBar';
 
 import { NavigationState, useNavigationState } from '@react-navigation/native';
 import MeusPets from '../../screens/MeusPets';
@@ -30,8 +31,6 @@ interface titulosPaginas {
 
 function CustomDrawerContent(props) {
     const { user, dadosUser } = useAutenticacaoUser();
-    const [ isSubMenuOpen, setIsSubMenuOpen ] = useState(false);
-    const [ isDicasOpen,setIsDicasOpen ] = useState(false);
     const [ isAtalhosOpen,setAtalhosOpen ] = useState(false);
     const [isInfoOpen, setInfoOpen ] = useState(false);
     const [isConfOpen, setConfOpen] = useState(false);
@@ -166,24 +165,27 @@ export default function DrawerRoutes() {
     };
 
     return( 
-        <Drawer.Navigator 
-            initialRouteName='Inicial'
-            screenOptions={{
-                title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
-                headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
-                headerStyle: {
-                    backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafefe' : coresHeader[nomeRotaAtiva],
-                },
-                headerShadowVisible: false,
-            }}
-            drawerContent={(props) => <CustomDrawerContent {...props} />}>
-            {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
-            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none'}}} />
-            <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
-            <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
-            <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar',drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
-            <Drawer.Screen name="Chat" component={Conversas} options={{ drawerLabel: 'Chat', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
-        </Drawer.Navigator>
+        <SafeAreaView style={{ flex: 1 }}>
+            <Drawer.Navigator 
+                initialRouteName='Inicial'
+                screenOptions={({route}) => ({
+                    // Condicional para determinar se o TopBar deve ser usado ou o cabeçalho padrão
+                    title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
+                    headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
+                    headerStyle: {
+                        backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafefe' : coresHeader[nomeRotaAtiva],
+                    },
+                    headerShadowVisible: false,
+                })}
+                drawerContent={(props) => <CustomDrawerContent {...props} />}>
+                {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
+                <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none'}}} />
+                <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
+                <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+                <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+                <Drawer.Screen name="Chat" component={Conversas} options={{ drawerLabel: 'Chat', headerShown: true, drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} initialParams={{ topbar: true }} />
+            </Drawer.Navigator>
+        </SafeAreaView>
     )
 
 }
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
     userSection: {
         flex: 1,
         height: 172,
-        width: 286,
+        width: "100%",
         padding: 16,
         backgroundColor: '#88c9bf'
     },

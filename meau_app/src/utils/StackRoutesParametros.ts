@@ -23,5 +23,6 @@ export type StackRoutesParametros = {
         nomeOtherUser?: string;
         animalId?: string;  
         chatData?: any;
+        topbar: boolean;
     };
 };
