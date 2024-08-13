@@ -1,8 +1,11 @@
-import { createDrawerNavigator } from '@react-navigation/drawer'
+import React, { useState } from 'react';
+
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer'
 
 import { Ionicons , AntDesign} from '@expo/vector-icons';
 
-import { View, StatusBar } from 'react-native';
+import { View, StatusBar, Text, Image, StyleSheet, ImageBackground } from 'react-native';
+import Collapsible from 'react-native-collapsible';
 
 import Inicial from '../../screens/Inicial';
 
@@ -12,6 +15,8 @@ import MeuPerfil from '../../screens/MeuPerfil';
 import Adotar from '../../screens/Adotar';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import Conversas from '../../screens/Conversas';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Constants from 'expo-constants';
 
 const Drawer = createDrawerNavigator();
 
@@ -23,6 +28,101 @@ interface titulosPaginas {
     [key: string]: string;
 }
 
+
+function CustomDrawerContent(props) {
+    const { user, dadosUser } = useAutenticacaoUser();
+    const [ isSubMenuOpen, setIsSubMenuOpen ] = useState(false);
+    const [ isDicasOpen,setIsDicasOpen ] = useState(false);
+    const [ isAtalhosOpen,setAtalhosOpen ] = useState(false);
+    const [isInfoOpen, setInfoOpen ] = useState(false);
+    const [isConfOpen, setConfOpen] = useState(false);
+
+    const toggleConf = () => setConfOpen(!isConfOpen);
+    const toggleAtalhos= () => setAtalhosOpen(!isAtalhosOpen);
+    const toggleInfo= () => setInfoOpen(!isInfoOpen);
+
+    const handleLogout = () => {
+        // Função para lidar com o logout
+        console.log("Usuário deslogado");
+        // Navegue para a tela de login ou altere o estado de autenticação como necessário
+    };
+
+    return (
+        <DrawerContentScrollView {...props}>
+            <View style={styles.userSection}>
+                {/* User section */}
+                {dadosUser.imagemPrincipalBase64 ? (
+                    <ImageBackground
+                        source={{ uri: `data:${dadosUser.imagemPrincipalBase64.mimeType};base64,${dadosUser.imagemPrincipalBase64.base64}` }}
+                        imageStyle={{ borderRadius: 100}}
+                        resizeMode="contain"
+                        style={styles.mini_foto}
+                    ></ImageBackground>
+
+                ) : (
+                    <ImageBackground
+                        source={userPadrao}
+                        imageStyle={{ borderRadius: 100}}
+                        resizeMode="contain"
+                        style={styles.mini_foto}
+                    ></ImageBackground>
+                )}
+                <Text style={styles.userName}>{user ? dadosUser.nome : 'Convidado'}</Text>
+                
+                <Ionicons name="caret-down-outline" size={24} color="#757575" style={styles.expandIcon} onPress={null}/>
+                
+            </View>
+            <DrawerItemList {...props} />
+            {user ? (
+                <>
+                    <DrawerItem 
+                    style={styles.drawerItem}
+                    label="Atalhos" 
+                    onPress={toggleAtalhos} 
+                    icon={({ color, size }) => <Ionicons name="paw" size={24} color={color} />} />
+                    <Collapsible collapsed={!isAtalhosOpen}>
+                        <DrawerItem label="Cadastrar um pet" onPress={() => {}} />
+                        <DrawerItem label="Adotar um Pet" onPress={() => {}} />
+                        <DrawerItem label="Ajudar um pet" onPress={() => {}} />
+                        <DrawerItem label="Apadrinhar um pet" onPress={() => {}} />
+                    </Collapsible>
+
+                    <DrawerItem 
+                    style={styles.drawerInfo}
+                    label="Informações" 
+                    onPress={toggleInfo} 
+                    icon={({ color, size }) => <Ionicons name="information-circle" size={24} color={color} />} />
+                    <Collapsible collapsed={!isInfoOpen}>
+                        <DrawerItem label="Dicas" onPress={() => {}} />
+                        <DrawerItem label="Eventos" onPress={() => {}} />
+                        <DrawerItem label="Ajudar um pet" onPress={() => {}} />
+                        <DrawerItem label="Apadrinhar um pet" onPress={() => {}} />
+                    </Collapsible>
+                    {/* Submenu para atalhos, informações, etc. */}
+                    <DrawerItem 
+                    style={styles.drawerConf}
+                    label="Configurações" 
+                    onPress={toggleConf} 
+                    icon={({ color, size }) => <Ionicons name="cog" size={24} color={color} />} />
+                    <Collapsible collapsed={!isConfOpen}>
+                        <DrawerItem label="Privacidade" onPress={() => {}} />
+                    </Collapsible>
+                    
+                </>
+            ) : (
+                <>
+                    <DrawerItem label="Home" onPress={() => props.navigation.navigate('Home')} />
+                    <DrawerItem label="Adotar" onPress={() => props.navigation.navigate('Adotar')} />
+                </>
+            )}
+            <View style={{flex: 1, justifyContent: '', }}>
+                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                    <Text style={styles.logoutText}>Sair</Text>
+                </TouchableOpacity>
+            </View>
+        </DrawerContentScrollView>
+    );
+}
 
 export default function DrawerRoutes() {
 
@@ -65,96 +165,85 @@ export default function DrawerRoutes() {
         Conversas: 'Chats'
     };
 
+    return( 
+        <Drawer.Navigator 
+            initialRouteName='Inicial'
+            screenOptions={{
+                title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
+                headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
+                headerStyle: {
+                    backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafafa' : coresHeader[nomeRotaAtiva],
+                },
+                headerShadowVisible: false,
+            }}
+            drawerContent={(props) => <CustomDrawerContent {...props} />}>
+            {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
+            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none' }}} />
+            <Drawer.Screen name="MeuPerfil" component={MeuPerfil} />
+            <Drawer.Screen name="MeusPets" component={MeusPets} />
+            <Drawer.Screen name="Adotar" component={Adotar} />
+            <Drawer.Screen name="Chat" component={Conversas} />
+        </Drawer.Navigator>
 
-    return(
-        <View style={{ flex: 1 }}>
-            <StatusBar backgroundColor="#88c9bf" barStyle="light-content" />
-        
-            <Drawer.Navigator
-                screenOptions={{
-                    title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
-                    headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
-                    headerStyle: {
-                        backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafafa' : coresHeader[nomeRotaAtiva],
-                    },
-                    headerShadowVisible: false,
-                }}>
-                
-                {user ? (
-                    <>
-                        <Drawer.Screen
-                            name = "Home"
-                            component={Inicial}
-                            options={{
-                                drawerLabel: dadosUser.nome,
-                                drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
-                            }}
-                        />
-        
-                        <Drawer.Screen
-                            name = "MeuPerfil"
-                            component={MeuPerfil}
-                            options={{
-                                drawerLabel: 'Meu Perfil',
-                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                            }}
-                        />
-        
-                        <Drawer.Screen
-                            name = "MeusPets"
-                            component={MeusPets}
-                            options={{
-                                drawerLabel: 'Meus Pets',
-                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                            }}
-                            //initialParams={{ recarregar: false, usuario_id: '' }}
-                        />
-        
-                        <Drawer.Screen
-                            name = "Adotar"
-                            component={Adotar}
-                            options={{
-                                drawerLabel: 'Adotar',
-                                drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                            }}
-
-                        />
-
-                        <Drawer.Screen
-                            name = "Conversas"
-                            component={Conversas}
-                            options={{
-                                drawerLabel: 'Conversas',
-                                drawerIcon: ({color, size}) => <Ionicons name="chatbubbles" size={24} color={'#434343'} />
-                            }}
-                            
-                        />
-                    </>
-
-                ):(// Navegação para usuários não autenticados
-                <>
-                    <Drawer.Screen
-                        name = "Home"
-                        component={Inicial}
-                        options={{
-                            drawerLabel: 'Inicio',
-                            drawerIcon: ({color, size}) => <Ionicons name="menu" size={24} color={'#88c9bf'}/>
-                        }}
-                    />
-                    
-                    <Drawer.Screen
-                        name = "Adotar"
-                        component={Adotar}
-                        options={{
-                            drawerLabel: 'Adotar',
-                            drawerIcon: ({color, size}) => <AntDesign name="pluscircle" size={24} />
-                        }}
-                    />
-                </>) }
-
-
-            </Drawer.Navigator>
-        </View>
     )
 
 }
+
+const styles = StyleSheet.create({
+    userSection: {
+        flex: 1,
+        height: 172,
+        width: 286,
+        padding: 16,
+        backgroundColor: '#88c9bf'
+    },
+    userImage: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        top: 15
+    },
+    userName: {
+        fontFamily: 'Roboto-Medium',
+        fontSize: 14,
+        color: '#434343',
+        position: 'absolute',
+        bottom: 15,
+        left: 16
+    },
+    expandIcon: {
+        position: 'absolute',
+        right: 16,
+        bottom: 12
+    },
+    drawerItem: {
+        backgroundColor: '#fee29b', // Cor de fundo para o DrawerItem
+    },
+    drawerInfo: {
+        backgroundColor: '##cfe9e5', // Cor de fundo para o DrawerItem
+    },
+    logoutButton: {
+        height: 50,
+        backgroundColor: '##88c9bf', // Cor de fundo para o botão de sair
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        marginTop: 15,
+        marginBottom: 15
+    },
+    logoutText: {
+        color: '##434343', // Cor do texto
+        fontSize: 16, // Tamanho do texto
+        fontWeight: 'bold' // Peso da fonte
+    },
+    drawerConf: {
+        backgroundColor: '#e6e7e8', // Cor de fundo para o DrawerItem
+    },
+    mini_foto: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        top: 15,
+        backgroundColor: 'black',
+    }
+});

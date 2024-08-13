@@ -36,14 +36,10 @@ export const AutenticacaoUserProvider : React.FC<{children: ReactNode}> = ({ chi
                 console.log('Dados do usuario não encontrados');
 
             }
-            setEsperando(false);
-
         } catch (error) {
             console.error('Erro ao buscar dados do user: ', error);
-            setEsperando(false);
 
         } finally {
-            setEsperando(false);
 
         }
     };
@@ -65,7 +61,6 @@ export const AutenticacaoUserProvider : React.FC<{children: ReactNode}> = ({ chi
         return () => unsubscribe(); // Limpeza do listener ao desmontar o componente
     }, []);
     
-
     return (
         <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario }}>
             {children}
