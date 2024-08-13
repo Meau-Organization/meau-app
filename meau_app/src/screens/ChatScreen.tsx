@@ -188,9 +188,9 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                             name: docElemento.data().sender === dadosAnimal.idDono ? dadosAnimal.nomeDono : dadosInteressado.nomeInteressado,
                             avatar:
                                 docElemento.data().sender === dadosAnimal.idDono ?
-                                    `data:${dadosAnimal.iconeDonoAnimal.mimeType};base64,${dadosAnimal.iconeDonoAnimal.base64}`
+                                    dadosAnimal.iconeDonoAnimal ? `data:${dadosAnimal.iconeDonoAnimal.mimeType};base64,${dadosAnimal.iconeDonoAnimal.base64}` : 0
                                     :
-                                    `data:${dadosInteressado.iconeInteressado.mimeType};base64,${dadosInteressado.iconeInteressado.base64}`
+                                    dadosInteressado.iconeInteressado ? `data:${dadosInteressado.iconeInteressado.mimeType};base64,${dadosInteressado.iconeInteressado.base64}` : 0
                         },
                         lido: docElemento.data().lido,
 

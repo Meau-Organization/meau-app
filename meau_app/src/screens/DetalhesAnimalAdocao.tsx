@@ -101,12 +101,12 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                 nomeAnimal: dadosAnimal.nomeAnimal,
                 idDono: dadosAnimal.usuario_id,
                 nomeDono: dadosAnimal.dono,
-                iconeDonoAnimal: await comprimirImagem(base64DonoAnimal, 0.1),
+                iconeDonoAnimal: base64DonoAnimal? await comprimirImagem(base64DonoAnimal, 0.1) : null,
             },
             dadosInteressado: {
                 idInteressado: user.uid,
                 nomeInteressado: dadosUser.nome,
-                iconeInteressado: await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1),
+                iconeInteressado: dadosUser.imagemPrincipalBase64 ? await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1) : null,
             },
             nomeTopBar: dadosAnimal.dono,
         })

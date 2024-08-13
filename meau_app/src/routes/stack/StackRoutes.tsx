@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Login from '../../screens/Login';
-import Inicial from '../../screens/Inicial';Text
+import Inicial from '../../screens/Inicial';
 import AvisoCadastro from '../../screens/AvisoCadastro';
 import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import CadastroAnimal from '../../screens/CadastroAnimal';

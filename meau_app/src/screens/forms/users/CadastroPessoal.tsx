@@ -125,7 +125,7 @@ export default function CadastroPessoal() {
                         endereco: endereco,
                         telefone: telefone,
                         username: username,
-                        imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal
+                        imagemPrincipalBase64: pacoteImagemBase64 ? pacoteImagemBase64.imagemPrincipal : null
                     });
                     // console.log("Document written with ID: ", docRef.id);
                 }
@@ -372,10 +372,13 @@ export default function CadastroPessoal() {
                         disabled={isLoading}
                         onPress={
                             e => {
-                                pacoteImagemBase64.tamBase64Principal <= 1 ?
-                                    cadastrarNovaConta()
+                                pacoteImagemBase64 ?
+                                    pacoteImagemBase64.tamBase64Principal <= 1 ?
+                                        cadastrarNovaConta()
+                                        :
+                                        Alert.alert('Arquivo de foto excedeu o limite de 1.5 Megabytes')
                                     :
-                                    Alert.alert('Arquivo de foto excedeu o limite de 1.5 Megabytes')
+                                    cadastrarNovaConta()
                             }
                         }
                         activeOpacity={0.5} >

@@ -14,6 +14,7 @@ export async function buscarCampoEspecifico(colecao: string, id_documento: strin
         return campoEspecifico;
     } else {
         console.log("Campo não encontrado");
+        return null;
     }
 }
 
@@ -25,6 +26,7 @@ export async function buscarDadosUsuario(colecao: string, id_documento: string) 
         return { uid: docSnap.id, ...docSnap.data() };
     } else {
         console.log('Dados do usuario não encontrados');
+        return null;
     }
 }
 
@@ -47,6 +49,7 @@ export async function buscarUltimaMensagem(idChat: string, userId: string) {
 
     } else {
         console.log('Erro ao buscar ultima mensagem');
+        return null;
     }
 
 }
