@@ -20,7 +20,6 @@ const AutenticacaoUserContext = createContext<AutenticacaoUserContextType | unde
 export const AutenticacaoUserProvider : React.FC<{children: ReactNode}> = ({ children }) => {
     const [user, setUser] = useState(null); // Substitua `any` pelo tipo específico do usuário se disponível
     const [dadosUser,setDadosUser] = useState<any>(null);
-    const [esperando, setEsperando] = useState(true);
     
 
     const buscarDadosUsuario = async (userId : string) => {
