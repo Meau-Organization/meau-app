@@ -1,5 +1,4 @@
 
-import { FontAwesome6 } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 type SetStateFunction<String> = React.Dispatch<React.SetStateAction<string>>;
 
@@ -160,13 +159,7 @@ export const validarEmail = (email: string): boolean => {
     return regex.test(email);
 };
 
-export const mostrarIconeCheckFunc = (iconeState : Boolean) => {
-    if (iconeState) {
-        return <FontAwesome6 name="check" size={24} color="#589b9b" />
-    } else {
-        return null;
-    }
-};
+
 
 export const validarFinal = (
     senha : string,

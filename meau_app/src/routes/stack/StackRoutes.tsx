@@ -1,7 +1,7 @@
-import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Login from '../../screens/Login';
-import Inicial from '../../screens/Inicial';
+import Inicial from '../../screens/Inicial';Text
 import AvisoCadastro from '../../screens/AvisoCadastro';
 import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import CadastroAnimal from '../../screens/CadastroAnimal';
@@ -14,7 +14,7 @@ import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import { useNavigationState , NavigationState} from '@react-navigation/native';
 import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 
-import ChatScreen from '../../screens/Chat';
+import ChatScreen from '../../screens/ChatScreen';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     

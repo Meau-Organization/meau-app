@@ -1,4 +1,4 @@
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Constants from 'expo-constants';
@@ -6,13 +6,9 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { Screen } from "react-native-screens";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 
 import SelectDropdown from 'react-native-select-dropdown'
-
-
-const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 interface CardProps {
     id: string;
@@ -79,7 +75,7 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
 
             <View style={[styles.titulo, { backgroundColor: corCard }]}>
 
-                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id })}>
+                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })}>
                     <Text style={styles.text_nome}>{nome}</Text>
                 </TouchableOpacity>
 
@@ -103,7 +99,7 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
             <TouchableOpacity
                 onPress={
                     //() => navigation.navigate("DetalhesAnimal", {animal_id: id })
-                    () => navigation.navigate(tela, { animal_id: id })
+                    () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })
                 }
                 style={styles.foto}>
                 <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />

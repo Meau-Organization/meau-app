@@ -1,15 +1,10 @@
-import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ImageBackground, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, doc, getDoc } from '../configs/firebaseConfig';
-import { useCallback, useEffect, useState } from "react";
-
-import { useFocusEffect } from "@react-navigation/native";
-import AvisoCadastro from "./AvisoCadastro";
-import ModalLoanding from "../components/ModalLoanding";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+
 
 const userPadrao = require('../assets/images/user.jpg');
 
@@ -18,79 +13,33 @@ export default function MeuPerfil() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const { user } = useAutenticacaoUser();
-
-    const [dadosUser, setDadosUser] = useState(null);
-
-    const [esperando, setEsperando] = useState(true);
-    const [modal, setModal] = useState(true);
-
-    const buscarDadosUsuario = async (userId : string) => {
-        try {
-                
-            const userDocRef = doc(db, 'Users', userId);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                setDadosUser(userDoc.data());
-
-            } else {
-                console.log('Dados do usuario não encontrados');
-
-            }
-            setEsperando(false);
-
-        } catch (error) {
-            console.error('Erro ao buscar dados do user: ', error);
-            setEsperando(false);
-
-        } finally {
-            setEsperando(false);
-
-        }
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            
-            setEsperando(true);
-            buscarDadosUsuario(user.uid);
-
-            return () => {
-                //console.log('Tela perdeu foco');
-            };
-
-        }, [])
-    );
-
-    
+    const { user, dadosUser } = useAutenticacaoUser();
 
 
-    if (!esperando) {
 
-        return(
-            <ScrollView>
+    return (
+        <ScrollView>
             <View style={styles.container}>
 
                 {dadosUser.imagemPrincipalBase64 ? (
                     <ImageBackground
                         source={{ uri: `data:${dadosUser.imagemPrincipalBase64.mimeType};base64,${dadosUser.imagemPrincipalBase64.base64}` }}
-                        imageStyle={{ borderRadius: 100}}
-                        resizeMode="contain"
+                        imageStyle={{ borderRadius: 100 }}
+                        resizeMode="cover"
                         style={styles.mini_foto}
                     ></ImageBackground>
 
                 ) : (
                     <ImageBackground
                         source={userPadrao}
-                        imageStyle={{ borderRadius: 100}}
-                        resizeMode="contain"
+                        imageStyle={{ borderRadius: 100 }}
+                        resizeMode="cover"
                         style={styles.mini_foto}
                     ></ImageBackground>
                 )}
 
-                
-                
+
+
 
                 <Text style={{
                     fontSize: 16,
@@ -113,7 +62,7 @@ export default function MeuPerfil() {
 
                 <Text style={styles.label}>ENDEREÇO</Text>
                 <Text style={styles.dado}>{dadosUser.endereco}--</Text>
-                
+
 
                 <Text style={styles.label}>TELEFONE</Text>
                 <Text style={styles.dado}>{dadosUser.telefone}</Text>
@@ -124,24 +73,15 @@ export default function MeuPerfil() {
                 <Text style={styles.label}>HISTÓRICO</Text>
                 <Text style={styles.dado}>Sem histórico</Text>
 
-                <TouchableOpacity  activeOpacity={0.5}>
-                    <BotaoUsual texto='EDITAR PERFIL' cor='#88c9bf' marginTop={32} marginBottom={24}/>
+                <TouchableOpacity activeOpacity={0.5}>
+                    <BotaoUsual texto='EDITAR PERFIL' cor='#88c9bf' marginTop={32} marginBottom={24} />
                 </TouchableOpacity>
 
             </View>
-            </ScrollView>
+        </ScrollView>
 
 
-        );
-
-    } else {
-
-        return (
-            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
-            </Modal>
-        );
-    }
+    );
 
 }
 
@@ -159,7 +99,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: 'black',
         marginTop: 16 - Constants.statusBarHeight,
-        
+
     },
     label: {
         fontSize: 12,

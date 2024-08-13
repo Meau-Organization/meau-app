@@ -1,11 +1,11 @@
-import { FlatList, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, collection, query, where, getDocs, doc, updateDoc } from '../configs/firebaseConfig';
-import { useCallback, useEffect, useState } from "react";
+import { db, collection, query, where, getDocs, doc, updateDoc } from '../configs/firebaseConfig';
+import { useCallback, useState } from "react";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
-import AvisoCadastro from "./AvisoCadastro";
+
 import CardAnimal from "../components/CardAnimal";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
 

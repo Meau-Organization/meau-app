@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, Modal } from 'react-native';
+import { StyleSheet, View, Keyboard, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
 
 import { FontAwesome6 } from '@expo/vector-icons';
 import BotaoUsual from './BotaoUsual';

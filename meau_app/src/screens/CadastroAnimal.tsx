@@ -8,9 +8,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
-
-import { getAuth } from '../configs/firebaseConfig';
-
 export default function CadastroAnimal(){
 
 

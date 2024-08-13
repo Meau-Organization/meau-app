@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, Modal, ImageBackground, Alert } from 'react-native'
+import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, ImageBackground, Alert } from 'react-native'
 import Constants from 'expo-constants';
 
 import { TopBar } from '../../../components/TopBar';
@@ -11,7 +11,7 @@ import OpenImagePicker from '../../../components/OpenImagePicker';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
 
-import { getAuth, db, addDoc, collection, doc, getDoc, setDoc } from '../../../configs/firebaseConfig';
+import { db, addDoc, collection, doc, setDoc } from '../../../configs/firebaseConfig';
 
 import ModalLoanding from '../../../components/ModalLoanding';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -49,68 +49,57 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
     const [acompanhamento, setAcompanhamento] = useState<string[]>([]);
     const [tempoAcompanhamento, setTempoAcompanhamento] = useState('');
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser } = useAutenticacaoUser();
 
     const novoAnimal = async () => {
         try {
-            
 
-            const userDocRef = doc(db, 'Users', user.uid);
-            const userDoc = await getDoc(userDocRef);
+            console.log('Usuario novo animal');
+            const animalCollectionRef = collection(db, 'Animals');
+            console.log(animalCollectionRef);
 
-            if (userDoc.exists()) {
+            const docRef = await addDoc(animalCollectionRef, {
+                nomeAnimal: nomeAnimal,
+                sexo: sexo,
+                porte: porte,
+                idade: idade,
+                usuario_id: user.uid,
+                cidade: dadosUser.cidade,
+                estado: dadosUser.estado,
+                imagemComprimidaBase64: pacoteImagemBase64.imagemCard,
+                disponivel: true,
 
-                console.log('Usuario novo animal');
-                const userCollectionRef = collection(db, 'Animals');
-                console.log(userCollectionRef);
+            });
+            console.log(docRef.id);
 
-                const docRef = await addDoc(userCollectionRef, {
-                    nomeAnimal: nomeAnimal,
-                    sexo: sexo,
-                    porte: porte,
-                    idade: idade,
-                    usuario_id: user.uid,
-                    cidade: userDoc.data().cidade,
-                    estado: userDoc.data().estado,
-                    imagemComprimidaBase64: pacoteImagemBase64.imagemCard,
-                    disponivel: true,
+            // Referência à subcoleção dentro do novo documento
+            const subcollectionRef = collection(docRef, 'Detalhes');
 
-                });
-                console.log(docRef.id);
+            await setDoc(doc(subcollectionRef, docRef.id), {
+                nomeAnimal: nomeAnimal,
+                especie: especie,
+                sexo: sexo,
+                porte: porte,
+                idade: idade,
+                temperamento: temperamento,
+                saude: saude,
+                doencasAnimal: doencasAnimal,
+                sobreAnimal: sobreAnimal,
+                termosAdocao: termosAdocao.length == 0 ? false : true,
+                exigenciaFotosCasa: exigenciaFotosCasa.length == 0 ? false : true,
+                visitaPrevia: visitaPrevia.length == 0 ? false : true,
+                tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
+                usuario_id: user.uid,
+                dono: dadosUser.nome,
+                cidade: dadosUser.cidade,
+                estado: dadosUser.estado,
+                imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal,
+                disponivel: true,
+            });
 
-                // Referência à subcoleção dentro do novo documento
-                const subcollectionRef = collection(docRef, 'Detalhes');
+            setLoading(false);
+            navigation.navigate('CadastroAnimal');
 
-                await setDoc(doc(subcollectionRef, docRef.id), {
-                    nomeAnimal: nomeAnimal,
-                    especie: especie,
-                    sexo: sexo,
-                    porte: porte,
-                    idade: idade,
-                    temperamento: temperamento,
-                    saude: saude,
-                    doencasAnimal: doencasAnimal,
-                    sobreAnimal: sobreAnimal,
-                    termosAdocao: termosAdocao.length == 0 ? false : true,
-                    exigenciaFotosCasa: exigenciaFotosCasa.length == 0 ? false : true,
-                    visitaPrevia: visitaPrevia.length == 0 ? false : true,
-                    tempoAcompanhamento: acompanhamento.length == 0 ? 0 : Number(tempoAcompanhamento[0]),
-                    usuario_id: user.uid,
-                    dono: userDoc.data().nome,
-                    cidade: userDoc.data().cidade,
-                    estado: userDoc.data().estado,
-                    imagemPrincipalBase64: pacoteImagemBase64.imagemPrincipal,
-                    disponivel: true,
-                });
-
-                setLoading(false);
-                navigation.navigate('CadastroAnimal');
-
-            } else {
-                console.log('Dados do usuario não encontrados');
-                setLoading(false);
-
-            }
 
         } catch (error) {
             setLoading(false);
@@ -126,7 +115,7 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
     }
 
 
-    const handleImagePicked = (pacoteImagem : any) => {
+    const handleImagePicked = (pacoteImagem: any) => {
 
         if (!pacoteImagem.canceled) {
             setPacoteImagemBase64(pacoteImagem);
@@ -159,10 +148,10 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
 
                         <TouchableOpacity
                             onPress={() => { setModalVisible(true) }}
-                            style={[styles.imageButton, { borderColor: pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#e6e7e7' : '#fb6565' : '#e6e7e7' } ]}
+                            style={[styles.imageButton, { borderColor: pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#e6e7e7' : '#fb6565' : '#e6e7e7' }]}
                         >
                             {pacoteImagemBase64 ? (
-                                
+
                                 <>
                                     {pacoteImagemBase64.imagemPrincipal ? (
                                         <>
@@ -205,10 +194,11 @@ export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
                     </View>
 
                     <Text style={[styles.textFotoTam,
-                        { color:
-                        pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#f7a800' : '#fb6565' : '#f7a800'
-                        }
-                    
+                    {
+                        color:
+                            pacoteImagemBase64 ? pacoteImagemBase64.tamBase64Principal <= 1 ? '#f7a800' : '#fb6565' : '#f7a800'
+                    }
+
                     ]}>Limite arquivo: 1.5 Megabytes.</Text>
 
                     <Text style={{ fontSize: 16, marginTop: 20, color: '#f7a800', marginBottom: 8, marginLeft: 24 }}>ESPÉCIE</Text>

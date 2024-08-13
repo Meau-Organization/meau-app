@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
-import Constants from 'expo-constants';
+
 import { useCallback, useState } from "react";
 import { db, doc, getDoc } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";

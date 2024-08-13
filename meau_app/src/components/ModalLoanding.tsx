@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import Constants from 'expo-constants';
 

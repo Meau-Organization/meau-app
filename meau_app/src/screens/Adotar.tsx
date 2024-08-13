@@ -1,19 +1,14 @@
-import { ActivityIndicator, FlatList, ImageBackground, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
 
-import { getAuth, db, doc, getDoc, collection, query, where, getDocs, realtime, ref, child, get } from '../configs/firebaseConfig';
-import { useCallback, useEffect, useState } from "react";
+import { db, collection, query, where, getDocs } from '../configs/firebaseConfig';
+import { useCallback, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
-import AvisoCadastro from "./AvisoCadastro";
+
 import ModalLoanding from "../components/ModalLoanding";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 import CardAnimal from "../components/CardAnimal";
-
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-
-import * as FileSystem from 'expo-file-system';
-
 
 export default function Adotar() {
 
@@ -57,28 +52,11 @@ export default function Adotar() {
 
     useFocusEffect(
         useCallback(() => {
-            setEsperando(true);
-
-            const id = 'phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32';
-
-            const dbRef = ref(realtime);
-            get(child(dbRef, `messages/chat-phOmMymk5dMI30bcqOTiWair5k32-phOmMymk5dMI30bcqOTiWair5k32-` + id)).then((snapshot) => {
-            if (snapshot.exists()) {
-                console.log(snapshot.val());
-            } else {
-                console.log("No data available");
-            }
-            }).catch((error) => {
-                console.error(error);
-            });
-            
-            
-            
+            setEsperando(true);     
             buscarAnimais();
 
             return () =>  {
                 //console.log('Tela perdeu foco');
-                console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 2" + data2);
             };
 
         }, [])
