@@ -146,6 +146,13 @@ export default function Conversas() {
     console.log("esperando: " + esperando);
     if (!esperando) {
         return (
+            <View style={{ flex: 1 }}>
+            <TopBar
+                    nome='Algo'
+                    icone='voltar'
+                    irParaPagina={() => navigation.goBack()}
+                    cor='#88c9bf'
+                />
             <FlatList
                 data={processedChatsFinal}
                 keyExtractor={ item => item.chatId}
@@ -164,21 +171,22 @@ export default function Conversas() {
                                 nomeOtherUser: item.nomeOtherUser,
                                 animalId: item.animalId,
                             })}
-                        />
+                            />
                     </View>
             )}
             contentContainerStyle={{ backgroundColor: '#fafafa', alignSelf: 'center'}}
             ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhuma conversa disponível</Text>}
             refreshControl={
                 <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 />
             }
             />
+            </View>
         );
     } else {
-
+        
         return (
             <Modal visible={esperando} animationType='fade' transparent={true}>
                 <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>

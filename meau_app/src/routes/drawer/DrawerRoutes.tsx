@@ -114,12 +114,13 @@ function CustomDrawerContent(props) {
                     <DrawerItem label="Adotar" onPress={() => props.navigation.navigate('Adotar')} />
                 </>
             )}
-            <View style={{flex: 1, justifyContent: '', }}>
+            <View style={styles.footerContainer}>
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.logoutText}>Sair</Text>
                 </TouchableOpacity>
             </View>
         </DrawerContentScrollView>
+        
     );
 }
 
@@ -161,7 +162,7 @@ export default function DrawerRoutes() {
         MeusPets: 'Meus Pets',
         MeuPerfil: 'Meu Perfil',
         Adotar: 'Adotar',
-        Conversas: 'Chats'
+        Conversas: 'Chat'
     };
 
     return( 
@@ -171,19 +172,18 @@ export default function DrawerRoutes() {
                 title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
                 headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
                 headerStyle: {
-                    backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafafa' : coresHeader[nomeRotaAtiva],
+                    backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafefe' : coresHeader[nomeRotaAtiva],
                 },
                 headerShadowVisible: false,
             }}
             drawerContent={(props) => <CustomDrawerContent {...props} />}>
             {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
-            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none' }}} />
-            <Drawer.Screen name="MeuPerfil" component={MeuPerfil} />
-            <Drawer.Screen name="MeusPets" component={MeusPets} />
-            <Drawer.Screen name="Adotar" component={Adotar} />
-            <Drawer.Screen name="Chat" component={Conversas} />
+            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none', borderTopWidth: 1, borderTopColor: '#ccc' }}} />
+            <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
+            <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+            <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar',drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+            <Drawer.Screen name="Chat" component={Conversas} options={{ drawerLabel: 'Chat', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
         </Drawer.Navigator>
-
     )
 
 }
@@ -217,13 +217,26 @@ const styles = StyleSheet.create({
     },
     drawerItem: {
         backgroundColor: '#fee29b', // Cor de fundo para o DrawerItem
+        borderTopWidth: 1,
+        borderTopColor: '#ccc', // Cor da linha de separação
+        width: '100%'
+
     },
     drawerInfo: {
-        backgroundColor: '##cfe9e5', // Cor de fundo para o DrawerItem
+        backgroundColor: '#0ccdb0', // Cor de fundo para o DrawerItem
+        borderTopWidth: 1,
+        borderTopColor: '#ccc', // Cor da linha de separação
+        width: '100%'
+    },
+    drawerConf: {
+        backgroundColor: '#e6e7e8', // Cor de fundo para o DrawerItem
+        borderTopWidth: 1,
+        borderTopColor: '#ccc', // Cor da linha de separação
+        width: '100%'
     },
     logoutButton: {
         height: 50,
-        backgroundColor: '##88c9bf', // Cor de fundo para o botão de sair
+        backgroundColor: '#88c9bf', // Cor de fundo para o botão de sair
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
@@ -231,12 +244,9 @@ const styles = StyleSheet.create({
         marginBottom: 15
     },
     logoutText: {
-        color: '##434343', // Cor do texto
+        color: '#434343', // Cor do texto
         fontSize: 16, // Tamanho do texto
         fontWeight: 'bold' // Peso da fonte
-    },
-    drawerConf: {
-        backgroundColor: '#e6e7e8', // Cor de fundo para o DrawerItem
     },
     mini_foto: {
         width: 64,
@@ -244,5 +254,11 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         backgroundColor: 'black',
         top:15 
+    },
+    footerContainer: {
+        marginTop: 'auto', // Isso empurra o botão para o rodapé do drawer
+        width: '100%', // Garante que o botão ocupe a largura total
+        justifyContent: 'flex-end',
+        height: 214 // Altura fixa do botão
     }
 });
