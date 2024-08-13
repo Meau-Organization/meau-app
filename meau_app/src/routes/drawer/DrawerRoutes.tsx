@@ -16,7 +16,6 @@ import Adotar from '../../screens/Adotar';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import Conversas from '../../screens/Conversas';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Constants from 'expo-constants';
 
 const Drawer = createDrawerNavigator();
 
@@ -51,9 +50,9 @@ function CustomDrawerContent(props) {
         <DrawerContentScrollView {...props}>
             <View style={styles.userSection}>
                 {/* User section */}
-                {dadosUser.imagemPrincipalBase64 ? (
+                {dadosUser ? (
                     <ImageBackground
-                        source={{ uri: `data:${dadosUser.imagemPrincipalBase64.mimeType};base64,${dadosUser.imagemPrincipalBase64.base64}` }}
+                        source={{ uri: 'htpps://via.placeholder.com/64' }}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="contain"
                         style={styles.mini_foto}
@@ -61,13 +60,13 @@ function CustomDrawerContent(props) {
 
                 ) : (
                     <ImageBackground
-                        source={userPadrao}
+                        source={{uri : 'htpps://via.placeholder.com/64'}}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="contain"
                         style={styles.mini_foto}
                     ></ImageBackground>
                 )}
-                <Text style={styles.userName}>{user ? dadosUser.nome : 'Convidado'}</Text>
+                <Text style={styles.userName}>{user ? 'dadosUser.nome ': 'Convidado'}</Text>
                 
                 <Ionicons name="caret-down-outline" size={24} color="#757575" style={styles.expandIcon} onPress={null}/>
                 
@@ -243,7 +242,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        top: 15,
         backgroundColor: 'black',
+        top:15 
     }
 });

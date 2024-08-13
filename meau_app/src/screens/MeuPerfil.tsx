@@ -37,7 +37,6 @@ export default function MeuPerfil() {
             };
 
             fetchUserData();
-            
             return () => {
                 //console.log('Tela perdeu foco');
             };
