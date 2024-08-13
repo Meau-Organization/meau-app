@@ -259,6 +259,6 @@ const styles = StyleSheet.create({
         marginTop: 'auto', // Isso empurra o botão para o rodapé do drawer
         width: '100%', // Garante que o botão ocupe a largura total
         justifyContent: 'flex-end',
-        height: 214 // Altura fixa do botão
+        height: 230 // Altura fixa do botão
     }
 });
