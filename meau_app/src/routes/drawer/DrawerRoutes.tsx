@@ -178,7 +178,7 @@ export default function DrawerRoutes() {
             }}
             drawerContent={(props) => <CustomDrawerContent {...props} />}>
             {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
-            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none', borderTopWidth: 1, borderTopColor: '#ccc' }}} />
+            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none'}}} />
             <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
             <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
             <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar',drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
 
     },
     drawerInfo: {
-        backgroundColor: '#0ccdb0', // Cor de fundo para o DrawerItem
+        backgroundColor: '#cfe9e5', // Cor de fundo para o DrawerItem
         borderTopWidth: 1,
         borderTopColor: '#ccc', // Cor da linha de separação
         width: '100%'
