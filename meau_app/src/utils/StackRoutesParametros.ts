@@ -30,8 +30,7 @@ export type StackRoutesParametros = {
             nomeInteressado?: string;
             iconeInteressado?: any;
         },
-        dadosChatRota?: any;
-        nomeTopBar?: string;
+        nomeTopBar: string;
     };
     Conversas: undefined;
 };

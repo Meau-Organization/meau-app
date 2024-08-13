@@ -19,9 +19,10 @@ interface chatProps {
     onPress: () => void;  // Passar a função de navegação como prop
     nomeAnimal: string;
     foto: any;
+    novaMensagem: number;
 }
 
-export default function ChatComponent({ titulo, ultimaMensagem, data, onPress, nomeAnimal, foto }: chatProps) {
+export default function ChatComponent({ titulo, ultimaMensagem, data, onPress, nomeAnimal, foto, novaMensagem }: chatProps) {
 
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros>>();
@@ -47,18 +48,18 @@ export default function ChatComponent({ titulo, ultimaMensagem, data, onPress, n
             borderBottomWidth: 1,
             borderBottomEndRadius: 24,
             borderBottomStartRadius: 24,
-            borderBottomColor: '#e6e7e8',
+            borderBottomColor: novaMensagem > 0 ? '#ffd358' : '#e6e7e8',
             alignItems: 'center',
             width: '100%',
         }}>
-
+            
             <View style={styles.placeholderAvatar}>
                 {foto ?
                     <ImageBackground
                         source={{ uri: `data:${foto.mimeType};base64,${foto.base64}` }}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="cover"
-                        style={styles.placeholderAvatar}
+                        style={[styles.placeholderAvatar, novaMensagem > 0 ? {width: 44, height: 44} : {} ]}
                     ></ImageBackground>
                 :
                     <ImageBackground
@@ -74,15 +75,27 @@ export default function ChatComponent({ titulo, ultimaMensagem, data, onPress, n
                 <View style={styles.nameTimeContainer}>
                     <Text style={styles.userName}>{titulo != undefined ? <Text>{titulo.toUpperCase().slice(0, 15)}</Text> : <></>} {nomeAnimal != undefined ? <Text>| {nomeAnimal.toUpperCase().slice(0, 15)}</Text> : <></>}</Text>
                     
-                    <Text style={styles.time}>
+                    <Text style={[styles.time, novaMensagem > 0 ? {color: '#ffd358'} : {} ]}>
                         {diferencaEmMilissegundos >= _24h_milissegundos ? format(new Date(Number(data)), 'dd/MM/yyyy', {locale: ptBR})
                         :
                         format(new Date(Number(data)), 'HH:mm', {locale: ptBR}) }
                     </Text>
-
+                    
                 </View>
-                <Text style={styles.lastMessage}>{ ultimaMensagem.length < 38 ? ultimaMensagem : <Text>{ultimaMensagem.slice(0, 38)}...</Text>} </Text>
+                <Text style={styles.lastMessage}>
+                    { ultimaMensagem.length < 38 ? ultimaMensagem : <Text>{ultimaMensagem.slice(0, 38)}...</Text>}
+                </Text>
+                
             </View>
+
+            { novaMensagem > 0 ? 
+                <View style={{backgroundColor: '#ffd358', position: 'absolute', width: 26, height: 26, marginLeft: '96.5%', top: 44, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+                    <Text style={{fontSize: 18}} >{novaMensagem}</Text>
+                </View>
+                :
+                <></>
+            }
+            
         </TouchableOpacity>
 
     )
@@ -95,7 +108,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 100,
-        backgroundColor: '#cfe9e5', // Bola verde
+        backgroundColor: '#ffd358', // Bola verde
         justifyContent: 'center',
         alignItems: 'center',
     },

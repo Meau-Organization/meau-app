@@ -1,9 +1,9 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
 
-import { View, Modal, StyleSheet } from 'react-native';
+import { View, Modal } from 'react-native';
 import { TopBar } from "../components/TopBar";
-import { GiftedChat, IMessage, Send } from "react-native-gifted-chat";
+import { GiftedChat, IMessage } from "react-native-gifted-chat";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
@@ -12,9 +12,9 @@ import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserConte
 
 import ModalLoanding from "../components/ModalLoanding";
 
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc } from "../configs/firebaseConfig";
+import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
 
 
 interface ChatScreenProps {
@@ -105,6 +105,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 conteudo: msg,
                 dataMsg: data,
                 sender: user.uid,
+                lido: false,
             });
 
             const chatRef = doc(db, 'Chats', idChat);
@@ -145,6 +146,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 conteudo: msg,
                 dataMsg: data,
                 sender: user.uid,
+                lido: false,
             });
 
             console.log('enviou');
@@ -160,24 +162,38 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             const msgsRef = collection(db, 'Chats', idChat, 'messages');
             const messagesQuery = query(msgsRef, orderBy('dataMsg'));
 
+
+
             const unsubscribe = onSnapshot(messagesQuery, (docs) => {
+
+
 
                 const novasMensagens: IMessage[] = [];
 
-                docs.forEach((doc) => {
+                docs.docs.map(async (docElemento) => {
+
+                    if (user.uid != docElemento.data().sender && !docElemento.data().lido) {
+                        console.log('LIDO-id: ', user.uid, ' sd: ', docElemento.data().sender)
+                        await updateDoc(doc(db, 'Chats', idChat, 'messages', docElemento.id), {
+                            lido: true,
+                        });
+                    }
+
                     const formatoIMessage = {
-                        _id: doc.id,
-                        text: doc.data().conteudo,
-                        createdAt: new Date(parseInt(doc.data().dataMsg)),
+                        _id: docElemento.id,
+                        text: docElemento.data().conteudo,
+                        createdAt: new Date(parseInt(docElemento.data().dataMsg)),
                         user: {
-                            _id: doc.data().sender,
-                            name: doc.data().sender === dadosAnimal.idDono ? dadosAnimal.nomeDono : dadosInteressado.nomeInteressado,
+                            _id: docElemento.data().sender,
+                            name: docElemento.data().sender === dadosAnimal.idDono ? dadosAnimal.nomeDono : dadosInteressado.nomeInteressado,
                             avatar:
-                                doc.data().sender === dadosAnimal.idDono ?
+                                docElemento.data().sender === dadosAnimal.idDono ?
                                     `data:${dadosAnimal.iconeDonoAnimal.mimeType};base64,${dadosAnimal.iconeDonoAnimal.base64}`
                                     :
                                     `data:${dadosInteressado.iconeInteressado.mimeType};base64,${dadosInteressado.iconeInteressado.base64}`
                         },
+                        lido: docElemento.data().lido,
+
                     } as IMessage;
 
                     novasMensagens.push(formatoIMessage);
@@ -205,24 +221,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
         }
     }
 
-    const renderSend = (props) => {
-        return (
-            <Send {...props}>
-                <View style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 100,
-                    backgroundColor: '#88c9bf',
-                    marginRight: 10,
-                    marginBottom: 5,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <MaterialIcons name="send" size={24} color="#fff" />
-                </View>
-            </Send>
-        );
-    };
+    
 
     return (
         <>
@@ -233,11 +232,12 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 cor='#88c9bf'
             />
             {!esperando ?
-                <View style={{ flex: 1 }}>
+                <View style={{ flex: 1, backgroundColor: '#fafafa' }}>
 
                     <GiftedChat
                         messages={mensagens}
                         onSend={acoesChat}
+                        renderMessage={renderMsg}
                         user={{
                             _id: user.uid,
                             name: dadosUser.nome
@@ -247,6 +247,9 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                         showUserAvatar={true}
                         placeholder="Digite sua mensagem aqui..."
                         renderSend={renderSend}
+                        renderBubble={renderBalaoMsg}
+                        renderDay={renderDay}
+                        alwaysShowSend={true}
                     />
                 </View>
                 :
@@ -258,13 +261,3 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     );
 
 }
-
-const styles = StyleSheet.create({
-    mini_foto: {
-        width: 112,
-        height: 112,
-        borderRadius: 100,
-        backgroundColor: 'black',
-
-    },
-});

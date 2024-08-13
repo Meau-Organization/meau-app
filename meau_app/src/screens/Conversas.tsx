@@ -3,10 +3,10 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { ScrollView } from "react-native-gesture-handler";
-import { db, doc, getDoc } from "../configs/firebaseConfig";
+import { collection, db, doc, getDoc, onSnapshot } from "../configs/firebaseConfig";
 import { useCallback, useState } from "react";
 import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/ChatComponent";
 
 import BotaoUsual from "../components/BotaoUsual";
@@ -25,68 +25,109 @@ export default function Conversas() {
     const [esperando, setEsperando] = useState(true);
     const [dadosConversas, setDadosConversas] = useState(null);
 
+    const [novaMensagem, setNovaMensagem] = useState<number>(0);
+
+    const listeners = [];
+
     useFocusEffect(
         useCallback(() => {
 
             setEsperando(true);
-            buscarUserChats(user.uid);
+            buscarUserChats();
 
             return () => {
-                //console.log('Tela perdeu foco');
+                console.log('............ desativou listeners');
+                listeners.forEach(unsubscribe => unsubscribe());
             };
-
         }, [])
     );
 
-    const buscarUserChats = async (userId: string) => {
-        try {
+    const buscarUserChats = async () => {
 
-            const userDocRef = doc(db, 'Users', userId);
-            const userDoc = await getDoc(userDocRef);
+        const userDocRef = doc(db, 'Users', user.uid);
 
-            if (userDoc.exists()) {
-                const userChats = userDoc.data().userChats;
-                console.log("userChats: " + userChats);
+        const unsubscribeUserChats = onSnapshot(userDocRef, async (snapshotUserChats) => {
 
-                if (userChats != undefined) {
+            setEsperando(true);
 
-                    const promises = userChats.map(async (userChat: string) => {
+            if (snapshotUserChats.exists()) {
+
+                const userChats = snapshotUserChats.data().userChats;
+                //console.log("userChats: " + userChats);
+
+                if (userChats) {
+                    const promises = userChats.map(async (userChat) => {
 
                         const chatRef = doc(db, 'Chats', userChat);
                         const snapshotChat = await getDoc(chatRef);
 
                         const [_, idDono, idInteressado, idAnimal] = userChat.split('-');
-                        
+                        const pacoteUltimaMensagem = await buscarUltimaMensagem(userChat, user.uid);
+                        console.log("----->>> pacoteUltimaMensagem", pacoteUltimaMensagem.contador);
+                        //const pacoteUltimaMensagem = {ultimaMensagem: ultimaMensagem, contador: 0}
 
-                        const ultimaMensagem = await buscarUltimaMensagem(userChat);
+                        const unsubscribe = onSnapshot(
+                            collection(db, 'Chats', userChat, 'messages'),
 
-                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(),  ultimaMensagem };
+                            (snapshot) => {
+                                //console.log('------------------------> nova mensagem')
+
+                                let contadorNovasMsgs = 0;
+                                const mensagens = snapshot.docs.map(doc => {
+                                    if (!doc.data().lido && user.uid != doc.data().sender) {
+                                        contadorNovasMsgs++;
+                                        //Alert.alert('Nova mensagem', contadorNovasMsgs.toString() + ' : id: ' + user.uid + ' sd: ' + doc.data().sender);
+                                    }
+                                    return doc.data();
+                                });
+
+                                mensagens.sort((a, b) => {
+                                    return b.dataMsg - a.dataMsg;
+                                });
+                                //console.log(mensagens[0]);
+                                const ultimaMensagemAtualizada = mensagens[0];
+
+                                setDadosConversas(prevConversas => {
+                                    return prevConversas.map(conversa => {
+                                        if (conversa.idChat === userChat) {
+                                            // console.log('---------------------------------------------------------------------> ', conversa.ultimaMensagem);
+                                            // console.log('---------------------------------------------------------------------> ', ultimaMensagemAtualizada);
+                                            return {
+                                                ...conversa,
+                                                pacoteUltimaMensagem: {ultimaMensagem: ultimaMensagemAtualizada, contador: contadorNovasMsgs } || conversa.pacoteUltimaMensagem,
+                                            };
+                                        }
+                                        return conversa;
+                                    });
+                                });
+                            }
+                        );
+                        listeners.push(unsubscribe);
+
+                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(), pacoteUltimaMensagem };
                     });
 
                     const dados = await Promise.all(promises);
+                    setDadosConversas(dados.filter(item => item.dadosChat !== undefined));
 
-                    console.log("dados: ", dados);
-                    setDadosConversas(dados);
+                    //console.log("dados: ", dados);
 
                 } else {
-                    setDadosConversas(null);
+                    setDadosConversas([]);
                 }
 
             } else {
                 console.log('Chats não encontrados');
             }
 
-
-        } catch (error) {
-            console.error('Erro ao buscar Chats: ', error);
             setEsperando(false);
+        });
 
-        } finally {
-            setEsperando(false);
-        }
+        listeners.push(unsubscribeUserChats);
     };
 
-    console.log("esperando: " + esperando)
+    //console.log("esperando: " + esperando);
+    console.log("novaMensagem: " + novaMensagem);
 
     if (!esperando) {
         return (
@@ -98,23 +139,23 @@ export default function Conversas() {
                         {dadosConversas != null && dadosConversas.length > 0 && dadosConversas ?
                             dadosConversas.map((dadoConversa: any) => (
 
-                                <View key={dadoConversa.ultimaMensagem ? dadoConversa.ultimaMensagem.key : dadoConversa.idChat} style={{ flexDirection: 'row', width: '100%' }}>
-                                    
+                                <View key={dadoConversa.idChat} style={{ flexDirection: 'row', width: '100%' }}>
+
                                     <ChatComponent
                                         titulo={
                                             user.uid == dadoConversa.idInteressado ?            // Se eu (usuario online) sou o interessado
                                                 dadoConversa.dadosChat.nomeDono                 // Mostre o nome do dono na lista de conversas
-                                            :                                                   // Caso contrário, eu (usuario online) sou o Dono
+                                                :                                                   // Caso contrário, eu (usuario online) sou o Dono
                                                 dadoConversa.dadosChat.nomeInteressado}         // Mostre o nome do interessado na lista de conversas
-                                        
+
                                         nomeAnimal={dadoConversa.dadosChat.nomeAnimal}
-                                        ultimaMensagem={dadoConversa.ultimaMensagem ? dadoConversa.ultimaMensagem.conteudo : ''}
-                                        data={dadoConversa.ultimaMensagem ? dadoConversa.ultimaMensagem.dataMsg : ''}
+                                        ultimaMensagem={dadoConversa.pacoteUltimaMensagem.ultimaMensagem ? dadoConversa.pacoteUltimaMensagem.ultimaMensagem.conteudo : ''}
+                                        data={dadoConversa.pacoteUltimaMensagem.ultimaMensagem ? dadoConversa.pacoteUltimaMensagem.ultimaMensagem.dataMsg : ''}
 
                                         foto={
                                             user.uid == dadoConversa.idInteressado ?            // Se eu (usuario online) sou o interessado
                                                 dadoConversa.dadosChat.iconeDonoAnimal          // Mostre o icone do dono na lista de conversas
-                                            :                                                   // Caso contrário, eu (usuario online) sou o Dono
+                                                :                                                   // Caso contrário, eu (usuario online) sou o Dono
                                                 dadoConversa.dadosChat.iconeInteressado}        // Mostre o icone do interessado na lista de conversas
 
                                         onPress={() => navigation.navigate('ChatScreen', {
@@ -129,14 +170,16 @@ export default function Conversas() {
                                                 idInteressado: dadoConversa.idInteressado,
                                                 nomeInteressado: dadoConversa.dadosChat.nomeInteressado,
                                                 iconeInteressado: dadoConversa.dadosChat.iconeInteressado,
-                                            },                                        
+                                            },
                                             nomeTopBar: user.uid == dadoConversa.idInteressado ?    // Se eu (usuario online) sou o interessado
-                                                    dadoConversa.dadosChat.nomeDono                 // Mostre o nome do dono na topBar
+                                                dadoConversa.dadosChat.nomeDono                 // Mostre o nome do dono na topBar
                                                 :                                                   // Caso contrário, eu (usuario online) sou o Dono
-                                                    dadoConversa.dadosChat.nomeInteressado          // Mostre o nome do interessado na topBar
+                                                dadoConversa.dadosChat.nomeInteressado          // Mostre o nome do interessado na topBar
 
                                         })}
+                                        novaMensagem={dadoConversa.pacoteUltimaMensagem.contador}
                                         
+
                                     />
 
 

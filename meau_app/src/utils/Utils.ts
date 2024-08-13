@@ -2,7 +2,7 @@
 import { SaveFormat, manipulateAsync } from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 
-import { collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query } from '../configs/firebaseConfig.js'
+import { collection, db, doc, getCountFromServer, getDoc, getDocs, limitToLast, orderBy, query, where } from '../configs/firebaseConfig.js'
 
 export async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
     const docRef = doc(db, colecao, id_documento);
@@ -28,14 +28,22 @@ export async function buscarDadosUsuario(colecao: string, id_documento: string) 
     }
 }
 
-export async function buscarUltimaMensagem(idChat: string) {
+export async function buscarUltimaMensagem(idChat: string, userId: string) {
     const msgsRef = collection(db, 'Chats', idChat, 'messages');
+
     const messagesQuery = query(msgsRef, orderBy('dataMsg'), limitToLast(1));
 
+    const MessagesQueryNaoLidas = query(msgsRef, where('lido', '==', false));
+
+    const SnapshotNaoLidas = await getDocs(MessagesQueryNaoLidas);
+
+    const msgsNaoLidas = SnapshotNaoLidas.docs.filter(doc => doc.data().sender !== userId);
+    
+    //console.log('--------------------------------> buscarUltimaMensagem', msgsNaoLidas)
 
     const snapshot = await getDocs(messagesQuery);
     if (!snapshot.empty) {
-        return { key: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+        return { ultimaMensagem: { key: snapshot.docs[0].id, ...snapshot.docs[0].data() }, contador: msgsNaoLidas.length};
 
     } else {
         console.log('Erro ao buscar ultima mensagem');
