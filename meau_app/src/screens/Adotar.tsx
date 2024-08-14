@@ -109,6 +109,7 @@ export default function Adotar() {
                                 cidade={animal.cidade}
                                 estado={animal.estado}
                                 disponivel={animal.disponivel}
+                                usuarioId={animal.usuario_id}
                             />
 
                         </View>

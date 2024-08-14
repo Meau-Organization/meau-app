@@ -25,4 +25,5 @@ export type StackRoutesParametros = {
         chatData?: any;
         topbar: boolean;
     };
+    Config: undefined;
 };

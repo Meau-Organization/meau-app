@@ -61,11 +61,9 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                 console.log('Dados do animal não encontrados');
 
             }
-            setEsperando(false);
-
         } catch (error) {
             console.error('Erro ao buscar dados do animal: ', error);
-            setEsperando(false);
+
 
         } finally {
             setEsperando(false);
@@ -124,7 +122,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     //     //console.log(dadosAnimal);
     // }
 
-    if (!esperando) {
+    if (!esperando && dadosAnimal) {
 
         // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
 

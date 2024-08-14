@@ -4,7 +4,7 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemL
 
 import { Ionicons , AntDesign} from '@expo/vector-icons';
 
-import { View, StatusBar, Text, Image, StyleSheet, ImageBackground, SafeAreaView } from 'react-native';
+import { View, StatusBar, Text, Image, StyleSheet, ImageBackground} from 'react-native';
 import Collapsible from 'react-native-collapsible';
 
 import Inicial from '../../screens/Inicial';
@@ -17,6 +17,7 @@ import Adotar from '../../screens/Adotar';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import Conversas from '../../screens/Conversas';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Config from '../../screens/Config';
 
 const Drawer = createDrawerNavigator();
 
@@ -51,7 +52,7 @@ function CustomDrawerContent(props) {
                 {/* User section */}
                 {dadosUser ? (
                     <ImageBackground
-                        source={{ uri: 'htpps://via.placeholder.com/64' }}
+                        source={require('../../assets/images/cj.jpeg')}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="contain"
                         style={styles.mini_foto}
@@ -59,7 +60,7 @@ function CustomDrawerContent(props) {
 
                 ) : (
                     <ImageBackground
-                        source={{uri : 'htpps://via.placeholder.com/64'}}
+                        source={require('../../assets/images/cj.jpeg')}
                         imageStyle={{ borderRadius: 100}}
                         resizeMode="contain"
                         style={styles.mini_foto}
@@ -80,7 +81,7 @@ function CustomDrawerContent(props) {
                     icon={({ color, size }) => <Ionicons name="paw" size={24} color={color} />} />
                     <Collapsible collapsed={!isAtalhosOpen}>
                         <DrawerItem label="Cadastrar um pet" onPress={() => {}} />
-                        <DrawerItem label="Adotar um Pet" onPress={() => {}} />
+                        <DrawerItem label="Adotar um Pet" onPress={() => props.navigation.navigate('Adotar')} />
                         <DrawerItem label="Ajudar um pet" onPress={() => {}} />
                         <DrawerItem label="Apadrinhar um pet" onPress={() => {}} />
                     </Collapsible>
@@ -103,7 +104,7 @@ function CustomDrawerContent(props) {
                     onPress={toggleConf} 
                     icon={({ color, size }) => <Ionicons name="cog" size={24} color={color} />} />
                     <Collapsible collapsed={!isConfOpen}>
-                        <DrawerItem label="Privacidade" onPress={() => {}} />
+                        <DrawerItem label="Privacidade" onPress={() => props.navigation.navigate('Config')} />
                     </Collapsible>
                     
                 </>
@@ -148,6 +149,7 @@ export default function DrawerRoutes() {
         MeuPerfil: '#cfe9e5',
         Adotar: '#ffd358',
         Conversas: '#88c9bf', //#589b9b
+        Config: '#ffd358',
     };
     const coresIconeHeader: coresPaginas = {
         Home: '#88c9bf',
@@ -155,37 +157,38 @@ export default function DrawerRoutes() {
         MeuPerfil: '#434343',
         Adotar: '#434343',
         Conversas: '#434343',
+        Config: '#434343',
     };
     const titulos_paginas: titulosPaginas = {
         Home: '',
         MeusPets: 'Meus Pets',
         MeuPerfil: 'Meu Perfil',
         Adotar: 'Adotar',
-        Conversas: 'Chat'
+        Conversas: 'Chat',
+        Config: 'Config',
     };
 
     return( 
-        <SafeAreaView style={{ flex: 1 }}>
-            <Drawer.Navigator 
-                initialRouteName='Inicial'
-                screenOptions={({route}) => ({
-                    // Condicional para determinar se o TopBar deve ser usado ou o cabeçalho padrão
-                    title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
-                    headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
-                    headerStyle: {
-                        backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafefe' : coresHeader[nomeRotaAtiva],
-                    },
-                    headerShadowVisible: false,
-                })}
-                drawerContent={(props) => <CustomDrawerContent {...props} />}>
-                {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
-                <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none'}}} />
-                <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
-                <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
-                <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
-                <Drawer.Screen name="Chat" component={Conversas} options={{ drawerLabel: 'Chat', headerShown: true, drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} initialParams={{ topbar: true }} />
-            </Drawer.Navigator>
-        </SafeAreaView>
+        <Drawer.Navigator 
+            initialRouteName='Inicial'
+            screenOptions={({route}) => ({
+                // Condicional para determinar se o TopBar deve ser usado ou o cabeçalho padrão
+                title: titulos_paginas[nomeRotaAtiva] === undefined ? '' : titulos_paginas[nomeRotaAtiva],
+                headerTintColor: coresIconeHeader[nomeRotaAtiva] === undefined ? '#88c9bf' : coresIconeHeader[nomeRotaAtiva],
+                headerStyle: {
+                    backgroundColor: coresHeader[nomeRotaAtiva] === undefined ? '#fafefe' : coresHeader[nomeRotaAtiva],
+                },
+                headerShadowVisible: false,
+            })}
+            drawerContent={(props) => <CustomDrawerContent {...props} />}>
+            {/* As Screens são registradas aqui, mas o conteúdo é gerenciado pelo CustomDrawerContent */}
+            <Drawer.Screen name="Inicial" component={Inicial} options={{ drawerItemStyle: { display: 'none'}}} />
+            <Drawer.Screen name="MeuPerfil" component={MeuPerfil} options={{ drawerLabel: 'Meu Perfil'}} />
+            <Drawer.Screen name="MeusPets" component={MeusPets} options={{ drawerLabel: 'Meus Pets', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+            <Drawer.Screen name="Adotar" component={Adotar} options={{ drawerLabel: 'Adotar', drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} />
+            <Drawer.Screen name="Chat" component={Conversas} options={{ drawerLabel: 'Chat', headerShown: true, drawerItemStyle: { borderTopWidth: 1, borderTopColor: '#ccc',width: '100%'}}} initialParams={{ topbar: true }} />
+            <Drawer.Screen name="Config" component={Config} options={{ drawerItemStyle: { display: 'none'}}} />
+        </Drawer.Navigator>
     )
 
 }
