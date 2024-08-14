@@ -6,9 +6,13 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 import SelectDropdown from 'react-native-select-dropdown'
+import { db, doc, getDoc } from "../configs/firebaseConfig";
+import SendNotifications from "./SendNotifications";
+
 
 interface CardProps {
     id: string;
@@ -27,9 +31,10 @@ interface CardProps {
     meusPets?: boolean;
     disponivel?: boolean;
     updateEstadoAnimal?: (id: string, estado: boolean) => void,
+    usuarioId: string;
 }
 
-export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto, tela, corCard = '#fee29b', meusPets = false, disponivel, updateEstadoAnimal }: CardProps) {
+export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto, tela, corCard = '#fee29b', meusPets = false, disponivel, updateEstadoAnimal }: CardProps) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
@@ -39,15 +44,39 @@ export default function CardAnimal({ primeiro, modo, nome, sexo, idade, porte, c
 
     const [curtida, setCurtida] = useState(false);
 
-    const curtir = () => {
+    const curtir = async () => {
         if (!user){
             // Se o usuário não estiver autenticado, redirecione para a tela de aviso
             navigation.navigate("AvisoCadastro", {topbar: true} )
         } else {
             // Caso contrário, navegue para a tela de detalhes
             // navigation.navigate(tela, { animal_id: id });
+            curtida ? setCurtida(false) : setCurtida(true);
+
+            try{
+                // Puxa o token do proprietario do animal
+                const userDocRef = doc(db, "Users", usuarioId);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists()) {
+                    const userToken = userDoc.data().expoPushToken;
+                    console.log(userToken);
+                    if (userToken) {
+                        const message = `O usuário ${user.displayName} curtiu o seu animal ${nome}`;
+                        const title = `${user.displayName} curtiu seu pet!`;
+                        // Envia a notificação ao proprietário do animal
+                        await SendNotifications({ token: userToken, title, body: message });
+                    } else {
+                        console.log("Proprietário do animal não possui um token de notificação registrado.");
+                    }
+                } else {
+                    console.log("Documento do usuário não encontrado.");
+                }
+            } catch (error) {
+                console.error("Erro ao buscar o token de notificação:", error);
+            }
+                
         }
-        curtida ? setCurtida(false) : setCurtida(true);
     };
 
     const emojis = [

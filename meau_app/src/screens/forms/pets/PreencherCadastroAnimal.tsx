@@ -16,7 +16,7 @@ import { db, addDoc, collection, doc, setDoc } from '../../../configs/firebaseCo
 import ModalLoanding from '../../../components/ModalLoanding';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useState } from 'react';
-import { useAutenticacaoUser } from '../../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 
 
 type MeusPetsProps = {

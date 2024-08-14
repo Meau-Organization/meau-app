@@ -33,4 +33,5 @@ export type StackRoutesParametros = {
         nomeTopBar: string;
     };
     Conversas: undefined;
+    Config: undefined;
 };

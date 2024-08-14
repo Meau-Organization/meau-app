@@ -5,7 +5,7 @@ import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import { collection, db, doc, getDoc, onSnapshot } from "../configs/firebaseConfig";
 import { useCallback, useState } from "react";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ChatComponent from "../components/ChatComponent";
 
@@ -15,6 +15,7 @@ import { buscarUltimaMensagem } from "../utils/Utils";
 import Constants from 'expo-constants';
 
 import { Ionicons } from '@expo/vector-icons';
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 export default function Conversas() {
 
@@ -235,7 +236,7 @@ export default function Conversas() {
 
         );
     } else {
-
+        
         return (
             <Modal visible={esperando} animationType='fade' transparent={true}>
                 <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />

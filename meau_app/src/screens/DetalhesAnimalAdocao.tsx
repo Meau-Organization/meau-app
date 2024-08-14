@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal, Alert } from "react-native";
+import { Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet } from "react-native";
 import { useCallback, useState } from "react";
 import { db, doc, getDoc } from "../configs/firebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
@@ -19,8 +19,9 @@ interface DetalhesAnimalProps {
     };
 }
 
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+
 import { comprimirImagem } from "../utils/Utils";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
 
@@ -63,11 +64,9 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                 console.log('Dados do animal não encontrados');
 
             }
-            setEsperando(false);
-
         } catch (error) {
             console.error('Erro ao buscar dados do animal: ', error);
-            setEsperando(false);
+
 
         } finally {
             setEsperando(false);
@@ -133,8 +132,6 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     // if (!esperando) {
     //     //console.log(dadosAnimal);
     // }
-
-
 
     // console.log("base64 original: " + dadosAnimal.imagemPrincipalBase64.base64.length + " bytes : " + dadosAnimal.nomeAnimal);
 

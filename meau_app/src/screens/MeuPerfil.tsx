@@ -3,7 +3,9 @@ import Constants from 'expo-constants';
 
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BotaoUsual from "../components/BotaoUsual";
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 const userPadrao = require('../assets/images/user.jpg');
@@ -13,7 +15,33 @@ export default function MeuPerfil() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const { user, dadosUser } = useAutenticacaoUser();
+    const { user, dadosUser, buscarDadosUsuario } = useAutenticacaoUser();
+
+
+    const [esperando, setEsperando] = useState(true);
+    const [modal, setModal] = useState(true);
+
+
+    useFocusEffect(
+        useCallback(() => {
+            
+            setEsperando(true);
+            
+            const fetchUserData = async () => {
+                await buscarDadosUsuario(user.uid);
+                setEsperando(false);
+
+            };
+
+            fetchUserData();
+            return () => {
+                //console.log('Tela perdeu foco');
+            };
+
+        }, [])
+    );
+
+    
 
 
 

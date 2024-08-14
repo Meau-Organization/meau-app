@@ -12,9 +12,10 @@ import DrawerRoutes from '../drawer/DrawerRoutes';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import { useNavigationState , NavigationState} from '@react-navigation/native';
-import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 import ChatScreen from '../../screens/ChatScreen';
+import Config from '../../screens/Config';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
@@ -61,7 +62,9 @@ export default function StackRoutes() {
 
             <Stack.Screen name="DetalhesAnimalAdocao" component={DetalhesAnimalAdocao}  />
 
-            <Stack.Screen name="ChatScreen" component={ChatScreen}  />
+            <Stack.Screen name="ChatScreen" component={ChatScreen} />
+
+            <Stack.Screen name="Config" component={Config} />
 
         </Stack.Navigator>
     );

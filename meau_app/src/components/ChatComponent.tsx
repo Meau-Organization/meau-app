@@ -22,11 +22,11 @@ export default function ChatComponent({ titulo, ultimaMensagem, data, onPress, n
     const diferencaEmMilissegundos = timestampAtual - Number(data);
     const _24h_milissegundos = (24 * 60 * 60 * 1000);
 
-    if (diferencaEmMilissegundos >= _24h_milissegundos) {
-        console.log('Já passou 24 horas.', diferencaEmMilissegundos);
-    } else {
-        //console.log('Ainda não passaram 24 horas.');
-    }
+    // if (diferencaEmMilissegundos >= _24h_milissegundos) {
+    //     console.log('Já passou 24 horas.', diferencaEmMilissegundos);
+    // } else {
+    //     //console.log('Ainda não passaram 24 horas.');
+    // }
 
     return (
 

@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native"
 
 import { Entypo, Ionicons } from '@expo/vector-icons'
+import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 
@@ -36,14 +38,16 @@ export function TopBar( {nome, icone, irParaPagina, cor} : TopBarProps) {
     
     return (
 
-        <View style = { [styles.barra, {width: width, backgroundColor: cor }] }>
+        <SafeAreaView style={{backgroundColor: cor}}>
+            <View style = { [styles.barra, {width: width, backgroundColor: cor }] }>
 
-            <TouchableOpacity onPress={irParaPagina}>
-                { iconesMap[icone] }
-            </TouchableOpacity>
+                <TouchableOpacity onPress={irParaPagina}>
+                    { iconesMap[icone] }
+                </TouchableOpacity>
 
-            <Text style={styles.texto} > {nome} </Text>
-        </View>
+                <Text style={styles.texto} > {nome} </Text>
+            </View>
+        </SafeAreaView>
 
     )
 }

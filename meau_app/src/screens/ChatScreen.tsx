@@ -8,13 +8,12 @@ import { GiftedChat, IMessage } from "react-native-gifted-chat";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 
-import { useAutenticacaoUser } from "../../assets/contexts/AutenticacaoUserContext";
-
 import ModalLoanding from "../components/ModalLoanding";
 
 
 import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc } from "../configs/firebaseConfig";
 import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
 interface ChatScreenProps {
