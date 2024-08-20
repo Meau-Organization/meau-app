@@ -65,7 +65,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                         const message = `O usuário ${user.displayName} curtiu o seu animal ${nome}`;
                         const title = `${user.displayName} curtiu seu pet!`;
                         // Envia a notificação ao proprietário do animal
-                        await SendNotifications({ token: userToken, title, body: message });
+                        await SendNotifications(userToken, title, message, 'default');
                     } else {
                         console.log("Proprietário do animal não possui um token de notificação registrado.");
                     }

@@ -14,6 +14,7 @@ import ModalLoanding from "../components/ModalLoanding";
 import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc } from "../configs/firebaseConfig";
 import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import SendNotifications from "../components/SendNotifications";
 
 
 interface ChatScreenProps {
@@ -32,6 +33,7 @@ interface ChatScreenProps {
                 iconeInteressado: any;
             },
             nomeTopBar: string;
+            tokenDestino: string;
         };
     };
 }
@@ -46,10 +48,12 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const [esperando, setEsperando] = useState(false);
     const [criarChat, setCriarChat] = useState(true);
 
-    const { dadosAnimal, dadosInteressado, nomeTopBar } = route.params;
+    const { dadosAnimal, dadosInteressado, nomeTopBar, tokenDestino } = route.params;
 
     const idChat = 'chat-' + dadosAnimal.idDono + '-' + dadosInteressado.idInteressado + '-' + dadosAnimal.idAnimal;
     //console.log(idChat);
+
+    console.log("tokenDestino", tokenDestino);
 
 
 
@@ -126,6 +130,10 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 userChats: arrayUnion(idChat)
             });
 
+            const title = dadosUser.nome;
+            const message = msg;
+            await SendNotifications(tokenDestino, title, message, 'mensagens', idChat);
+
             console.log('Criou o chat');
 
             setCriarChat(false);
@@ -148,9 +156,14 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 lido: false,
             });
 
+            
+            const title = dadosUser.nome;
+            const message = msg;
+            await SendNotifications(tokenDestino, title, message, 'mensagens', idChat);
+
             console.log('enviou');
         } catch (error) {
-            console.log('erro ao enviar');
+            console.log('erro ao enviar msg: ' + error);
         }
     };
 

@@ -10,18 +10,18 @@ import * as Device from 'expo-device';
 import SendNotifications from '../components/SendNotifications';
 
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-import { setDoc, db,doc } from '../configs/firebaseConfig';
+import { setDoc, db, doc } from '../configs/firebaseConfig';
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+    }),
 });
 
 export default function Config() {
-    
+
     const { user } = useAutenticacaoUser();
 
     const [expoPushToken, setExpoPushToken] = useState('');
@@ -30,76 +30,84 @@ export default function Config() {
     const toggleSwitch = () => {
         const novoEstado = !notificacoesAtivadas;
         setNotificacoesAtivadas(novoEstado);
-        
+
         if (novoEstado) {
             console.log("Sending notifications");
             registerForPushNotificationsAsync()
-            .then(token => 
-                { if (token) {
-                    console.log("token :" + token);
-                    setExpoPushToken(token);
+                .then(token => {
+                    if (token) {
+                        console.log("token :" + token);
+                        setExpoPushToken(token);
 
-                    if (user){
-                        salvarTokenNoFirestore(token,user.uid);
+                        if (user) {
+                            salvarTokenNoFirestore(token, user.uid);
+                        }
                     }
-                }
-            })
-            .catch((error:any) => {
-                console.error("Erro ao enviar notificação:"+error);
-                setExpoPushToken(`${error}`)
-            });
+                })
+                .catch((error: any) => {
+                    console.error("Erro ao enviar notificação:" + error);
+                    setExpoPushToken(`${error}`)
+                });
         }
     };
 
     async function registerForPushNotificationsAsync() {
         let token;
-      
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-      
-        if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            alert('Failed to get push token for push notification!');
-            return;
-          }
-          // Learn more about projectId:
-          // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-          // EAS projectId is used here.
-          try {
-            const projectId =
-              Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-            if (!projectId) {
-              throw new Error('Project ID not found');
-            }
-            token = (
-              await Notifications.getExpoPushTokenAsync({
-                projectId,
-              })
-            ).data;
-            console.log(token);
-          } catch (e) {
-            token = `${e}`;
-          }
-        } else {
-          alert('Must use physical device for Push Notifications');
-        }
-      
-        return token;
-      }
 
-      async function salvarTokenNoFirestore(token: string, userId: string) {
+        if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+            await Notifications.setNotificationChannelAsync('mensagens', {
+                name: 'mensagens',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+                showBadge: true,
+                enableVibrate: true,
+            });
+        }
+
+        if (Device.isDevice) {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+            // Learn more about projectId:
+            // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+            // EAS projectId is used here.
+            try {
+                const projectId =
+                    Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+                if (!projectId) {
+                    throw new Error('Project ID not found');
+                }
+                token = (
+                    await Notifications.getExpoPushTokenAsync({
+                        projectId,
+                    })
+                ).data;
+                console.log(token);
+            } catch (e) {
+                token = `${e}`;
+            }
+        } else {
+            alert('Must use physical device for Push Notifications');
+        }
+
+        return token;
+    }
+
+    async function salvarTokenNoFirestore(token: string, userId: string) {
         try {
             // Atualiza o documento do usuário existente com o token de notificação
             const docRef = await setDoc(doc(db, "Users", userId), {
@@ -110,7 +118,7 @@ export default function Config() {
             console.error("Erro ao armazenar o token no Firestore:", error);
         }
     }
-    
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Configurações</Text>
@@ -126,7 +134,7 @@ export default function Config() {
                 />
             </View>
             {/* Botão de Enviar Notificação */}
-            <SendNotifications token ={expoPushToken} />
+            {/* <SendNotifications token ={expoPushToken} /> */}
         </View>
     );
 }

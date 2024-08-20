@@ -20,7 +20,7 @@ interface DetalhesAnimalProps {
 }
 
 
-import { comprimirImagem } from "../utils/Utils";
+import { buscarCampoEspecifico, comprimirImagem } from "../utils/Utils";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
@@ -74,25 +74,16 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         }
     };
 
-    async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
-        const docRef = doc(db, colecao, id_documento);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const campoEspecifico = await docSnap.get(campo);
-            //console.log("Valor do campo:", campoEspecifico);
-            return campoEspecifico;
-        } else {
-            console.log("Campo não encontrado");
-        }
-    }
-
     async function irChat() {
 
 
         setModal(true);
 
-        const base64DonoAnimal = await buscarCampoEspecifico('Users', dadosAnimal.usuario_id, 'imagemPrincipalBase64');
+        const docRefDono = doc(db, 'Users', dadosAnimal.usuario_id);
+        const docSnapDono = await getDoc(docRefDono);
+
+        const base64DonoAnimal = docSnapDono.data().imagemPrincipalBase64;
+        const tokenDestino = docSnapDono.data().expoPushToken;
 
         navigation.navigate('ChatScreen', {
             dadosAnimal: {
@@ -108,6 +99,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                 iconeInteressado: dadosUser.imagemPrincipalBase64 ? await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1) : null,
             },
             nomeTopBar: dadosAnimal.dono,
+            tokenDestino: tokenDestino
+
         })
 
         setModal(false);

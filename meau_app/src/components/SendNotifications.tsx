@@ -5,21 +5,25 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface SendNotificationsProps {
     token: string;
-    title:string;
-    body:string;
+    title: string;
+    body: string;
 }
 
 
-export default async function SendNotifications({ token, title, body }: SendNotificationsProps) {
+export default async function SendNotifications(token: string | string[], title: string, body: string, canal: string, grupo?: string, dados?: object) {
     console.log("SendNotifications component montado");
 
-    //console.log("Enviando notificação para token:", token); // Verifique se esta linha está sendo executada
+    //console.log("Enviando notificação para token:", token);                               // Verifique se esta linha está sendo executada
 
     const message = {
-        to: token, // The recipient's push token
+        to: token,                                                                          // The recipient's push token
         title: title,
         body: body,
+        channelId: canal,
         sound: 'default',
+        data: dados,
+        groupId: grupo
+
         /*
         android: {
             sound: true,
@@ -35,30 +39,29 @@ export default async function SendNotifications({ token, title, body }: SendNoti
         },
         */
         // You can also include custom data in the notification payload.
-        
+
     }
 
-    try{
-        //console.log("Enviando notificação para token:", token); // Verifique se esta linha está sendo executada
+    try {
+        //console.log("Enviando notificação para token:", token);                           // Verifique se esta linha está sendo executada
 
-    // Realiza uma requisição HTTP (GET)
-        const response = await fetch("https://exp.host/--/api/v2/push/send",{
+        // Realiza uma requisição HTTP (GET)
+        const response = await fetch("https://exp.host/--/api/v2/push/send", {
             method: 'POST',
             headers: {
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',                
-            },
-            body: JSON.stringify(message),
-        // If you want to send a notification to multiple devices, replace 'E  xponentPushToken[your_expo_push_token]' with an array of token strings.
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+            },                                                                              // If you want to send a notification to multiple devices,
+            body: JSON.stringify(message),                                                  //  replace 'E  xponentPushToken[your_expo_push_token]' with an array of token strings.
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Resposta do servidor: " + data);
     }
-    
-    const data = await response.json();
-    console.log("Resposta do servidor: " + data);
-    }
-    catch(error){
+    catch (error) {
         /**Some of these failures are temporary. 
          * For example, if the Expo push notification service is down an HTTP 429 error (Too Many Requests), or an HTTP 5xx error (Server Errors)
          * if your push notification payload is malformed, you may get an HTTP 400 response explaining the issue with the payload. 

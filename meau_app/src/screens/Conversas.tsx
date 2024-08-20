@@ -11,7 +11,7 @@ import ChatComponent from "../components/ChatComponent";
 
 import BotaoUsual from "../components/BotaoUsual";
 import ModalLoanding from "../components/ModalLoanding";
-import { buscarUltimaMensagem } from "../utils/Utils";
+import { buscarCampoEspecifico, buscarUltimaMensagem } from "../utils/Utils";
 import Constants from 'expo-constants';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -77,8 +77,15 @@ export default function Conversas() {
 
                         const [_, idDono, idInteressado, idAnimal] = userChat.split('-');
                         const pacoteUltimaMensagem = await buscarUltimaMensagem(userChat, user.uid);
-                        //console.log("----->>> pacoteUltimaMensagem", pacoteUltimaMensagem.contador);
-                        //const pacoteUltimaMensagem = {ultimaMensagem: ultimaMensagem, contador: 0}
+
+                        let tokenDestino : string;
+                        if (user.uid != idInteressado) {
+                            tokenDestino = await buscarCampoEspecifico('Users', idInteressado, 'expoPushToken');
+                        } else {
+                            tokenDestino = await buscarCampoEspecifico('Users', idDono, 'expoPushToken');
+                        }
+                        
+
 
                         const unsubscribe = onSnapshot(
                             collection(db, 'Chats', userChat, 'messages'),
@@ -118,7 +125,7 @@ export default function Conversas() {
                         );
                         listeners.push(unsubscribe);
 
-                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(), pacoteUltimaMensagem };
+                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(), pacoteUltimaMensagem, tokenDestino };
                     });
 
                     const dados = await Promise.all(promises);
@@ -191,7 +198,9 @@ export default function Conversas() {
                                                 nomeTopBar: user.uid == item.idInteressado ?    // Se eu (usuario online) sou o interessado
                                                     item.dadosChat.nomeDono                 // Mostre o nome do dono na topBar
                                                     :                                                   // Caso contrário, eu (usuario online) sou o Dono
-                                                    item.dadosChat.nomeInteressado          // Mostre o nome do interessado na topBar
+                                                    item.dadosChat.nomeInteressado,          // Mostre o nome do interessado na topBar
+                                                tokenDestino: item.tokenDestino
+                                                
 
                                             })}
                                             novaMensagem={item.pacoteUltimaMensagem.contador}

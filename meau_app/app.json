@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "meau_app",
-    "slug": "meau_app",
+    "name": "Meau",
+    "slug": "Meau",
     "owner": "meau-organization",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -29,7 +29,16 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon_notificacoes.png",
+          "color": "#f5a900",
+          "defaultChannel": "default",
+          "sounds": null
+        }
+      ]
     ],
     "extra": {
       "API_KEY": "${API_KEY}",
