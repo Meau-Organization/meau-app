@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "meau_app",
+    "name": "Meau",
     "slug": "meau_app",
     "owner": "meau-organization",
     "version": "1.0.0",
@@ -23,7 +23,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.meauorganization.meau_app"
+      "package": "com.meauorganization.meau_app",
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,7 +37,9 @@
           "icon": "./assets/icon_notificacoes.png",
           "color": "#f5a900",
           "defaultChannel": "default",
-          "sounds": null
+          "sounds": [
+            "./assets/level_up.wav"
+          ]
         }
       ]
     ],

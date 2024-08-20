@@ -1,5 +1,5 @@
 {
-  "name": "meau_app",
+  "name": "meau_app_project",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
