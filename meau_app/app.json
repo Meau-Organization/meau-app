@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Meau",
-    "slug": "Meau",
+    "name": "meau_app",
+    "slug": "meau_app",
     "owner": "meau-organization",
     "version": "1.0.0",
     "orientation": "portrait",
