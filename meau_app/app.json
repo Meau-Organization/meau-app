@@ -24,7 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.meauorganization.meau_app",
-      "versionCode": 6,
+      "versionCode": 9,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -52,7 +52,10 @@
       "MESSAGING_SENDER_ID": "${MESSAGING_SENDER_ID}",
       "APP_ID": "${APP_ID}",
       "MEASUREMENT_ID": "${MEASUREMENT_ID}",
-      "DATABASE_URL": "${DATABASE_URL}",
+      "PROJECT_NUMBER": "${PROJECT_NUMBER}",
+      "FIREBASE_URL": "${FIREBASE_URL}",
+      "MOBILESDK_APP_ID": "${MOBILESDK_APP_ID}",
+      "CURRENT_KEY": "${CURRENT_KEY}",
       "eas": {
         "projectId": "c5621118-1fb1-4f6e-a816-819e1a7fd995"
       }
