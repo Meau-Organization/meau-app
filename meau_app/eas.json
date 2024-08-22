@@ -11,10 +11,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "autoIncrement": "versionCode",
-        "env": {
-          "GOOGLE_SERVICES_JSON": "sas"
-        }
+        "autoIncrement": "versionCode"
       }
     },
     "production": {}
