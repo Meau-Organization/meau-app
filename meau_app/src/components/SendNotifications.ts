@@ -29,11 +29,16 @@ export default async function SendNotifications(token: string | string[], title:
     // }
     const message = {
         "to": token,
+        "content_available": true,
+        "priority": "high",
         "data": {
-          "title": "Notificação Local",
-          "body": "Esta é uma notificação transformada."
+            "notificationData": {
+                "message": "Nova mensagem de background!",
+                "extraInfo": "Testando nofitificação em segundo plano"
+            }
         }
       }
+      
 
     console.log('Corpo', message);
 
