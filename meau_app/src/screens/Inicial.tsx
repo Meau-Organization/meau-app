@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert, Platform } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Font from 'expo-font';
@@ -29,9 +29,7 @@ Notifications.setNotificationHandler({
     }),
 });
 
-
-
-export default function Inicial({ navigation } : InicialProps) {
+export default function Inicial({ navigation }: InicialProps) {
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
@@ -63,11 +61,11 @@ export default function Inicial({ navigation } : InicialProps) {
         });
 
         notificationReceivedRef.current = Notifications.addNotificationReceivedListener(notification => {
-            console.log("Notificação dentro do app: ", notification.request.content.body);
+            //console.log("Notificação dentro do app: ", notification.request.content.body);
         });
 
         notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener(notification => {
-            console.log("Notificação fora do app: ", notification.notification.request.content.body);
+            //console.log("Notificação fora do app: ", notification.notification.request.content.body);
         })
 
         return () => unsubscribe();
@@ -82,14 +80,14 @@ export default function Inicial({ navigation } : InicialProps) {
         }) */
     };
 
-   
+
     if (fonteCarregada) {
         console.log("Fontes carregadas: " + fonteCarregada);
     } else {
         console.log("Fontes falhou: " + fonteCarregada);
     }
 
-    const logout = () =>  {
+    const logout = () => {
 
         signOut(auth)
             .then(() => {
@@ -106,28 +104,28 @@ export default function Inicial({ navigation } : InicialProps) {
 
         <View style={styles.container}>
 
-        
+
             {fonteCarregada ? (
-                <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
+                <Text style={[styles.welcomeText, { fontFamily: 'Courgette-Regular' }]}>
                     Olá!
                 </Text>
             ) : (
-                <Text style={ [styles.welcomeText]}>
+                <Text style={[styles.welcomeText]}>
                     Olá!
                 </Text>
             )}
 
             <View style={styles.middleView}>
                 <Text style={styles.middleText}>Bem vindo ao Meau! {'\n'}
-                Aqui você pode adotar, doar e ajudar
-                cães e gatos com facilidade.  {'\n'}
-                Qual o seu interesse?</Text>
+                    Aqui você pode adotar, doar e ajudar
+                    cães e gatos com facilidade.  {'\n'}
+                    Qual o seu interesse?</Text>
             </View>
 
             <View style={styles.menuCenter}>
-                
+
                 <TouchableOpacity onPress={() => navigation.navigate("Adotar")} activeOpacity={0.5}>
-                    <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5}/>
+                    <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5} />
                 </TouchableOpacity>
 
                 {/* <TouchableOpacity activeOpacity={0.5}>
@@ -137,17 +135,17 @@ export default function Inicial({ navigation } : InicialProps) {
                 <TouchableOpacity onPress={() =>
                     user ?
                         navigation.navigate("PreencherCadastroAnimal")
-                    :
-                        navigation.navigate("AvisoCadastro", {topbar: true} )
-                    }
-                activeOpacity={0.5}>
+                        :
+                        navigation.navigate("AvisoCadastro", { topbar: true })
+                }
+                    activeOpacity={0.5}>
 
-                    <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5}/>
+                    <BotaoUsual texto='CADASTRAR ANIMAL' corTexto='#434343' marginBottom={12} raio={5} />
                 </TouchableOpacity>
 
             </View>
 
-            { !user ?
+            {!user ?
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                     <View style={styles.login} >
                         <Text style={styles.loginText}>login</Text>
@@ -155,18 +153,18 @@ export default function Inicial({ navigation } : InicialProps) {
                 </TouchableOpacity>
                 :
                 <TouchableOpacity onPress={acoesLogout}>
-                    <View style={[styles.login, {width: 50}]} >
+                    <View style={[styles.login, { width: 50 }]} >
                         <Text style={styles.loginText}>logout</Text>
                     </View>
                 </TouchableOpacity>
             }
 
             <View style={styles.imageContainer}>
-                <Image source={PlaceLogoImage} style={styles.image}/>
+                <Image source={PlaceLogoImage} style={styles.image} />
             </View>
 
         </View>
-        
+
     );
 }
 
@@ -185,14 +183,14 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         marginTop: 20,  // Distancia ate o topo da tela -> 56, 
-                            // Total -> 56 - 12(marginTop icone) - 24(tamanho do icone) == 20
+        // Total -> 56 - 12(marginTop icone) - 24(tamanho do icone) == 20
         marginBottom: 52,
         //fontFamily: 'Courgette-Regular',
         fontSize: 72,
         textAlign: 'center',
         color: '#ffd358'
     },
-    middleView : {
+    middleView: {
         paddingHorizontal: 48,
         marginBottom: 48,
     },
@@ -206,14 +204,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    login : {
+    login: {
         marginTop: 32, // 44 :: total -> 44 - 12(marginBottom YellowB)
-        marginBottom : 68,
+        marginBottom: 68,
         width: 37,
         height: 25,
         justifyContent: 'center'
     },
-    loginText : {
+    loginText: {
         textAlign: 'center',
         fontSize: 16,
         fontFamily: 'Roboto',

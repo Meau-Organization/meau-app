@@ -15,19 +15,28 @@ export default async function SendNotifications(token: string | string[], title:
 
     //console.log("Enviando notificação para token:", token);                               // Verifique se esta linha está sendo executada
 
-    const message = {
-        to: token,                                                                          // The recipient's push token
-        data: dados,
-        title: title,
-        body: body,
-        priority: 'normal',
-        channelId: 'mensagens',
-        groupId: 'Mensagens-android',
-        categoryId: 'Mensagens-android',
-        sound: undefined
+    // const message = {
+    //     to: token,                                                                          // The recipient's push token
+    //     data: dados,
+    //     title: title,
+    //     body: body,
+    //     priority: 'normal',
+    //     channelId: 'mensagens',
+    //     groupId: 'Mensagens-android',
+    //     categoryId: 'Mensagens-android',
+    //     sound: undefined
 
-    }
+    // }
+    const message = {
+        "to": token,
+        "data": {
+          "title": "Notificação Local",
+          "body": "Esta é uma notificação transformada."
+        }
+      }
+
     console.log('Corpo', message);
+
 
     try {
         //console.log("Enviando notificação para token:", token);                           // Verifique se esta linha está sendo executada

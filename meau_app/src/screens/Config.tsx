@@ -58,7 +58,7 @@ export default function Config() {
                 enableLights: true,
                 enableVibrate: true,
                 groupId: 'Mensagens-android',
-                importance: Notifications.AndroidImportance.HIGH,
+                importance: Notifications.AndroidImportance.MAX,
                 lightColor: '#FF231F7C',
                 lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
                 name: "Mensagens",
