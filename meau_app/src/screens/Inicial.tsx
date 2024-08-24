@@ -4,13 +4,14 @@ import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert } fro
 import Constants from 'expo-constants';
 import * as Font from 'expo-font';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { StackRoutesParametros } from '../utils/StackRoutesParametros';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
+import * as Notifications from 'expo-notifications';
 
 import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
@@ -19,11 +20,25 @@ type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        priority: Notifications.AndroidNotificationPriority.MAX
+    }),
+});
+
+
+
 export default function Inicial({ navigation } : InicialProps) {
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
     const { user, setUser } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
+
+    const notificationReceivedRef = useRef<any>();
+    const notificationResponseRef = useRef<any>();
 
     useEffect(() => {
         async function carregarFontes() {
@@ -46,6 +61,14 @@ export default function Inicial({ navigation } : InicialProps) {
                 console.log("Usuario off ");
             }
         });
+
+        notificationReceivedRef.current = Notifications.addNotificationReceivedListener(notification => {
+            console.log("Notificação dentro do app: ", notification.request.content.body);
+        });
+
+        notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener(notification => {
+            console.log("Notificação fora do app: ", notification.notification.request.content.body);
+        })
 
         return () => unsubscribe();
 

@@ -17,30 +17,17 @@ export default async function SendNotifications(token: string | string[], title:
 
     const message = {
         to: token,                                                                          // The recipient's push token
+        data: dados,
         title: title,
         body: body,
-        channelId: canal,
-        sound: 'default',
-        data: dados,
-        groupId: grupo
-
-        /*
-        android: {
-            sound: true,
-            priority: 'high',
-            vibrate: true,
-        },
-        ios: {
-            sound: true,
-            badge: true,
-            priority: 'high',
-            contentAvailable: true,
-            category: 'NEW_MESSAGE',
-        },
-        */
-        // You can also include custom data in the notification payload.
+        priority: 'normal',
+        channelId: 'mensagens',
+        groupId: 'Mensagens-android',
+        categoryId: 'Mensagens-android',
+        sound: undefined
 
     }
+    console.log('Corpo', message);
 
     try {
         //console.log("Enviando notificação para token:", token);                           // Verifique se esta linha está sendo executada
@@ -59,7 +46,7 @@ export default async function SendNotifications(token: string | string[], title:
         }
 
         const data = await response.json();
-        console.log("Resposta do servidor: " + data);
+        console.log("Resposta do servidor: ", data);
     }
     catch (error) {
         /**Some of these failures are temporary. 
