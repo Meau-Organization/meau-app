@@ -1,8 +1,12 @@
 
 import { SaveFormat, manipulateAsync } from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
-import { collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query, where } from '../configs/firebaseConfig.js'
+import { collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query, updateDoc, where } from '../configs/firebaseConfig.js'
+import { Platform } from 'react-native';
 
 export async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
     const docRef = doc(db, colecao, id_documento);
@@ -18,18 +22,6 @@ export async function buscarCampoEspecifico(colecao: string, id_documento: strin
     }
 }
 
-export async function buscarDadosUsuario(colecao: string, id_documento: string) {
-    const docRef = doc(db, colecao, id_documento);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        return { uid: docSnap.id, ...docSnap.data() };
-    } else {
-        console.log('Dados do usuario não encontrados');
-        return null;
-    }
-}
-
 export async function buscarUltimaMensagem(idChat: string, userId: string) {
     const msgsRef = collection(db, 'Chats', idChat, 'messages');
 
@@ -40,12 +32,12 @@ export async function buscarUltimaMensagem(idChat: string, userId: string) {
     const SnapshotNaoLidas = await getDocs(MessagesQueryNaoLidas);
 
     const msgsNaoLidas = SnapshotNaoLidas.docs.filter(doc => doc.data().sender !== userId);
-    
+
     //console.log('--------------------------------> buscarUltimaMensagem', msgsNaoLidas)
 
     const snapshot = await getDocs(messagesQuery);
     if (!snapshot.empty) {
-        return { ultimaMensagem: { key: snapshot.docs[0].id, ...snapshot.docs[0].data() }, contador: msgsNaoLidas.length};
+        return { ultimaMensagem: { key: snapshot.docs[0].id, ...snapshot.docs[0].data() }, contador: msgsNaoLidas.length };
 
     } else {
         console.log('Erro ao buscar ultima mensagem');
@@ -93,4 +85,294 @@ async function Base64ToUri(base64: string): Promise<string> {
 
     await FileSystem.writeAsStringAsync(filename, base64, { encoding: FileSystem.EncodingType.Base64 });
     return filename;
+}
+
+
+export async function getOrCreateInstallationId() {
+    let installationId = await AsyncStorage.getItem('installationId');
+    if (!installationId) {
+        installationId = Math.floor(Date.now() * Math.random()).toString(36);
+        await AsyncStorage.setItem('installationId', installationId);
+    }
+    console.log("ID Instalação do App:", installationId);
+    return installationId;
+}
+
+export async function notificacaoSilenciosa(expoPushToken: string) {
+    const message = {
+        to: expoPushToken,
+        contentAvailable: true,
+        data: {
+            message: 'Verificando Expo Tokens inválidos',
+        },
+    };
+
+    try {
+        const response = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(message),
+        });
+        const data = await response.json();
+        console.log('resposta', data);
+        return data.data.status;
+    } catch (error) {
+        return null;
+    }
+}
+
+export async function removerTokensInativos(userId: string) {
+    try {
+        const userDocRef = doc(db, 'Users', userId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+            let expoTokens = userDoc.data().expoTokens;
+
+
+            const promises = expoTokens.map(async (expoTk) => {
+                const status = await notificacaoSilenciosa(expoTk.expoPushToken)
+
+                if (status) {
+                    console.log('RETORNO', status);
+
+                    if (status == 'error') {
+                        expoTk.ativo = false;
+                    }
+
+                } else {
+                    console.log('Erro ao enviar notificação silenciosa');
+                }
+
+            });
+
+            await Promise.all(promises);
+
+            console.log('Antes', expoTokens);
+            const expoTokensUpdate = expoTokens.filter((item: any) => item.ativo !== false);
+
+
+            console.log(expoTokensUpdate);
+            await updateDoc(userDocRef, { expoTokens: expoTokensUpdate });
+
+        }
+    } catch (error) {
+        console.error('Erro', error);
+    }
+}
+
+export async function salvarTokenArmazenamento(token: string) {
+    try {
+        await AsyncStorage.setItem('expoPushToken', token);
+        console.log("Token salvo com sucesso!");
+        return true;
+    } catch (error) {
+        console.error("Erro ao salvar o token:", error);
+    }
+    return false;
+}
+
+export async function getTokenArmazenado() {
+    try {
+        const token = await AsyncStorage.getItem('expoPushToken');
+        if (token !== null) {
+            //console.log("Token recuperado:", token);
+            return token;
+        }
+    } catch (error) {
+        console.error("Erro ao recuperar o token:", error);
+    }
+    return null;
+}
+
+
+export async function validarExpoToken(expoTokens: any, installationId: string) {
+
+    let statusInstalation: boolean = false;
+    let statusExpoTokenLocal: boolean = false;
+    let statusExpoTokenRemoto: boolean = false;
+
+    if (expoTokens && Object.keys(expoTokens).length > 0) {
+
+        expoTokens.map(async (item, index) => {
+            if (item.idInstalacao == installationId) {
+                const expoTokenRemoto = item;
+                statusInstalation = true;
+
+                const tokenLocal = await getTokenArmazenado();
+                if (tokenLocal) {
+
+                    statusExpoTokenLocal = true;
+                    if (expoTokenRemoto.expoPushToken == tokenLocal) {
+                        statusExpoTokenRemoto = true;
+                    } else {
+                        expoTokens[index].ativo = false;
+                    }
+                }
+            }
+        });
+    }
+
+    if (!statusExpoTokenRemoto) {
+        const tokenLocal = await getTokenArmazenado();
+        if (tokenLocal) {
+            //console.log('tokenLocal 2', tokenLocal);
+            statusExpoTokenLocal = true;
+        }
+    }
+
+    //console.log('statusExpoTokenLocal', statusExpoTokenLocal);
+    //console.log('statusExpoTokenRemoto', statusExpoTokenRemoto);
+
+    return {
+        expoTokens: expoTokens,
+        status_expo_token: { statusExpoTokenLocal: statusExpoTokenLocal, statusExpoTokenRemoto: statusExpoTokenRemoto, statusInstalation: statusInstalation }
+    };
+
+}
+
+
+export async function registerForPushNotificationsAsync() {
+
+    let token: any;
+
+    if (Platform.OS === 'android') {
+
+        await Notifications.setNotificationChannelGroupAsync('chat_mensagens_group', {
+            name: 'Mensagens de Chat',
+        });
+        await Notifications.setNotificationChannelGroupAsync('interessados_group', {
+            name: 'Grupo de Interessados',
+        });
+
+        await Notifications.setNotificationChannelAsync('interessados', {
+            name: 'Interessados',
+            description: 'Canal para os interessados em adotar',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            groupId: 'interessados_group',
+            enableLights: true,
+            enableVibrate: true,
+            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+            showBadge: true,
+            sound: "default",
+        });
+
+        await Notifications.setNotificationChannelAsync('mensagens', {
+            name: "Mensagens",
+            description: 'Canal de mensagens',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            groupId: 'chat_mensagens_group',
+            enableLights: true,
+            enableVibrate: true,
+            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+            showBadge: true,
+            sound: "default",
+        });
+
+    }
+
+    //if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+    }
+
+    try {
+        const projectId =
+            Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+            throw new Error('Project ID not found');
+        }
+        token = (
+            await Notifications.getExpoPushTokenAsync({
+                projectId,
+            })
+        ).data;
+        console.log(token);
+    } catch (e) {
+        token = `${e}`;
+    }
+    //} else {
+    //  alert('Must use physical device for Push Notifications');
+    //}
+
+    return token;
+}
+
+export async function salvarTokenNoFirestore(token: string, userId: string, dadosUser: any) {
+    try {
+        const idInstalacao = await getOrCreateInstallationId();
+
+        let expoTokensUpdate = [];
+        if (dadosUser.expoTokens && Object.keys(dadosUser.expoTokens).length > 0) {
+            expoTokensUpdate = dadosUser.expoTokens.filter((item: any) => item.ativo !== false);
+        }
+
+        expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });
+
+        await updateDoc(doc(db, 'Users', userId), { expoTokens: expoTokensUpdate });
+
+        console.log("Token armazenado no Firestore com sucesso.");
+        return true;
+    } catch (error) {
+        console.error("Erro ao armazenar o token no Firestore:", error);
+    }
+    return false;
+}
+
+
+export async function sendNotifications(token: string | string[], title: string, body: string, canal: string, dados?: object) {
+    console.log("SendNotifications");
+
+    const message = {
+        to: token,
+        title: title,
+        body: body,
+        priority: "high",
+        channelId: canal,
+        data: dados,
+    }
+    console.log('Corpo', message);
+
+
+    try {
+        //console.log("Enviando notificação para token:", token);                           // Verifique se esta linha está sendo executada
+
+        // Realiza uma requisição HTTP (GET)
+        const response = await fetch("https://exp.host/--/api/v2/push/send", {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Accept-encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },                                                                              // If you want to send a notification to multiple devices,
+            body: JSON.stringify(message),                                                  //  replace 'E  xponentPushToken[your_expo_push_token]' with an array of token strings.
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Resposta do servidor: ", data);
+    }
+    catch (error) {
+        /**Some of these failures are temporary. 
+         * For example, if the Expo push notification service is down an HTTP 429 error (Too Many Requests), or an HTTP 5xx error (Server Errors)
+         * if your push notification payload is malformed, you may get an HTTP 400 response explaining the issue with the payload. 
+         * You will also get an error if there are no push credentials for your project or if you send push notifications for different projects in the same request. */
+        console.error("Erro ao enviar notificação: " + error);
+    }
 }

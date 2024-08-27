@@ -11,7 +11,7 @@ import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext"
 
 import SelectDropdown from 'react-native-select-dropdown'
 import { db, doc, getDoc } from "../configs/firebaseConfig";
-import SendNotifications from "./SendNotifications";
+import { sendNotifications } from "../utils/Utils";
 
 
 interface CardProps {
@@ -40,7 +40,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser } = useAutenticacaoUser();
 
     const [curtida, setCurtida] = useState(false);
 
@@ -59,13 +59,14 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                 const userDoc = await getDoc(userDocRef);
 
                 if (userDoc.exists()) {
-                    const userToken = userDoc.data().expoPushToken;
-                    console.log(userToken);
-                    if (userToken) {
-                        const message = `O usuário ${user.displayName} curtiu o seu animal ${nome}`;
-                        const title = `${user.displayName} curtiu seu pet!`;
+                    const expoTokensArray = userDoc.data().expoTokens.map( item => item['expoPushToken'] );
+                    console.log(expoTokensArray);
+                    if (expoTokensArray.length > 0) {
+                        
+                        const title = `${dadosUser.nome} curtiu seu pet!`;
+                        const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
                         // Envia a notificação ao proprietário do animal
-                        await SendNotifications(userToken, title, message, 'default');
+                        await sendNotifications(expoTokensArray, title, body, 'default');
                     } else {
                         console.log("Proprietário do animal não possui um token de notificação registrado.");
                     }

@@ -40,3 +40,5 @@ src/configs/envConfig.js
 src/assets/images/animais-seed
 
 google-services.json
+
+build-*

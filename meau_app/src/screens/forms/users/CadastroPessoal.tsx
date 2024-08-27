@@ -125,7 +125,8 @@ export default function CadastroPessoal() {
                         endereco: endereco,
                         telefone: telefone,
                         username: username,
-                        imagemPrincipalBase64: pacoteImagemBase64 ? pacoteImagemBase64.imagemPrincipal : null
+                        imagemPrincipalBase64: pacoteImagemBase64 ? pacoteImagemBase64.imagemPrincipal : null,
+                        expoTokens: {}
                     });
                     // console.log("Document written with ID: ", docRef.id);
                 }

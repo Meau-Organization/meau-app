@@ -3,17 +3,18 @@ import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "r
 import { Entypo, Ionicons } from '@expo/vector-icons'
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 interface TopBarProps {
-    nome: string,
-    icone: string,
-    irParaPagina?: () => void,
-    cor?: string
+    nome: string;
+    icone: string;
+    irParaPagina?: () => void;
+    cor?: string;
+    touch?: boolean;
 }
 
-export function TopBar( {nome, icone, irParaPagina, cor} : TopBarProps) {
+export function TopBar( {nome, icone, irParaPagina, cor, touch = true} : TopBarProps) {
 
     const { width } = useWindowDimensions();
 
@@ -29,7 +30,8 @@ export function TopBar( {nome, icone, irParaPagina, cor} : TopBarProps) {
     
     const iconesMap: iconesMap = {
         menu: <Entypo name="menu" size={24} color="#434343" style={styles.icones}/>,
-        voltar: <Ionicons name="arrow-back" size={24} color="#434343" style={styles.icones}/>
+        voltar: <Ionicons name="arrow-back" size={24} color="#434343" style={styles.icones}/>,
+        notifi: <MaterialIcons name="notifications-active" size={24} color="#434343" style={styles.icones}/>
     };
 
     if (!iconesMap.hasOwnProperty(icone)) {
@@ -41,9 +43,16 @@ export function TopBar( {nome, icone, irParaPagina, cor} : TopBarProps) {
         <SafeAreaView style={{backgroundColor: cor}}>
             <View style = { [styles.barra, {width: width, backgroundColor: cor }] }>
 
-                <TouchableOpacity onPress={irParaPagina}>
+                { touch ?
+                    <TouchableOpacity onPress={irParaPagina}>
+                        { iconesMap[icone] }
+                    </TouchableOpacity>
+                    :
+                    <>
                     { iconesMap[icone] }
-                </TouchableOpacity>
+                    </>
+                }
+                
 
                 <Text style={styles.texto} > {nome} </Text>
             </View>

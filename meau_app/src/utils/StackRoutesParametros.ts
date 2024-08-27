@@ -31,8 +31,9 @@ export type StackRoutesParametros = {
             iconeInteressado?: any;
         },
         nomeTopBar: string;
-        tokenDestino: string;
+        tokenDestinoArray: string[];
     };
     Conversas: undefined;
     Config: undefined;
+    AvisoNotification: { topbar: boolean };
 };

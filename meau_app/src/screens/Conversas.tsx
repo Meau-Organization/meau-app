@@ -78,12 +78,18 @@ export default function Conversas() {
                         const [_, idDono, idInteressado, idAnimal] = userChat.split('-');
                         const pacoteUltimaMensagem = await buscarUltimaMensagem(userChat, user.uid);
 
-                        let tokenDestino : string;
+                        let expoTokens : string[];
                         if (user.uid != idInteressado) {
-                            tokenDestino = await buscarCampoEspecifico('Users', idInteressado, 'expoPushToken');
+                            expoTokens = await buscarCampoEspecifico('Users', idInteressado, 'expoTokens');
                         } else {
-                            tokenDestino = await buscarCampoEspecifico('Users', idDono, 'expoPushToken');
+                            expoTokens = await buscarCampoEspecifico('Users', idDono, 'expoTokens');
                         }
+
+                        let expoTokensArray : any;
+                        if (expoTokens && Object.keys(expoTokens).length > 0) {
+                            expoTokensArray = expoTokens.map( item => item['expoPushToken'] );
+                        }
+
                         
 
 
@@ -125,7 +131,7 @@ export default function Conversas() {
                         );
                         listeners.push(unsubscribe);
 
-                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(), pacoteUltimaMensagem, tokenDestino };
+                        return { idChat: userChat, idDono, idInteressado, idAnimal, dadosChat: snapshotChat.data(), pacoteUltimaMensagem, expoTokensArray };
                     });
 
                     const dados = await Promise.all(promises);
@@ -199,7 +205,7 @@ export default function Conversas() {
                                                     item.dadosChat.nomeDono                 // Mostre o nome do dono na topBar
                                                     :                                                   // Caso contrário, eu (usuario online) sou o Dono
                                                     item.dadosChat.nomeInteressado,          // Mostre o nome do interessado na topBar
-                                                tokenDestino: item.tokenDestino
+                                                    tokenDestinoArray: item.expoTokensArray
                                                 
 
                                             })}

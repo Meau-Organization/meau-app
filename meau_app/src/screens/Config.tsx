@@ -1,133 +1,66 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 
 
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import * as Device from 'expo-device';
+
 
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-import { setDoc, db, doc } from '../configs/firebaseConfig';
+
+
+import { registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/Utils';
+
 
 
 export default function Config() {
 
-    const { user } = useAutenticacaoUser();
+    const { user, dadosUser, statusExpoToken } = useAutenticacaoUser();
 
     const [expoPushToken, setExpoPushToken] = useState('');
-    const [notificacoesAtivadas, setNotificacoesAtivadas] = useState(false);
+    const [notificacoesAtivadas, setNotificacoesAtivadas] = useState(statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto);
 
+
+   
+    // Em testes
     const toggleSwitch = () => {
         const novoEstado = !notificacoesAtivadas;
         setNotificacoesAtivadas(novoEstado);
 
         if (novoEstado) {
-            console.log("Sending notifications");
+            console.log('Notificações desativadas, ATIVANDO...');
             registerForPushNotificationsAsync()
                 .then(token => {
                     if (token) {
                         console.log("token :" + token);
                         setExpoPushToken(token);
 
+                        salvarTokenArmazenamento(token);
+
                         if (user) {
-                            salvarTokenNoFirestore(token, user.uid);
+                            salvarTokenNoFirestore(token, user.uid, dadosUser);
                         }
                     }
                 })
                 .catch((error: any) => {
-                    console.error("Erro ao enviar notificação:" + error);
+                    console.error("Erro:" + error);
                     setExpoPushToken(`${error}`)
                 });
+        } else {
+            console.log('Notificações ativadas, DESATIVANDO...');
+            setNotificacoesAtivadas(false);
         }
     };
 
-    async function registerForPushNotificationsAsync() {
-        let token;
 
-        if (Platform.OS === 'android') {
-            await Notifications.setNotificationChannelAsync('default', {
-                name: 'default',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
-            });
-            await Notifications.setNotificationChannelAsync('mensagens',
-                { bypassDnd: true,
-                description: 'Canal de mensagens',
-                enableLights: true,
-                enableVibrate: true,
-                groupId: 'Mensagens-android',
-                importance: Notifications.AndroidImportance.MAX,
-                lightColor: '#FF231F7C',
-                lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-                name: "Mensagens",
-                showBadge: true,
-                sound: "default",
-                vibrationPattern: null },
-            );
-
-
-            
-        }
-
-        //if (Device.isDevice) {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
-                return;
-            }
-            
-            try {
-                const projectId =
-                    Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-                if (!projectId) {
-                    throw new Error('Project ID not found');
-                }
-                token = (
-                    await Notifications.getExpoPushTokenAsync({
-                        projectId,
-                    })
-                ).data;
-                console.log(token);
-            } catch (e) {
-                token = `${e}`;
-            }
-        //} else {
-          //  alert('Must use physical device for Push Notifications');
-        //}
-
-        return token;
-    }
-
-    
-
-    async function salvarTokenNoFirestore(token: string, userId: string) {
-        try {
-            // Atualiza o documento do usuário existente com o token de notificação
-            const docRef = await setDoc(doc(db, "Users", userId), {
-                expoPushToken: token,
-            }, { merge: true }); // Usando merge: true para não sobrescrever outros campos existentes
-            console.log("Token armazenado no Firestore com sucesso.");
-        } catch (error) {
-            console.error("Erro ao armazenar o token no Firestore:", error);
-        }
-    }
-
-    
-
+    /// FUNÇÕES DEGUB
     function limpar() {
         Notifications.getNotificationChannelsAsync().then(value => {
             value.map(async (item, i) => {
                 //console.log("CANAL", i, item.id);
                 await Notifications.deleteNotificationChannelAsync(item.id);
             });
-            
+
             if (value.length == 0) {
                 console.log('VAZIO');
             } else {
@@ -146,38 +79,42 @@ export default function Config() {
             }
         });
     }
-
     async function criar() {
-        // const result = await Notifications.setNotificationChannelAsync('Mensagens',
-        //     { bypassDnd: true,
-        //     description: 'Canal de mensagens',
-        //     enableLights: true,
-        //     enableVibrate: true,
-        //     groupId: 'Mensagens-android',
-        //     importance: Notifications.AndroidImportance.HIGH,
-        //     lightColor: '#FF231F7C',
-        //     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-        //     name: "Mensagens",
-        //     showBadge: true,
-        //     sound: "default",
-        //     vibrationPattern: null },
-        // );
-        // console.log("CRIOU", result);
-        
+        await Notifications.setNotificationChannelGroupAsync('chat_mensagens_group', {
+            name: 'Mensagens de Chat',
+        });
+        await Notifications.setNotificationChannelGroupAsync('interessados_group', {
+            name: 'Grupo de Interessados',
+        });
 
+        await Notifications.setNotificationChannelAsync('interessados', {
+            name: 'Interessados',
+            description: 'Canal para os interessados em adotar',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            groupId: 'interessados_group',
+            enableLights: true,
+            enableVibrate: true,
+            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+            showBadge: true,
+            sound: "default",
+        });
 
-        // await Notifications.scheduleNotificationAsync({
-        //     content: {
-        //         title: "Welcome to Linque 📕",
-        //         body: "Enjoy your experience with us! 🚀🚀🚀",
-        //         data: { data: "goes here" },
-        //         sound: 'default',
-        //     },
-        //     trigger: null,
-        // });
-            
+        await Notifications.setNotificationChannelAsync('mensagens', {
+            name: "Mensagens",
+            description: 'Canal de mensagens',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            groupId: 'chat_mensagens_group',
+            enableLights: true,
+            enableVibrate: true,
+            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+            showBadge: true,
+            sound: "default",
+        });
     }
-
     async function notifica() {
         await Notifications.scheduleNotificationAsync({
             content: {
@@ -185,9 +122,9 @@ export default function Config() {
                 body: 'Teste de notifcação local',
                 data: {},
             },
-            
+
             trigger: {
-                seconds: 5,
+                seconds: 1,
                 channelId: 'mensagens',
             }
         });
@@ -211,7 +148,7 @@ export default function Config() {
             <TouchableOpacity onPress={limpar} ><Text>Limpar canais</Text></TouchableOpacity>
             <TouchableOpacity onPress={mostrar} ><Text>Mostrar canais</Text></TouchableOpacity>
             <TouchableOpacity onPress={criar} ><Text>Criar canais</Text></TouchableOpacity>
-            <TouchableOpacity onPress={notifica} ><Text>Notifica</Text></TouchableOpacity>
+            <TouchableOpacity onPress={notifica} ><Text>Notifica local</Text></TouchableOpacity>
             {/* Botão de Enviar Notificação */}
             {/* <SendNotifications token ={expoPushToken} /> */}
         </View>

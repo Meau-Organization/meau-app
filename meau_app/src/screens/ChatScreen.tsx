@@ -14,7 +14,7 @@ import ModalLoanding from "../components/ModalLoanding";
 import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc } from "../configs/firebaseConfig";
 import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-import SendNotifications from "../components/SendNotifications";
+import { sendNotifications } from "../utils/Utils";
 
 
 interface ChatScreenProps {
@@ -33,7 +33,7 @@ interface ChatScreenProps {
                 iconeInteressado: any;
             },
             nomeTopBar: string;
-            tokenDestino: string;
+            tokenDestinoArray: string[];
         };
     };
 }
@@ -48,12 +48,12 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const [esperando, setEsperando] = useState(false);
     const [criarChat, setCriarChat] = useState(true);
 
-    const { dadosAnimal, dadosInteressado, nomeTopBar, tokenDestino } = route.params;
+    const { dadosAnimal, dadosInteressado, nomeTopBar, tokenDestinoArray } = route.params;
 
     const idChat = 'chat-' + dadosAnimal.idDono + '-' + dadosInteressado.idInteressado + '-' + dadosAnimal.idAnimal;
     //console.log(idChat);
 
-    console.log("tokenDestino", tokenDestino);
+    console.log("tokenDestinoArray", tokenDestinoArray);
 
 
 
@@ -131,8 +131,10 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             });
 
             const title = dadosUser.nome;
-            const message = msg;
-            await SendNotifications(tokenDestino, title, message, 'mensagens', idChat);
+            const body = msg;
+            if (tokenDestinoArray) {
+                await sendNotifications(tokenDestinoArray, title, body, 'mensagens', { idChat: idChat });
+            }
 
             console.log('Criou o chat');
 
@@ -158,8 +160,10 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
             
             const title = dadosUser.nome;
-            const message = msg;
-            await SendNotifications(tokenDestino, title, message, 'mensagens', idChat);
+            const body = msg;
+            if (tokenDestinoArray) {
+                await sendNotifications(tokenDestinoArray, title, body, 'mensagens', { idChat: idChat });
+            }
 
             console.log('enviou');
         } catch (error) {

@@ -20,7 +20,7 @@ interface DetalhesAnimalProps {
 }
 
 
-import { buscarCampoEspecifico, comprimirImagem } from "../utils/Utils";
+import { comprimirImagem } from "../utils/Utils";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 
 
@@ -83,7 +83,11 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         const docSnapDono = await getDoc(docRefDono);
 
         const base64DonoAnimal = docSnapDono.data().imagemPrincipalBase64;
-        const tokenDestino = docSnapDono.data().expoPushToken;
+        
+        let expoTokensArray : any;
+        if (docSnapDono.data().expoTokens && Object.keys(docSnapDono.data().expoTokens).length > 0) {
+            expoTokensArray = docSnapDono.data().expoTokens.map( item => item['expoPushToken'] );
+        }
 
         navigation.navigate('ChatScreen', {
             dadosAnimal: {
@@ -99,7 +103,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                 iconeInteressado: dadosUser.imagemPrincipalBase64 ? await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1) : null,
             },
             nomeTopBar: dadosAnimal.dono,
-            tokenDestino: tokenDestino
+            tokenDestinoArray: expoTokensArray
 
         })
 

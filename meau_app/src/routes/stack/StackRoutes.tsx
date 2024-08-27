@@ -16,12 +16,13 @@ import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserConte
 
 import ChatScreen from '../../screens/ChatScreen';
 import Config from '../../screens/Config';
+import AvisoNotification from '../../screens/AvisoNotification';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
 export default function StackRoutes() {
 
-    const { user } = useAutenticacaoUser();
+    const { user, statusExpoToken } = useAutenticacaoUser();
 
     const estadoNavegacao = useNavigationState(state => state);
 
@@ -39,7 +40,8 @@ export default function StackRoutes() {
     const nomeRotaAtiva = rotaAtiva(estadoNavegacao);
     console.log('StackRoutes - Rota Ativa:', nomeRotaAtiva);
 
-    const telaInicial = "DrawerRoutes";
+    //console.log('--------------------> ', statusExpoToken);
+    const telaInicial = !statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto ?  "AvisoNotification" : "DrawerRoutes";
 
     return (
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
@@ -48,7 +50,7 @@ export default function StackRoutes() {
 
             <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}} options={{title:'Inicial', animationTypeForReplace: user === null  ? 'pop' : 'push',}}/>
 
-            <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} />
+            <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} initialParams={{topbar: true}}/>
 
             <Stack.Screen name="Login" component={Login} />
 
@@ -65,6 +67,8 @@ export default function StackRoutes() {
             <Stack.Screen name="ChatScreen" component={ChatScreen} />
 
             <Stack.Screen name="Config" component={Config} />
+
+            <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{topbar: true}} />
 
         </Stack.Navigator>
     );
