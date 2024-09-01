@@ -58,7 +58,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             const animalDoc = await getDoc(detalhesRef);
 
             if (animalDoc.exists()) {
-                setDadosAnimal(animalDoc.data());
+                setDadosAnimal({uid: animalDoc.id, ...animalDoc.data()});
 
             } else {
                 console.log('Dados do animal não encontrados');
@@ -90,22 +90,11 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
         }
 
         navigation.navigate('ChatScreen', {
-            dadosAnimal: {
-                idAnimal: animal_id,
-                nomeAnimal: dadosAnimal.nomeAnimal,
-                idDono: dadosAnimal.usuario_id,
-                nomeDono: dadosAnimal.dono,
-                iconeDonoAnimal: base64DonoAnimal? await comprimirImagem(base64DonoAnimal, 0.1) : null,
-            },
-            dadosInteressado: {
-                idInteressado: user.uid,
-                nomeInteressado: dadosUser.nome,
-                iconeInteressado: dadosUser.imagemPrincipalBase64 ? await comprimirImagem(dadosUser.imagemPrincipalBase64, 0.1) : null,
-            },
-            nomeTopBar: dadosAnimal.dono,
-            tokenDestinoArray: expoTokensArray
+            idChat: 'chat-' + dadosAnimal.usuario_id + '-' + user.uid + '-' + dadosAnimal.uid,
+            nomeTopBar: dadosAnimal.dono
 
         })
+
 
         setModal(false);
 

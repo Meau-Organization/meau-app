@@ -5,8 +5,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
-import { collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query, updateDoc, where } from '../configs/firebaseConfig.js'
+import { addDoc, collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query, setDoc, updateDoc, where } from '../configs/firebaseConfig.js'
 import { Platform } from 'react-native';
+import { NavigationState } from '@react-navigation/native';
+
+type Trigger = {
+    channelId: string;
+    remoteMessage: string;
+    type: string;
+}
+
+export interface StatusToken {
+    statusExpoTokenLocal: boolean;
+    statusExpoTokenRemoto: boolean;
+    statusInstalation: boolean;
+    permissaoNotifcations: string;
+}
 
 export async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
     const docRef = doc(db, colecao, id_documento);
@@ -179,7 +193,7 @@ export async function getTokenArmazenado() {
     try {
         const token = await AsyncStorage.getItem('expoPushToken');
         if (token !== null) {
-            //console.log("Token recuperado:", token);
+            console.log("Token recuperado:", token);
             return token;
         }
     } catch (error) {
@@ -189,31 +203,48 @@ export async function getTokenArmazenado() {
 }
 
 
-export async function validarExpoToken(expoTokens: any, installationId: string) {
+export async function validarExpoToken(userId: string, installationId: string) {
 
     let statusInstalation: boolean = false;
     let statusExpoTokenLocal: boolean = false;
     let statusExpoTokenRemoto: boolean = false;
 
-    if (expoTokens && Object.keys(expoTokens).length > 0) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
-        expoTokens.map(async (item, index) => {
-            if (item.idInstalacao == installationId) {
-                const expoTokenRemoto = item;
-                statusInstalation = true;
+    const expoTokenRef = doc(db, 'Users', userId, 'ExpoTokens', userId);
+    const expoTokenDoc = await getDoc(expoTokenRef);
 
-                const tokenLocal = await getTokenArmazenado();
-                if (tokenLocal) {
+    if (expoTokenDoc.exists()) {
 
-                    statusExpoTokenLocal = true;
-                    if (expoTokenRemoto.expoPushToken == tokenLocal) {
-                        statusExpoTokenRemoto = true;
-                    } else {
-                        expoTokens[index].ativo = false;
+        let expoTokens = expoTokenDoc.data().expoTokens;
+
+        if (expoTokens && Object.keys(expoTokens).length > 0) {
+
+            const promises = expoTokens.map(async (item, index) => {
+                if (item.idInstalacao == installationId) {
+                    const expoTokenRemoto = item;
+                    statusInstalation = true;
+
+                    const tokenLocal = await getTokenArmazenado();
+                    if (tokenLocal) {
+
+                        statusExpoTokenLocal = true;
+                        if (expoTokenRemoto.expoPushToken == tokenLocal) {
+                            statusExpoTokenRemoto = true;
+                        } else {
+                            console.log('-----------------------------------------------> nao e igual')
+                            expoTokens[index].ativo = false;
+                        }
                     }
                 }
+            });
+            await Promise.all(promises);
+
+            if (JSON.stringify(expoTokenDoc.data().expoTokens) !== JSON.stringify(expoTokens)) {
+                await updateDoc(expoTokenRef, { expoTokens: expoTokens });
             }
-        });
+
+        }
     }
 
     if (!statusExpoTokenRemoto) {
@@ -228,8 +259,12 @@ export async function validarExpoToken(expoTokens: any, installationId: string) 
     //console.log('statusExpoTokenRemoto', statusExpoTokenRemoto);
 
     return {
-        expoTokens: expoTokens,
-        status_expo_token: { statusExpoTokenLocal: statusExpoTokenLocal, statusExpoTokenRemoto: statusExpoTokenRemoto, statusInstalation: statusInstalation }
+        status_expo_token: {
+            statusExpoTokenLocal: statusExpoTokenLocal,
+            statusExpoTokenRemoto: statusExpoTokenRemoto,
+            statusInstalation: statusInstalation,
+            permissaoNotifcations: existingStatus
+        }
     };
 
 }
@@ -312,18 +347,34 @@ export async function registerForPushNotificationsAsync() {
     return token;
 }
 
-export async function salvarTokenNoFirestore(token: string, userId: string, dadosUser: any) {
+export async function salvarTokenNoFirestore(token: string, userId: string, dadosUser: any, statusExpoToken: StatusToken) {
     try {
         const idInstalacao = await getOrCreateInstallationId();
+
+        const subExpoTokensRef = collection(doc(db, 'Users', userId), 'ExpoTokens');
 
         let expoTokensUpdate = [];
         if (dadosUser.expoTokens && Object.keys(dadosUser.expoTokens).length > 0) {
             expoTokensUpdate = dadosUser.expoTokens.filter((item: any) => item.ativo !== false);
         }
 
-        expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });
 
-        await updateDoc(doc(db, 'Users', userId), { expoTokens: expoTokensUpdate });
+
+        if (statusExpoToken.statusInstalation) {
+            if (!statusExpoToken.statusExpoTokenRemoto) {
+                const indexToken = expoTokensUpdate.findIndex(item => item.idInstalacao === idInstalacao);
+                if (indexToken > -1) {
+                    expoTokensUpdate[indexToken].expoPushToken = token;
+                } else {
+                    expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });        
+                }
+                await setDoc(doc(subExpoTokensRef, userId), { expoTokens: expoTokensUpdate });
+            }
+
+        } else {
+            expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });
+            await setDoc(doc(subExpoTokensRef, userId), { expoTokens: expoTokensUpdate });
+        }
 
         console.log("Token armazenado no Firestore com sucesso.");
         return true;
@@ -376,3 +427,123 @@ export async function sendNotifications(token: string | string[], title: string,
         console.error("Erro ao enviar notificação: " + error);
     }
 }
+
+export async function registrarDispositivo(
+    user: any,
+    dadosUser: any,
+    statusExpoToken: StatusToken,
+    setStatusExpoToken: React.Dispatch<React.SetStateAction<StatusToken>>) {
+    
+        await registerForPushNotificationsAsync()
+            .then(async (token) => {
+                if (token) {
+                    console.log("token :" + token);
+
+                    let status_expo_token = statusExpoToken;
+
+                    await salvarTokenArmazenamento(token).then(async (status) => {
+                        status_expo_token.statusExpoTokenLocal = status;
+
+                        if (user) {
+                            await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
+                                status_expo_token.statusExpoTokenRemoto = status;
+                                setStatusExpoToken(status_expo_token);
+                            });
+                        }
+                    });
+                }
+            })
+            .catch((error: any) => {
+                console.error("Erro:" + error);
+            });
+}
+
+
+export async function limparNotifications(canal: string, chave: string, tudoPorCanal: boolean) {
+    console.log('limparNotifications')
+
+    const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
+
+    if (tudoPorCanal) {
+        presentedNotifications.map( async (notifi) => {
+            const trigger = notifi.request.trigger as Trigger;
+            if (trigger) {
+                const canalAtual = (notifi.request.trigger as Trigger).channelId;
+                //console.log("=======================================================> presentedNotifications", canalAtual);
+                if (canalAtual == canal) {
+                    await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                }
+            }
+        });
+
+    }
+    else if (canal == 'mensagens') {
+        presentedNotifications.map( async (notifi) => {
+            
+            if (notifi.request.content.data.idChat == chave) {
+                await Notifications.dismissNotificationAsync(notifi.request.identifier);
+            }
+        });
+    }
+    else if (canal == 'interessados') {
+        presentedNotifications.map( async (notifi) => {
+            
+            if (notifi.request.content.data.idAnimal == chave) {
+                await Notifications.dismissNotificationAsync(notifi.request.identifier);
+            }
+        });
+
+    } else {
+        console.log('Canal não tratado:', canal);
+    }
+    
+}
+
+
+export async function buscarDadosAnimalBasico(idAnimal: string) {
+
+    try {
+        const animalsRef = doc(db, 'Animals', idAnimal);
+        const animalDoc = await getDoc(animalsRef);
+
+        if (animalDoc.exists()) {
+            return animalDoc.data();
+        } else {
+            console.log('Dados do animal não encontrados');
+            return null;
+        }
+    } catch (error) {
+        console.error('Erro ao buscar dados do animal: ', error);
+    }
+
+    return null;
+}
+
+export async function buscarDadosUsuarioExterno(userId: string) {
+
+    try {
+        const userRef = doc(db, 'Users', userId);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+            console.log(userDoc.data().nome)
+            return userDoc.data();
+        } else {
+            console.log('Dados do user externo não encontrados');
+            return null;
+        }
+    } catch (error) {
+        console.error('Erro ao buscar dados do user externo: ', error);
+    }
+
+    return null;
+}
+
+export async function salvarRotaAtiva(nomeRotaAtiva : string) {
+    try {
+        await AsyncStorage.setItem('@rotaAtiva', nomeRotaAtiva);
+        //console.log('Salvou rota....................', nomeRotaAtiva);
+    } catch (error) {
+        console.error('Erro ao salvar o nome da rota:', error);
+    }
+};

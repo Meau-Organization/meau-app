@@ -159,15 +159,6 @@ import * as Notifications from 'expo-notifications';
 // });
 
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        priority: Notifications.AndroidNotificationPriority.MAX
-    }),
-});
-
 
 
 export default function App() {

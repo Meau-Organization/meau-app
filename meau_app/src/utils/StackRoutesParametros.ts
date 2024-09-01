@@ -18,22 +18,11 @@ export type StackRoutesParametros = {
     DetalhesAnimal: { animal_id: string };
     DetalhesAnimalAdocao: { animal_id: string; nome_animal: string; };
     ChatScreen : {
-        dadosAnimal: {
-            idAnimal: string;
-            idDono: string;
-            nomeAnimal?: string;
-            nomeDono?: string;
-            iconeDonoAnimal?: any;
-        },
-        dadosInteressado: {
-            idInteressado: string;
-            nomeInteressado?: string;
-            iconeInteressado?: any;
-        },
+        idChat: string;
         nomeTopBar: string;
-        tokenDestinoArray: string[];
     };
     Conversas: undefined;
     Config: undefined;
     AvisoNotification: { topbar: boolean };
+    Interessados: { animal_id: string; nome_animal: string; };
 };

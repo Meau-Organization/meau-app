@@ -17,6 +17,11 @@ import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserConte
 import ChatScreen from '../../screens/ChatScreen';
 import Config from '../../screens/Config';
 import AvisoNotification from '../../screens/AvisoNotification';
+import { useNomeRotaAtiva } from '../../hooks/useNomeRotaAtiva';
+import { useEffect } from 'react';
+import { salvarRotaAtiva } from '../../utils/Utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Interessados from '../../screens/Interessados';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
     
@@ -24,24 +29,41 @@ export default function StackRoutes() {
 
     const { user, statusExpoToken } = useAutenticacaoUser();
 
-    const estadoNavegacao = useNavigationState(state => state);
+    // const estadoNavegacao = useNavigationState(state => state);
 
-    const rotaAtiva = (estadoNavegacao: NavigationState): string => {
-        if (!estadoNavegacao || !estadoNavegacao.routes) {
-            return 'Desconhecido';
-        }
-        const rota = estadoNavegacao.routes[estadoNavegacao.index];
-        if (rota.state) {
-            return rotaAtiva(rota.state as NavigationState);
-        }
-        return rota.name;
-    };
+    // const rotaAtiva = (estadoNavegacao: NavigationState): string => {
+    //     if (!estadoNavegacao || !estadoNavegacao.routes) {
+    //         return 'Desconhecido';
+    //     }
+    //     const rota = estadoNavegacao.routes[estadoNavegacao.index];
+    //     if (rota.state) {
+    //         return rotaAtiva(rota.state as NavigationState);
+    //     }
+    //     return rota.name;
+    // };
+    const nomeRotaAtiva = useNomeRotaAtiva();
 
-    const nomeRotaAtiva = rotaAtiva(estadoNavegacao);
-    console.log('StackRoutes - Rota Ativa:', nomeRotaAtiva);
+    useEffect(() => {
+        console.log('StackRoutes - Rota Ativa:', nomeRotaAtiva);
+        
+        async function save() {
+            const nomeRotaArmazenada = await AsyncStorage.getItem('@rotaAtiva');
+            const [preFixoRotaAtiva, _] = nomeRotaArmazenada.split(':');
+            //console.log('Pre-fixo ROTA:', preFixoRotaAtiva);
+            if (nomeRotaAtiva != preFixoRotaAtiva) {
+                await salvarRotaAtiva(nomeRotaAtiva);
+            }
+
+        };
+        save();
+        
+    }, [nomeRotaAtiva]);
+    
+
+    
 
     //console.log('--------------------> ', statusExpoToken);
-    const telaInicial = !statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto ?  "AvisoNotification" : "DrawerRoutes";
+    const telaInicial = statusExpoToken.permissaoNotifcations !== 'granted' ?  "AvisoNotification" : "DrawerRoutes";
 
     return (
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
@@ -69,6 +91,8 @@ export default function StackRoutes() {
             <Stack.Screen name="Config" component={Config} />
 
             <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{topbar: true}} />
+
+            <Stack.Screen name="Interessados" component={Interessados}  />
 
         </Stack.Navigator>
     );

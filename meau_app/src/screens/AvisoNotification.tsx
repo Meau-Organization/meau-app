@@ -54,7 +54,7 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                         status_expo_token.statusExpoTokenLocal = status;
 
                         if (user) {
-                            await salvarTokenNoFirestore(token, user.uid, dadosUser).then((status) => {
+                            await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
                                 status_expo_token.statusExpoTokenRemoto = status;
                                 setStatusExpoToken(status_expo_token);
                                 setEsperando(false);

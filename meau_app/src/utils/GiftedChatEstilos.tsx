@@ -50,16 +50,19 @@ export const renderDay = (props) => {
     );
 };
 
-export const renderBalaoMsg = (props) => {
+export const renderBalaoMsg = (userId : string) => (props) => {
     const { currentMessage } = props;
     const lido: boolean = currentMessage.lido;
+
+    const isRight = currentMessage.user._id === userId;
 
     return (
         <View style={styles.balaoMsg}>
             <Bubble {...props}
                 wrapperStyle={{
                     left: {
-                        backgroundColor: '#f0f0f0'
+                        backgroundColor: '#f0f0f0',
+                        marginLeft: 5
                     },
                     right: {
                         paddingRight: 11,
@@ -93,10 +96,24 @@ export const renderBalaoMsg = (props) => {
                 )}
 
             />
-            <View style={styles.iconeContainer}>
-                <MaterialCommunityIcons name="check-all" size={15} style={{ color: lido ? '#ffd358' : '#b1b1b1', textShadowOffset: { width: -0.4, height: 0.8 },
-          textShadowRadius: 0.5, shadowColor: '#314240' }} />
-            </View>
+            
+            {isRight ? (
+                <View style={styles.iconeContainer}>
+                    <MaterialCommunityIcons
+                        name="check-all"
+                        size={15}
+                        style={{
+                            color: lido ? '#ffd358' : '#b1b1b1',
+                            textShadowOffset: { width: -0.4, height: 0.8 },
+                            textShadowRadius: 0.5,
+                            shadowColor: '#314240',
+                        }}
+                    />
+                </View>
+            ) : (
+                <></>
+            )}
+            
         </View>
     );
 };

@@ -15,11 +15,19 @@ import * as Notifications from 'expo-notifications';
 
 import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
+import { limparNotifications, registrarDispositivo } from '../utils/Utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
+
+type Trigger = {
+    channelId: string;
+    remoteMessage: string;
+    type: string;
+}
 
 
 
@@ -27,14 +35,24 @@ export default function Inicial({ navigation }: InicialProps) {
 
     const [fonteCarregada, setFonteCarregada] = useState(false);
 
-    const { user, setUser } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
+    const { user, setUser, dadosUser, statusExpoToken, setStatusExpoToken } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
 
     const notificationReceivedRef = useRef<any>();
     const notificationResponseRef = useRef<any>();
+    const estadoNav = useNavigationState(state => state);
 
     const navigationTest = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>>();
 
+    //console.log(statusExpoToken);
+
     useEffect(() => {
+        
+        if (user) {
+            if (!statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto) {
+                registrarDispositivo(user, dadosUser, statusExpoToken, setStatusExpoToken);
+            }
+        }
+
         async function carregarFontes() {
             await Font.loadAsync({
                 'Courgette-Regular': require('../assets/fonts/Courgette-Regular.ttf'),
@@ -45,34 +63,105 @@ export default function Inicial({ navigation }: InicialProps) {
         carregarFontes();
         console.log('Rodou fonts inicial');
 
-        console.log("rotas na pilha " + navigation.getState().routeNames);
+        //console.log("rotas na pilha " + navigation.getState().routeNames);
 
         
+        Notifications.setNotificationHandler({
 
-        notificationReceivedRef.current = Notifications.addNotificationReceivedListener(notification => {
+            handleNotification: async (notification) => {
+
+                
+                let mostrarNotificationTelaChat : boolean = true;
+                let mostrarNotificationTelaConversas : boolean = true;
+
+                if (notification.request.content.data.idChat) {
+                    //console.log('======================================>', notification.request.content.data.idChat);
+                    const nomeRotaAtiva = await AsyncStorage.getItem('@rotaAtiva');
+                    //console.log('---------------------------------------------------------->', nomeRotaAtiva);
+                    const [preFixoRotaAtiva, posFixoRotaAtiva] = nomeRotaAtiva.split(':');
+                    //console.log('Pos-fixo ROTA:', posFixoRotaAtiva);
+                    if (posFixoRotaAtiva) {
+                        if (posFixoRotaAtiva == notification.request.content.data.idChat) {
+                            mostrarNotificationTelaChat = false;
+                            console.log('Notificação bloqueada Chat!!');
+                        }
+                    } else {
+                        if (preFixoRotaAtiva) {
+                            if (preFixoRotaAtiva == 'Conversas') {
+                                mostrarNotificationTelaConversas = false;
+                                console.log('Popup bloqueado Conversas!!');
+                            }
+                        }
+                    }
+                }
+
+                return {
+                    shouldShowAlert: mostrarNotificationTelaChat,
+                    shouldPlaySound: mostrarNotificationTelaChat && mostrarNotificationTelaConversas,
+                    shouldSetBadge: mostrarNotificationTelaChat && mostrarNotificationTelaConversas,
+                    priority: Notifications.AndroidNotificationPriority.MAX
+                };
+            },
+        });
+        
+
+        notificationReceivedRef.current = Notifications.addNotificationReceivedListener( async (notification) => {
             
-            //console.log("Notificação dentro do app2: ", notification.request.trigger.channelId);
-            const canalOrigem = notification.request.trigger.channelId;
+            //const canalOrigem = (notification.request.trigger as Trigger).channelId;
+            
+            //console.log("Notificação dentro do app3: ", notification.request.content.data);
+            //const canalOrigem = notification.request.trigger.channelId;
+            //Alert.alert("Notificação dentro do app2: ", canalOrigem);
+
+            
+            
 
             // if (canalOrigem == 'mensagens') {
             //     navigationTest.navigate("Conversas");
             // } else {
             //     navigationTest.navigate("MeusPets");
             // }
+
+            // const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
+
+            // presentedNotifications.map( notifi => {
+            //     console.log("presentedNotifications", notifi.request.identifier);
+            // });
+
             
-            Notifications.dismissAllNotificationsAsync();
+            
+            //Notifications.dismissAllNotificationsAsync();
         });
 
         notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener(notification => {
-            //console.log("Notificação fora do app: ",  notification.notification.request.trigger.channelId);
-            const canalOrigem = notification.request.trigger.channelId;
+
+            const canalOrigem = (notification.notification.request.trigger as Trigger).channelId;
 
             if (canalOrigem == 'mensagens') {
-                navigation.navigate("Conversas");
-            } else {
-                navigation.navigate("MeusPets");
+                const idChat = notification.notification.request.content.data.idChat;
+                const contato = notification.notification.request.content.title;
+                //console.log("contato: ", contato);
+                //console.log("Data Mensagem: ", idChat);
+
+                navigation.navigate('ChatScreen', {
+                    idChat: idChat,
+                    nomeTopBar: contato,
+                });
+
             }
-            Notifications.dismissAllNotificationsAsync();
+            else if (canalOrigem == 'interessados') {
+                const nomeAnimal = notification.notification.request.content.data.nomeAnimal;
+                const idAnimal = notification.notification.request.content.data.idAnimal;
+                //const contato = notification.notification.request.content.title;
+                // console.log("nomeAnimal: ", nomeAnimal);
+                // console.log("idAnimal: ", idAnimal);
+            
+                navigation.navigate('Interessados', {
+                    animal_id: idAnimal,
+                    nome_animal: nomeAnimal
+                });
+            }
+
         });
 
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -97,11 +186,11 @@ export default function Inicial({ navigation }: InicialProps) {
     };
 
 
-    if (fonteCarregada) {
-        console.log("Fontes carregadas: " + fonteCarregada);
-    } else {
-        console.log("Fontes falhou: " + fonteCarregada);
-    }
+    // if (fonteCarregada) {
+    //     console.log("Fontes carregadas: " + fonteCarregada);
+    // } else {
+    //     console.log("Fontes falhou: " + fonteCarregada);
+    // }
 
     const logout = () => {
 

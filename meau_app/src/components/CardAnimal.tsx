@@ -55,7 +55,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
 
             try{
                 // Puxa o token do proprietario do animal
-                const userDocRef = doc(db, "Users", usuarioId);
+                const userDocRef = doc(db, "Users", usuarioId, 'ExpoTokens', usuarioId);
                 const userDoc = await getDoc(userDocRef);
 
                 if (userDoc.exists()) {
@@ -66,7 +66,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                         const title = `${dadosUser.nome} curtiu seu pet!`;
                         const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
                         // Envia a notificação ao proprietário do animal
-                        await sendNotifications(expoTokensArray, title, body, 'default');
+                        await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id});
                     } else {
                         console.log("Proprietário do animal não possui um token de notificação registrado.");
                     }

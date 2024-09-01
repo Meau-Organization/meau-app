@@ -9,7 +9,7 @@ import * as Notifications from 'expo-notifications';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 
 
-import { registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/Utils';
+import { getOrCreateInstallationId, getTokenArmazenado, registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/Utils';
 
 
 
@@ -18,7 +18,13 @@ export default function Config() {
     const { user, dadosUser, statusExpoToken } = useAutenticacaoUser();
 
     const [expoPushToken, setExpoPushToken] = useState('');
-    const [notificacoesAtivadas, setNotificacoesAtivadas] = useState(statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto);
+    const [notificacoesAtivadas, setNotificacoesAtivadas] =
+        useState(
+            statusExpoToken.statusExpoTokenLocal &&
+            statusExpoToken.statusExpoTokenRemoto &&
+            statusExpoToken.statusInstalation &&
+            statusExpoToken.permissaoNotifcations == 'granted'
+        );
 
 
    
@@ -38,7 +44,7 @@ export default function Config() {
                         salvarTokenArmazenamento(token);
 
                         if (user) {
-                            salvarTokenNoFirestore(token, user.uid, dadosUser);
+                            salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken);
                         }
                     }
                 })
@@ -54,6 +60,8 @@ export default function Config() {
 
 
     /// FUNÇÕES DEGUB
+    getTokenArmazenado();
+
     function limpar() {
         Notifications.getNotificationChannelsAsync().then(value => {
             value.map(async (item, i) => {
@@ -130,6 +138,26 @@ export default function Config() {
         });
     }
 
+    async function limparNotifications(canal: string, idChat?: string) {
+
+        const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
+
+        if (canal == 'mensagens') {
+            presentedNotifications.map( async (notifi) => {
+                console.log("presentedNotifications", notifi.request.content.data);
+                if (notifi.request.content.data.idChat == idChat) {
+                    await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                }
+            });
+        }
+        else if (canal == 'interessados') {
+
+        } else {
+            console.log('Canal não tratado:', canal);
+        }
+        
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Configurações</Text>
@@ -149,6 +177,7 @@ export default function Config() {
             <TouchableOpacity onPress={mostrar} ><Text>Mostrar canais</Text></TouchableOpacity>
             <TouchableOpacity onPress={criar} ><Text>Criar canais</Text></TouchableOpacity>
             <TouchableOpacity onPress={notifica} ><Text>Notifica local</Text></TouchableOpacity>
+            <TouchableOpacity onPress={e => limparNotifications('mensagens', 'chat-phOmMymk5dMI30bcqOTiWair5k32-vU8i0ZvI2rXgz6I8F1K1Q8o6dI12-zfA1j6RCGg5caf7yRtn6')} ><Text>Notificações da barra</Text></TouchableOpacity>
             {/* Botão de Enviar Notificação */}
             {/* <SendNotifications token ={expoPushToken} /> */}
         </View>

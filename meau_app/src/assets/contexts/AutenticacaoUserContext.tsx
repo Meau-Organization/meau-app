@@ -3,14 +3,10 @@ import { getAuth, db, doc, getDoc, onAuthStateChanged, updateDoc } from '../../c
 import * as SplashScreen from 'expo-splash-screen';
 import { Modal, View } from 'react-native';
 import ModalLoanding from '../../components/ModalLoanding';
-import { getOrCreateInstallationId, getTokenArmazenado, validarExpoToken } from '../../utils/Utils';
+import { getOrCreateInstallationId, StatusToken, validarExpoToken } from '../../utils/Utils';
+import * as Notifications from 'expo-notifications';
 
 
-interface StatusToken {
-    statusExpoTokenLocal: boolean;
-    statusExpoTokenRemoto: boolean;
-    statusInstalation: boolean;
-}
 
 //Define o tipo do contexdo de autenticacao
 interface AutenticacaoUserContextType {
@@ -31,7 +27,14 @@ const AutenticacaoUserContext = createContext<AutenticacaoUserContextType | unde
 export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState(null);
     const [dadosUser, setDadosUser] = useState<any>(null);
-    const [statusExpoToken, setStatusExpoToken] = useState<StatusToken>({statusExpoTokenLocal: false, statusExpoTokenRemoto: false, statusInstalation: false});
+    
+    const [statusExpoToken, setStatusExpoToken] =
+        useState<StatusToken>( {
+            statusExpoTokenLocal: false,
+            statusExpoTokenRemoto: false,
+            statusInstalation: false,
+            permissaoNotifcations: 'undetermined'
+    });
 
     const [tentativaCarga, setTentativaCarga] = useState(false);
     const [libera, setLibera] = useState(false);
@@ -47,20 +50,16 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
-
-                let userDocUpdate = userDoc.data();
                 
                 if (installationId) {
                     // Verifica se o token local do dispositivo é congruente com o token salvo no BD
-                    await validarExpoToken(userDocUpdate.expoTokens, installationId).then( async (retorno) => {
+                    await validarExpoToken(userId, installationId).then( async (retorno) => {
                         setStatusExpoToken(retorno.status_expo_token);
-                        userDocUpdate.expoTokens = retorno.expoTokens;
-                        await updateDoc(userDocRef, { expoTokens: retorno.expoTokens });
                     });
                     
                 }
 
-                setDadosUser(userDocUpdate);
+                setDadosUser(userDoc.data());
 
             } else {
                 console.log('Dados do usuario não encontrados');
