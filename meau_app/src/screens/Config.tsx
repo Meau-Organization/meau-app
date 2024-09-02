@@ -15,7 +15,11 @@ import { getOrCreateInstallationId, getTokenArmazenado, registerForPushNotificat
 
 export default function Config() {
 
+    
+
     const { user, dadosUser, statusExpoToken } = useAutenticacaoUser();
+
+    console.log('--------------------> ', statusExpoToken);
 
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notificacoesAtivadas, setNotificacoesAtivadas] =

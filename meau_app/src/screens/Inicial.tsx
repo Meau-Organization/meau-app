@@ -45,8 +45,24 @@ export default function Inicial({ navigation }: InicialProps) {
 
     //console.log(statusExpoToken);
 
+    async function handleNotificationFuncao() {
+        const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
+
+        if (lastNotificationResponse) {
+            if (lastNotificationResponse.notification.request.identifier) {
+                console.log('HANDLENOTIFICATION -----------------------------------------', lastNotificationResponse.notification);
+                const data = lastNotificationResponse.notification.request.content.data;
+
+                navigation.navigate('Adotar');
+
+                // Remove todas as notificações remanescentes da barra
+                await Notifications.dismissAllNotificationsAsync();
+            }
+        }   
+    }
+
     useEffect(() => {
-        
+
         if (user) {
             if (!statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto) {
                 registrarDispositivo(user, dadosUser, statusExpoToken, setStatusExpoToken);
@@ -65,35 +81,39 @@ export default function Inicial({ navigation }: InicialProps) {
 
         //console.log("rotas na pilha " + navigation.getState().routeNames);
 
-        
+        handleNotificationFuncao();
+
+
         Notifications.setNotificationHandler({
 
             handleNotification: async (notification) => {
 
-                
-                let mostrarNotificationTelaChat : boolean = true;
-                let mostrarNotificationTelaConversas : boolean = true;
 
-                if (notification.request.content.data.idChat) {
-                    //console.log('======================================>', notification.request.content.data.idChat);
-                    const nomeRotaAtiva = await AsyncStorage.getItem('@rotaAtiva');
-                    //console.log('---------------------------------------------------------->', nomeRotaAtiva);
-                    const [preFixoRotaAtiva, posFixoRotaAtiva] = nomeRotaAtiva.split(':');
-                    //console.log('Pos-fixo ROTA:', posFixoRotaAtiva);
-                    if (posFixoRotaAtiva) {
-                        if (posFixoRotaAtiva == notification.request.content.data.idChat) {
-                            mostrarNotificationTelaChat = false;
-                            console.log('Notificação bloqueada Chat!!');
-                        }
-                    } else {
-                        if (preFixoRotaAtiva) {
-                            if (preFixoRotaAtiva == 'Conversas') {
-                                mostrarNotificationTelaConversas = false;
-                                console.log('Popup bloqueado Conversas!!');
-                            }
-                        }
-                    }
-                }
+                let mostrarNotificationTelaChat: boolean = true;
+                let mostrarNotificationTelaConversas: boolean = true;
+
+                console.log('HANDLENOTIFICATION -----------------------------------------', notification);
+
+                // if (notification.request.content.data.idChat) {
+                //     //console.log('======================================>', notification.request.content.data.idChat);
+                //     const nomeRotaAtiva = await AsyncStorage.getItem('@rotaAtiva');
+                //     //console.log('---------------------------------------------------------->', nomeRotaAtiva);
+                //     const [preFixoRotaAtiva, posFixoRotaAtiva] = nomeRotaAtiva.split(':');
+                //     //console.log('Pos-fixo ROTA:', posFixoRotaAtiva);
+                //     if (posFixoRotaAtiva) {
+                //         if (posFixoRotaAtiva == notification.request.content.data.idChat) {
+                //             mostrarNotificationTelaChat = false;
+                //             console.log('Notificação bloqueada Chat!!');
+                //         }
+                //     } else {
+                //         if (preFixoRotaAtiva) {
+                //             if (preFixoRotaAtiva == 'Conversas') {
+                //                 mostrarNotificationTelaConversas = false;
+                //                 console.log('Popup bloqueado Conversas!!');
+                //             }
+                //         }
+                //     }
+                // }
 
                 return {
                     shouldShowAlert: mostrarNotificationTelaChat,
@@ -103,18 +123,18 @@ export default function Inicial({ navigation }: InicialProps) {
                 };
             },
         });
-        
 
-        notificationReceivedRef.current = Notifications.addNotificationReceivedListener( async (notification) => {
-            
+
+        notificationReceivedRef.current = Notifications.addNotificationReceivedListener(async (notification) => {
+
             //const canalOrigem = (notification.request.trigger as Trigger).channelId;
-            
+
             //console.log("Notificação dentro do app3: ", notification.request.content.data);
             //const canalOrigem = notification.request.trigger.channelId;
             //Alert.alert("Notificação dentro do app2: ", canalOrigem);
 
-            
-            
+
+
 
             // if (canalOrigem == 'mensagens') {
             //     navigationTest.navigate("Conversas");
@@ -128,8 +148,8 @@ export default function Inicial({ navigation }: InicialProps) {
             //     console.log("presentedNotifications", notifi.request.identifier);
             // });
 
-            
-            
+
+
             //Notifications.dismissAllNotificationsAsync();
         });
 
@@ -137,11 +157,14 @@ export default function Inicial({ navigation }: InicialProps) {
 
             const canalOrigem = (notification.notification.request.trigger as Trigger).channelId;
 
+            console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 -----------------------------------------', notification.notification);
+            console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 -----------------------------------------', canalOrigem);
+
             if (canalOrigem == 'mensagens') {
                 const idChat = notification.notification.request.content.data.idChat;
                 const contato = notification.notification.request.content.title;
-                //console.log("contato: ", contato);
-                //console.log("Data Mensagem: ", idChat);
+                console.log("contato: ", contato);
+                console.log("Data Mensagem: ", idChat);
 
                 navigation.navigate('ChatScreen', {
                     idChat: idChat,
@@ -152,14 +175,15 @@ export default function Inicial({ navigation }: InicialProps) {
             else if (canalOrigem == 'interessados') {
                 const nomeAnimal = notification.notification.request.content.data.nomeAnimal;
                 const idAnimal = notification.notification.request.content.data.idAnimal;
-                //const contato = notification.notification.request.content.title;
-                // console.log("nomeAnimal: ", nomeAnimal);
-                // console.log("idAnimal: ", idAnimal);
-            
+                console.log("nomeAnimal: ", nomeAnimal);
+                console.log("idAnimal: ", idAnimal);
+
                 navigation.navigate('Interessados', {
                     animal_id: idAnimal,
                     nome_animal: nomeAnimal
                 });
+            } else {
+                console.log("canalOrigem: ", canalOrigem);
             }
 
         });

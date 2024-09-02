@@ -464,6 +464,10 @@ export async function limparNotifications(canal: string, chave: string, tudoPorC
 
     const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
 
+    presentedNotifications.map( async (notifi) => {
+        console.log("=======================================================> presentedNotifications", notifi);
+    });
+
     if (tudoPorCanal) {
         presentedNotifications.map( async (notifi) => {
             const trigger = notifi.request.trigger as Trigger;
