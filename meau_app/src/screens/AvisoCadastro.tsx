@@ -34,7 +34,7 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
                     <TopBar
                         nome='Cadastro'
                         icone='voltar'
-                        irParaPagina={() => navigation.goBack()}
+                        irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                         cor='#88c9bf'
                     />
                 ) : (

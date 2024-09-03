@@ -81,7 +81,7 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                 <TopBar
                     nome='Notificações'
                     icone='notifi'
-                    irParaPagina={() => navigation.goBack()}
+                    irParaPagina={null}
                     cor='#88c9bf'
                     touch={false}
                 />

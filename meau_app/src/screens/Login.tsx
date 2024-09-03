@@ -27,7 +27,7 @@ export default function Login({navigation} : LoginProps) {
                 <TopBar
                     nome='Login'
                     icone='voltar'
-                    irParaPagina={() => navigation.goBack()}
+                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                     cor='#88c9bf'
                 />
             

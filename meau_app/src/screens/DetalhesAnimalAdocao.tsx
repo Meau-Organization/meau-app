@@ -126,7 +126,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             <TopBar
                 nome={nome_animal}
                 icone='voltar'
-                irParaPagina={() => navigation.goBack()}
+                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                 cor='#fee29b'
             />
 

@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Font from 'expo-font';
@@ -15,57 +15,28 @@ import * as Notifications from 'expo-notifications';
 
 import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
 import BotaoUsual from '../components/BotaoUsual';
-import { useNavigation, useNavigationState } from '@react-navigation/native';
-import { limparNotifications, registrarDispositivo } from '../utils/Utils';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { limparNotifications, registrarDispositivo, Trigger } from '../utils/Utils';
 
 type InicialProps = {
     navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
 };
 
-type Trigger = {
-    channelId: string;
-    remoteMessage: string;
-    type: string;
-}
-
 
 
 export default function Inicial({ navigation }: InicialProps) {
 
+    const notificationResponseRef = useRef<any>();
     const [fonteCarregada, setFonteCarregada] = useState(false);
-
     const { user, setUser, dadosUser, statusExpoToken, setStatusExpoToken } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
 
-    const notificationReceivedRef = useRef<any>();
-    const notificationResponseRef = useRef<any>();
-    const estadoNav = useNavigationState(state => state);
-
-    const navigationTest = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>>();
-
-    //console.log(statusExpoToken);
-
-    async function handleNotificationFuncao() {
-        const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
-
-        if (lastNotificationResponse) {
-            if (lastNotificationResponse.notification.request.identifier) {
-                console.log('HANDLENOTIFICATION -----------------------------------------', lastNotificationResponse.notification);
-                const data = lastNotificationResponse.notification.request.content.data;
-
-                navigation.navigate('Adotar');
-
-                // Remove todas as notificações remanescentes da barra
-                await Notifications.dismissAllNotificationsAsync();
-            }
-        }   
-    }
 
     useEffect(() => {
 
         if (user) {
             if (!statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto) {
                 registrarDispositivo(user, dadosUser, statusExpoToken, setStatusExpoToken);
+            } else {
+                console.log('Token remoto OK');
             }
         }
 
@@ -81,102 +52,40 @@ export default function Inicial({ navigation }: InicialProps) {
 
         //console.log("rotas na pilha " + navigation.getState().routeNames);
 
-        handleNotificationFuncao();
-
-
-        Notifications.setNotificationHandler({
-
-            handleNotification: async (notification) => {
-
-
-                let mostrarNotificationTelaChat: boolean = true;
-                let mostrarNotificationTelaConversas: boolean = true;
-
-                console.log('HANDLENOTIFICATION -----------------------------------------', notification);
-
-                // if (notification.request.content.data.idChat) {
-                //     //console.log('======================================>', notification.request.content.data.idChat);
-                //     const nomeRotaAtiva = await AsyncStorage.getItem('@rotaAtiva');
-                //     //console.log('---------------------------------------------------------->', nomeRotaAtiva);
-                //     const [preFixoRotaAtiva, posFixoRotaAtiva] = nomeRotaAtiva.split(':');
-                //     //console.log('Pos-fixo ROTA:', posFixoRotaAtiva);
-                //     if (posFixoRotaAtiva) {
-                //         if (posFixoRotaAtiva == notification.request.content.data.idChat) {
-                //             mostrarNotificationTelaChat = false;
-                //             console.log('Notificação bloqueada Chat!!');
-                //         }
-                //     } else {
-                //         if (preFixoRotaAtiva) {
-                //             if (preFixoRotaAtiva == 'Conversas') {
-                //                 mostrarNotificationTelaConversas = false;
-                //                 console.log('Popup bloqueado Conversas!!');
-                //             }
-                //         }
-                //     }
-                // }
-
-                return {
-                    shouldShowAlert: mostrarNotificationTelaChat,
-                    shouldPlaySound: mostrarNotificationTelaChat && mostrarNotificationTelaConversas,
-                    shouldSetBadge: mostrarNotificationTelaChat && mostrarNotificationTelaConversas,
-                    priority: Notifications.AndroidNotificationPriority.MAX
-                };
-            },
-        });
-
-
-        notificationReceivedRef.current = Notifications.addNotificationReceivedListener(async (notification) => {
-
-            //const canalOrigem = (notification.request.trigger as Trigger).channelId;
-
-            //console.log("Notificação dentro do app3: ", notification.request.content.data);
-            //const canalOrigem = notification.request.trigger.channelId;
-            //Alert.alert("Notificação dentro do app2: ", canalOrigem);
-
-
-
-
-            // if (canalOrigem == 'mensagens') {
-            //     navigationTest.navigate("Conversas");
-            // } else {
-            //     navigationTest.navigate("MeusPets");
-            // }
-
-            // const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
-
-            // presentedNotifications.map( notifi => {
-            //     console.log("presentedNotifications", notifi.request.identifier);
-            // });
-
-
-
-            //Notifications.dismissAllNotificationsAsync();
-        });
-
         notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener(notification => {
 
             const canalOrigem = (notification.notification.request.trigger as Trigger).channelId;
 
-            console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 -----------------------------------------', notification.notification);
-            console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 -----------------------------------------', canalOrigem);
+            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 --------------', notification.notification);
+            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 --------------', canalOrigem);
 
             if (canalOrigem == 'mensagens') {
                 const idChat = notification.notification.request.content.data.idChat;
-                const contato = notification.notification.request.content.title;
-                console.log("contato: ", contato);
+                const titulo = notification.notification.request.content.title;
+                console.log("contato: ", titulo);
                 console.log("Data Mensagem: ", idChat);
+
+                const partes = titulo.split('▪️');
+                const primeiroNome = partes[0];
+                const segundoNome = partes[1].split(' ').pop();
+
+                limparNotifications(canalOrigem, idChat, titulo, false);
 
                 navigation.navigate('ChatScreen', {
                     idChat: idChat,
-                    nomeTopBar: contato,
+                    nomeTopBar: primeiroNome + ' | ' + segundoNome,
                 });
 
             }
             else if (canalOrigem == 'interessados') {
+                const corpo = notification.notification.request.content.body;
                 const nomeAnimal = notification.notification.request.content.data.nomeAnimal;
                 const idAnimal = notification.notification.request.content.data.idAnimal;
+                console.log("corpo: ", corpo);
                 console.log("nomeAnimal: ", nomeAnimal);
                 console.log("idAnimal: ", idAnimal);
+
+                limparNotifications(canalOrigem, idAnimal, corpo, false);
 
                 navigation.navigate('Interessados', {
                     animal_id: idAnimal,
@@ -209,13 +118,6 @@ export default function Inicial({ navigation }: InicialProps) {
         }) */
     };
 
-
-    // if (fonteCarregada) {
-    //     console.log("Fontes carregadas: " + fonteCarregada);
-    // } else {
-    //     console.log("Fontes falhou: " + fonteCarregada);
-    // }
-
     const logout = () => {
 
         signOut(auth)
@@ -232,7 +134,6 @@ export default function Inicial({ navigation }: InicialProps) {
     return (
 
         <View style={styles.container}>
-
 
             {fonteCarregada ? (
                 <Text style={[styles.welcomeText, { fontFamily: 'Courgette-Regular' }]}>

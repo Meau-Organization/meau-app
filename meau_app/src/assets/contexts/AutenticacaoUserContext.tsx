@@ -1,30 +1,23 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { getAuth, db, doc, getDoc, onAuthStateChanged, updateDoc } from '../../configs/firebaseConfig';
+import { getAuth, db, doc, getDoc, onAuthStateChanged } from '../../configs/firebaseConfig';
 import * as SplashScreen from 'expo-splash-screen';
-import { Modal, View } from 'react-native';
+import { Modal } from 'react-native';
 import ModalLoanding from '../../components/ModalLoanding';
-import { getOrCreateInstallationId, StatusToken, validarExpoToken } from '../../utils/Utils';
-import * as Notifications from 'expo-notifications';
+import { getOrCreateInstallationId, NotificationAppEncerrado, processarNotificationsAppEncerrado, StatusToken, validarExpoToken } from '../../utils/Utils';
 
-
-
-//Define o tipo do contexdo de autenticacao
-interface AutenticacaoUserContextType {
+interface AutenticacaoUserContextType {                                                                 // Define o tipo do contexdo de autenticacao
     user: any,
     setUser: React.Dispatch<React.SetStateAction<any>>
     dadosUser: any;
     buscarDadosUsuario: (userId: string) => Promise<void>;
     statusExpoToken: StatusToken;
     setStatusExpoToken: React.Dispatch<React.SetStateAction<StatusToken>>;
+    notificationAppEncerrado: NotificationAppEncerrado;
 }
 
-//Cria o contexto com o valor padrão vazio
+const AutenticacaoUserContext = createContext<AutenticacaoUserContextType | undefined>(undefined);      // Cria o contexto com o valor padrão vazio
 
-const AutenticacaoUserContext = createContext<AutenticacaoUserContextType | undefined>(undefined);
-
-//Cria o provedor do contexto
-
-export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {          // Cria o provedor do contexto
     const [user, setUser] = useState(null);
     const [dadosUser, setDadosUser] = useState<any>(null);
     
@@ -36,13 +29,14 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
             permissaoNotifcations: 'undetermined'
     });
 
+    const [notificationAppEncerrado, setNotificationAppEncerrado] = useState<NotificationAppEncerrado>(null);
+
     const [tentativaCarga, setTentativaCarga] = useState(false);
     const [libera, setLibera] = useState(false);
 
-    // Trava a tela de SplashScreen para os carregamentos iniciais
-    SplashScreen.preventAutoHideAsync()
-        .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-        .catch(console.warn);
+    SplashScreen.preventAutoHideAsync()                                                                 // Trava a tela de SplashScreen para os carregamentos iniciais
+        .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))      //
+        .catch(console.warn);                                                                           //
 
     const buscarDadosUsuario = async (userId: string, installationId?: string) => {
         try {
@@ -52,10 +46,9 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
             if (userDoc.exists()) {
                 
                 if (installationId) {
-                    // Verifica se o token local do dispositivo é congruente com o token salvo no BD
-                    await validarExpoToken(userId, installationId).then( async (retorno) => {
-                        setStatusExpoToken(retorno.status_expo_token);
-                    });
+                    await validarExpoToken(userId, installationId).then( async (retorno) => {           // Verifica se o token local do dispositivo é congruente com o token salvo no BD
+                        setStatusExpoToken(retorno.status_expo_token);                                  //
+                    });                                                                                 //
                     
                 }
 
@@ -69,48 +62,47 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
         }
     };
 
-    // Modifiquei em parte, para a SplashScreen esperar carregar os dados antes de renderizar a tela inicial
     useEffect(() => {
 
         const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
             setTentativaCarga(false);
 
-            // Se o APP não tiver um id de instalação, ele o cria
-            const installationId = await getOrCreateInstallationId();
+            const installationId = await getOrCreateInstallationId();                   // Se o APP não tiver um id de instalação, ele o cria
 
-            console.log("Teste USUARIO 2" + " estadoUser: " + user);
-
+            console.log("estadoUser: " + user);
             if (user) {
-                setUser(user);                                                  // Atualiza o estado com o usuário autenticado
+                setUser(user);                                                          // Atualiza o estado com o usuário autenticado
                 await buscarDadosUsuario(user.uid, installationId)
                 console.log("Usuario logado: " + user.email);
+
+                await processarNotificationsAppEncerrado(setNotificationAppEncerrado);  // Muda o fluxo da tela inicial caso o app inicie por um clique na notificação
 
                 setTentativaCarga(true);
 
             } else {
-                setUser(null);                                                  // Atualiza o estado para null se não houver usuário
+                setUser(null);                                                          // Atualiza o estado para null se não houver usuário
                 setDadosUser(null);
                 console.log("Usuario off ");
                 setTentativaCarga(true);
             }
         });
 
-        return () => unsubscribe();                                             // Limpeza do listener ao desmontar o componente
+        return () => unsubscribe();                                                     // Limpeza do listener ao desmontar o componente
 
     }, []);
 
     const liberarSplashScreen = async () => {
         if (tentativaCarga) {
-            await SplashScreen.hideAsync();                                               // Libera a SplashScreen e continua as operações
+            await SplashScreen.hideAsync();                                              // Libera a SplashScreen e continua as operações
             setLibera(true);
         }
     };
     liberarSplashScreen();
 
 
-    // Foi necessario modificar para que o app não carregasse antes de terminar as buscas, inclusive no login onde ocorre a troca de contexto
     return (
-        <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario, statusExpoToken, setStatusExpoToken }}>
+        <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario, statusExpoToken, setStatusExpoToken, notificationAppEncerrado}}>
+            
             {tentativaCarga ?                                                                           // Se a tentativa de carregar os dados terminou, renderize o APP
                 children
             :                                                                                           // Se não mostre o loading...

@@ -9,7 +9,7 @@ import { addDoc, collection, db, doc, getDoc, getDocs, limitToLast, orderBy, que
 import { Platform } from 'react-native';
 import { NavigationState } from '@react-navigation/native';
 
-type Trigger = {
+export type Trigger = {
     channelId: string;
     remoteMessage: string;
     type: string;
@@ -21,6 +21,14 @@ export interface StatusToken {
     statusInstalation: boolean;
     permissaoNotifcations: string;
 }
+
+export type NotificationAppEncerrado = {
+    tela: any;
+    idChat: string;
+    nomeTopBar: string;
+    idAnimal: string;
+    nomeAnimal: string;
+};
 
 export async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
     const docRef = doc(db, colecao, id_documento);
@@ -211,41 +219,25 @@ export async function validarExpoToken(userId: string, installationId: string) {
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
-    const expoTokenRef = doc(db, 'Users', userId, 'ExpoTokens', userId);
+    const expoTokenRef = doc(db, 'Users', userId, 'ExpoTokens', installationId);
     const expoTokenDoc = await getDoc(expoTokenRef);
 
     if (expoTokenDoc.exists()) {
+        statusInstalation = true;
 
-        let expoTokens = expoTokenDoc.data().expoTokens;
+        let tokenRemoto = expoTokenDoc.data();
+        const tokenLocal = await getTokenArmazenado();    
+        if (tokenLocal) {
+            statusExpoTokenLocal = true;
 
-        if (expoTokens && Object.keys(expoTokens).length > 0) {
-
-            const promises = expoTokens.map(async (item, index) => {
-                if (item.idInstalacao == installationId) {
-                    const expoTokenRemoto = item;
-                    statusInstalation = true;
-
-                    const tokenLocal = await getTokenArmazenado();
-                    if (tokenLocal) {
-
-                        statusExpoTokenLocal = true;
-                        if (expoTokenRemoto.expoPushToken == tokenLocal) {
-                            statusExpoTokenRemoto = true;
-                        } else {
-                            console.log('-----------------------------------------------> nao e igual')
-                            expoTokens[index].ativo = false;
-                        }
-                    }
-                }
-            });
-            await Promise.all(promises);
-
-            if (JSON.stringify(expoTokenDoc.data().expoTokens) !== JSON.stringify(expoTokens)) {
-                await updateDoc(expoTokenRef, { expoTokens: expoTokens });
+            if (tokenRemoto.expoPushToken == tokenLocal) {
+                statusExpoTokenRemoto = true;
+            } else {
+                console.log('-----------------------------------------------> nao e igual')
             }
-
         }
     }
+        
 
     if (!statusExpoTokenRemoto) {
         const tokenLocal = await getTokenArmazenado();
@@ -348,32 +340,25 @@ export async function registerForPushNotificationsAsync() {
 }
 
 export async function salvarTokenNoFirestore(token: string, userId: string, dadosUser: any, statusExpoToken: StatusToken) {
+    console.log('salvarTokenNoFirestore');
     try {
         const idInstalacao = await getOrCreateInstallationId();
 
-        const subExpoTokensRef = collection(doc(db, 'Users', userId), 'ExpoTokens');
+        const expoTokensRef = doc(db, 'Users', userId, 'ExpoTokens', idInstalacao);
+        const expoTokensDoc = await getDoc(expoTokensRef);
 
-        let expoTokensUpdate = [];
-        if (dadosUser.expoTokens && Object.keys(dadosUser.expoTokens).length > 0) {
-            expoTokensUpdate = dadosUser.expoTokens.filter((item: any) => item.ativo !== false);
-        }
-
-
-
-        if (statusExpoToken.statusInstalation) {
+        if (expoTokensDoc.exists()) {
+            console.log(expoTokensDoc.data());
             if (!statusExpoToken.statusExpoTokenRemoto) {
-                const indexToken = expoTokensUpdate.findIndex(item => item.idInstalacao === idInstalacao);
-                if (indexToken > -1) {
-                    expoTokensUpdate[indexToken].expoPushToken = token;
-                } else {
-                    expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });        
-                }
-                await setDoc(doc(subExpoTokensRef, userId), { expoTokens: expoTokensUpdate });
+                console.log('>>',expoTokensDoc.data().expoPushToken);
+                await updateDoc(expoTokensRef, {
+                    expoPushToken: token
+                });
             }
 
         } else {
-            expoTokensUpdate.push({ idInstalacao: idInstalacao, expoPushToken: token, ativo: true });
-            await setDoc(doc(subExpoTokensRef, userId), { expoTokens: expoTokensUpdate });
+            console.log('tk não existe, criando...');
+            await setDoc(expoTokensRef, { idInstalacao: idInstalacao, expoPushToken: token, ativo: true });
         }
 
         console.log("Token armazenado no Firestore com sucesso.");
@@ -459,13 +444,14 @@ export async function registrarDispositivo(
 }
 
 
-export async function limparNotifications(canal: string, chave: string, tudoPorCanal: boolean) {
+export async function limparNotifications(canal: string, chaveForeground: string, chaveBackground: string, tudoPorCanal: boolean) {
     console.log('limparNotifications')
 
     const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
 
     presentedNotifications.map( async (notifi) => {
-        console.log("=======================================================> presentedNotifications", notifi);
+        console.log("===========> presentedNotifications", '====', notifi.request.content.body, 'id:',
+            notifi.request.identifier, 'chaveForeground', chaveForeground, 'chaveBackground', chaveBackground, tudoPorCanal);
     });
 
     if (tudoPorCanal) {
@@ -482,19 +468,48 @@ export async function limparNotifications(canal: string, chave: string, tudoPorC
 
     }
     else if (canal == 'mensagens') {
+        
         presentedNotifications.map( async (notifi) => {
             
-            if (notifi.request.content.data.idChat == chave) {
-                await Notifications.dismissNotificationAsync(notifi.request.identifier);
+            
+            if (notifi.request.trigger) {
+                console.log('LIDAR NORMALMENTE');
+                if (notifi.request.content.data.idChat == chaveForeground) {
+                    await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                }
+
+            } else {
+                console.log('NOTIFICAÇÃO BICHADA');
+                const titulo = notifi.request.content.title;
+                if (titulo) {
+                    if (titulo == chaveBackground) {
+                        await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                    }
+                }
+                
             }
         });
     }
     else if (canal == 'interessados') {
         presentedNotifications.map( async (notifi) => {
-            
-            if (notifi.request.content.data.idAnimal == chave) {
-                await Notifications.dismissNotificationAsync(notifi.request.identifier);
+
+            if (notifi.request.trigger) {
+                console.log('LIDAR NORMALMENTE');
+                if (notifi.request.content.data.idAnimal == chaveForeground) {
+                    await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                }
+
+            } else {
+                console.log('NOTIFICAÇÃO BICHADA');
+                const corpo = notifi.request.content.body;
+                if (corpo) {
+                    if (corpo == chaveBackground) {
+                        await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                    }
+                }
+                
             }
+            
         });
 
     } else {
@@ -551,3 +566,97 @@ export async function salvarRotaAtiva(nomeRotaAtiva : string) {
         console.error('Erro ao salvar o nome da rota:', error);
     }
 };
+
+
+export async function processarNotificationsAppEncerrado(setNotificationAppEncerrado: React.Dispatch<React.SetStateAction<NotificationAppEncerrado>>) {
+        
+
+    const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
+
+    console.log('processarNotificationsAppEncerrado', lastNotificationResponse);
+
+    if (lastNotificationResponse) {
+        if (lastNotificationResponse.notification.request.identifier) {
+            console.log('HANDLENOTIFICATION APP FECHADO', lastNotificationResponse.notification);
+            
+            const dados = lastNotificationResponse.notification.request.content.data;
+            const canalOrigem = (lastNotificationResponse.notification.request.trigger as Trigger).channelId;
+
+            console.log("canalOrigem: ", canalOrigem);
+
+            let tela : string;
+            let idChat : string;
+            let contato : string;
+            let idAnimal : string;
+            let nomeAnimal : string;
+
+            if (canalOrigem == 'mensagens') {
+                tela = 'ChatScreen';
+                idChat = dados.idChat;
+                contato = lastNotificationResponse.notification.request.content.title;
+
+                console.log("contato: ", contato);
+                console.log("Data Mensagem: ", idChat);
+
+            }
+            else if (canalOrigem == 'interessados') {
+                tela = 'Interessados'
+                nomeAnimal = dados.nomeAnimal;
+                idAnimal = dados.idAnimal;
+
+                console.log("nomeAnimal: ", nomeAnimal);
+                console.log("idAnimal: ", idAnimal);
+                
+            } else {
+                console.log("canalOrigem: ", canalOrigem);
+            }
+
+            setNotificationAppEncerrado({
+                tela: tela,
+                idChat: idChat,
+                nomeTopBar: contato,
+                idAnimal: idAnimal,
+                nomeAnimal: nomeAnimal
+            });
+
+            await Notifications.dismissAllNotificationsAsync();
+        }
+    } else {
+        console.log('FLUXO NORMAL: SEM NOTIFICAÇÃO');
+        
+        // setNotificationAppEncerrado({
+        //     canalOrigem: 'ChatScreen',
+        //     idChat: 'chat-phOmMymk5dMI30bcqOTiWair5k32-vU8i0ZvI2rXgz6I8F1K1Q8o6dI12-zfA1j6RCGg5caf7yRtn6',
+        //     nomeTopBar: 'TESTE',
+        //     idAnimal: 'idAnimal',
+        //     nomeAnimal: 'nomeAnimal'
+        // });
+    }
+}
+
+
+export async function returnArrayTokens(userId : string) {
+
+    const tokensDocRef = collection(db, "Users", userId, 'ExpoTokens');
+
+    const q = query(tokensDocRef);
+
+    const snapshotTokens = await getDocs(q);
+
+    let expoTokensArray = []
+    snapshotTokens.forEach((doc) => {
+        //console.log(doc.id, " => ", doc.data().expoPushToken);
+        expoTokensArray.push(doc.data().expoPushToken);
+    });
+
+    if (expoTokensArray.length <= 0) {
+        console.log('Usuario sem tokens registrados');
+    }
+    //console.log(expoTokensArray)
+
+    return expoTokensArray;
+}
+
+
+
+

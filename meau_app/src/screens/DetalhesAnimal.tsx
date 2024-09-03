@@ -82,7 +82,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                 <TopBar
                     nome={dadosAnimal.nomeAnimal}
                     icone='voltar'
-                    irParaPagina={() => navigation.goBack()}
+                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                     cor='#88c9bf'
                 />
                 <ScrollView style={{backgroundColor: '#fafafa'}}>

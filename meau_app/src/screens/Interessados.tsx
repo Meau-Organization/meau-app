@@ -4,8 +4,6 @@ import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackRoutesParametros } from "../utils/StackRoutesParametros";
 import { useNavigation } from "@react-navigation/native";
-import { limparNotifications } from "../utils/Utils";
-
 interface InteressadosProps {
     route: {
         params: {
@@ -19,8 +17,6 @@ interface InteressadosProps {
 
 export default function Interessados({ route }: InteressadosProps) {
 
-    limparNotifications('interessados', route.params.animal_id, false);
-
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Interessados'>>();
 
     return (
@@ -28,7 +24,7 @@ export default function Interessados({ route }: InteressadosProps) {
             <TopBar
                 nome={route.params.nome_animal}
                 icone='voltar'
-                irParaPagina={() => navigation.goBack()}
+                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                 cor='#fee29b'
             />
 

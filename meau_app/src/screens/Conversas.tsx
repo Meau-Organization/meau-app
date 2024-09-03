@@ -40,6 +40,7 @@ export default function Conversas() {
             buscarUserChats();
 
             return () => {
+                setDadosConversas([]);
                 listeners.forEach(unsubscribe => unsubscribe());
                 console.log('.......................... Desmontou listeners Conversas');
             };
@@ -142,10 +143,10 @@ export default function Conversas() {
 
                                     onPress={() => navigation.navigate('ChatScreen', {
                                         idChat: item.idChat,
-                                        nomeTopBar: user.uid == item.idInteressado ?    // Se eu (usuario online) sou o interessado
-                                            item.dadosChat.nomeDono                     // Mostre o nome do dono na topBar
-                                            :                                           // Caso contrário, eu (usuario online) sou o Dono
-                                            item.dadosChat.nomeInteressado,             // Mostre o nome do interessado na topBar
+                                        nomeTopBar: user.uid == item.idInteressado ?                                        // Se eu (usuario online) sou o interessado
+                                            item.dadosChat.nomeDono + ' | ' + item.dadosChat.nomeAnimal                     // Mostre o nome do dono na topBar
+                                            :                                                                               // Caso contrário, eu (usuario online) sou o Dono
+                                            item.dadosChat.nomeInteressado + ' | ' + item.dadosChat.nomeAnimal,             // Mostre o nome do interessado na topBar
 
 
                                     })}

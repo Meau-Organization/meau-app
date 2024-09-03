@@ -11,7 +11,6 @@ import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
 import DrawerRoutes from '../drawer/DrawerRoutes';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
-import { useNavigationState , NavigationState} from '@react-navigation/native';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 
 import ChatScreen from '../../screens/ChatScreen';
@@ -24,55 +23,47 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Interessados from '../../screens/Interessados';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
-    
+
+
+
 export default function StackRoutes() {
 
-    const { user, statusExpoToken } = useAutenticacaoUser();
-
-    // const estadoNavegacao = useNavigationState(state => state);
-
-    // const rotaAtiva = (estadoNavegacao: NavigationState): string => {
-    //     if (!estadoNavegacao || !estadoNavegacao.routes) {
-    //         return 'Desconhecido';
-    //     }
-    //     const rota = estadoNavegacao.routes[estadoNavegacao.index];
-    //     if (rota.state) {
-    //         return rotaAtiva(rota.state as NavigationState);
-    //     }
-    //     return rota.name;
-    // };
+    const { user, statusExpoToken, notificationAppEncerrado } = useAutenticacaoUser();
     const nomeRotaAtiva = useNomeRotaAtiva();
 
     useEffect(() => {
         console.log('StackRoutes - Rota Ativa:', nomeRotaAtiva);
-        
-        async function save() {
+
+        async function processarRota() {
             const nomeRotaArmazenada = await AsyncStorage.getItem('@rotaAtiva');
-            const [preFixoRotaAtiva, _] = nomeRotaArmazenada.split(':');
-            //console.log('Pre-fixo ROTA:', preFixoRotaAtiva);
-            if (nomeRotaAtiva != preFixoRotaAtiva) {
+            if (nomeRotaArmazenada) {
+                const [preFixoRotaAtiva, _] = nomeRotaArmazenada.split(':');
+                //console.log('Pre-fixo ROTA:', preFixoRotaAtiva);
+                if (nomeRotaAtiva != preFixoRotaAtiva) {
+                    await salvarRotaAtiva(nomeRotaAtiva);
+                }
+            } else {
                 await salvarRotaAtiva(nomeRotaAtiva);
             }
 
         };
-        save();
-        
+        processarRota();
+
     }, [nomeRotaAtiva]);
-    
 
-    
+    //console.log('--------------------> ', statusExpoToken, notificationAppEncerrado);
 
-    //console.log('--------------------> ', statusExpoToken);
-    const telaInicial = statusExpoToken.permissaoNotifcations !== 'granted' ?  "AvisoNotification" : "DrawerRoutes";
+    const telaInicial =
+        statusExpoToken.permissaoNotifcations !== 'granted' ? "AvisoNotification" : notificationAppEncerrado ? notificationAppEncerrado.tela : "DrawerRoutes";
 
     return (
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
 
             <Stack.Screen name="DrawerRoutes" component={DrawerRoutes} />
 
-            <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}} options={{title:'Inicial', animationTypeForReplace: user === null  ? 'pop' : 'push',}}/>
+            <Stack.Screen name="Inicial" component={Inicial} initialParams={{ userEstado: 23 }} options={{ title: 'Inicial', animationTypeForReplace: user === null ? 'pop' : 'push', }} />
 
-            <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} initialParams={{topbar: true}}/>
+            <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} initialParams={{ topbar: true }} />
 
             <Stack.Screen name="Login" component={Login} />
 
@@ -82,18 +73,31 @@ export default function StackRoutes() {
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
 
-            <Stack.Screen name="DetalhesAnimal" component={DetalhesAnimal}  />
+            <Stack.Screen name="DetalhesAnimal" component={DetalhesAnimal} />
 
-            <Stack.Screen name="DetalhesAnimalAdocao" component={DetalhesAnimalAdocao}  />
+            <Stack.Screen name="DetalhesAnimalAdocao" component={DetalhesAnimalAdocao} />
 
-            <Stack.Screen name="ChatScreen" component={ChatScreen} />
+            <Stack.Screen name="ChatScreen"
+                component={ChatScreen}
+                initialParams={{
+                    idChat: notificationAppEncerrado ? notificationAppEncerrado.idChat : '',
+                    nomeTopBar: notificationAppEncerrado ? notificationAppEncerrado.nomeTopBar : '',
+                }}
+            />
 
             <Stack.Screen name="Config" component={Config} />
 
-            <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{topbar: true}} />
+            <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{ topbar: true }} />
 
-            <Stack.Screen name="Interessados" component={Interessados}  />
+            <Stack.Screen name="Interessados"
+                component={Interessados}
+                initialParams={{
+                    animal_id: notificationAppEncerrado ? notificationAppEncerrado.idAnimal : '',
+                    nome_animal: notificationAppEncerrado ? notificationAppEncerrado.nomeAnimal : '',
+                }}
+            />
 
         </Stack.Navigator>
     );
+
 }

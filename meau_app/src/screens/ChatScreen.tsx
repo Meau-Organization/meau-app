@@ -14,8 +14,8 @@ import ModalLoanding from "../components/ModalLoanding";
 import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc, where, addDoc, DocumentReference, DocumentData } from "../configs/firebaseConfig";
 import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-import { buscarDadosAnimalBasico, buscarDadosUsuarioExterno, comprimirImagem, limparNotifications, salvarRotaAtiva, sendNotifications } from "../utils/Utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { buscarDadosAnimalBasico, buscarDadosUsuarioExterno, comprimirImagem, limparNotifications, returnArrayTokens, salvarRotaAtiva, sendNotifications } from "../utils/Utils";
+
 import { useNomeRotaAtiva } from "../hooks/useNomeRotaAtiva";
 
 interface ChatScreenProps {
@@ -48,8 +48,6 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const { idChat, nomeTopBar } = route.params;
     const [_, idDono, idInteressado, idAnimal] = idChat.split('-');
 
-    limparNotifications('mensagens', idChat, false);
-
     //console.log(idChat);
     //console.log('Chat deve ser criado:', criarChat);
 
@@ -61,15 +59,15 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
             setEsperando(true);
 
-            
+            limparNotifications('mensagens', idChat, '', false);
 
-            let unsubscribe;
+            let unsubscribe; 
 
             async function atualizarChat() {
 
                 const rotaComposta = nomeRotaAtiva + ':' + idChat;
                 await salvarRotaAtiva(rotaComposta);
-                console.log('===============================================>', rotaComposta)
+                console.log('rotaComposta:', rotaComposta)
 
                 const dadosChat = await buscarDadosChat();
                 if (dadosChat) {                                                                    // Se o chat já existe, utilize os dados do CHAT
@@ -89,7 +87,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                     console.log('.......................... Desmontou listeners ChatSreen');
                 }
             };
-        }, [])
+        }, [idChat])
     );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +240,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 docs.docs.map(async (docElemento) => {
 
                     if (user.uid != docElemento.data().sender && !docElemento.data().lido) {
-                        console.log('LIDO-id: ', user.uid, ' sd: ', docElemento.data().sender)
+                        //console.log('LIDO-id: ', user.uid, ' sd: ', docElemento.data().sender)
                         await updateDoc(doc(db, 'Chats', idChat, 'messages', docElemento.id), {
                             lido: true,
                         });
@@ -344,17 +342,15 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function buscarExpoTokens() {
 
-        let expoTokenRef: DocumentReference<DocumentData, DocumentData>;
+        let expoTokensArray;
         if (user.uid == idDono) {
-            expoTokenRef = doc(db, 'Users', idInteressado, 'ExpoTokens', idInteressado);
+            expoTokensArray = await returnArrayTokens(idInteressado);
         } else {
-            expoTokenRef = doc(db, 'Users', idDono, 'ExpoTokens', idDono);
+            expoTokensArray = await returnArrayTokens(idDono);
         }
 
-        const expoTokenDoc = await getDoc(expoTokenRef);
 
-        if (expoTokenDoc.exists()) {
-            const expoTokensArray = expoTokenDoc.data().expoTokens.map((item: string) => item['expoPushToken']);
+        if (expoTokensArray.length > 0) {
             console.log(expoTokensArray);
             setExpoTokensArray(expoTokensArray);
             return expoTokensArray;
@@ -362,11 +358,12 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             //console.log('não existe');
             return null;
         }
+        
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function notificar(msg : string, nomeAnimal: string) {
-        const title = dadosUser.nome + ' | ' + nomeAnimal;
+        const title = dadosUser.nome + '▪️' + 'Sobre o ' + nomeAnimal;
         const body = msg;
         if (expoTokensArray) {
             await sendNotifications(expoTokensArray, title, body, 'mensagens', { idChat: idChat });
@@ -387,7 +384,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             <TopBar
                 nome={nomeTopBar}
                 icone='voltar'
-                irParaPagina={() => navigation.goBack()}
+                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
                 cor='#88c9bf'
             />
             {!esperando ?

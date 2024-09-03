@@ -25,7 +25,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.meauorganization.meau_app",
-      "versionCode": 64,
+      "versionCode": 71,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -62,9 +62,6 @@
       "eas": {
         "projectId": "c5621118-1fb1-4f6e-a816-819e1a7fd995"
       }
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
     }
   }
 }

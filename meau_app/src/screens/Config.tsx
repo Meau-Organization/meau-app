@@ -146,12 +146,23 @@ export default function Config() {
 
         const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
 
+        const chave = 'Lucas curtiu seu pet! 🐾';
+
         if (canal == 'mensagens') {
             presentedNotifications.map( async (notifi) => {
-                console.log("presentedNotifications", notifi.request.content.data);
-                if (notifi.request.content.data.idChat == idChat) {
-                    await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                if (notifi.request.trigger) {
+                    console.log('LIDAR NORMALMENTE', notifi.request.content.title);
+                } else {
+                    console.log('NOTIFICAÇÃO BICHADA', notifi.request.content.title);
+                    const titulo = notifi.request.content.title;
+                    if (titulo) {
+                        if (titulo == chave) {
+                            await Notifications.dismissNotificationAsync(notifi.request.identifier);
+                        }
+                    }
+                    
                 }
+                
             });
         }
         else if (canal == 'interessados') {

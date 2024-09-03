@@ -11,7 +11,7 @@ import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext"
 
 import SelectDropdown from 'react-native-select-dropdown'
 import { db, doc, getDoc } from "../configs/firebaseConfig";
-import { sendNotifications } from "../utils/Utils";
+import { getOrCreateInstallationId, returnArrayTokens, sendNotifications } from "../utils/Utils";
 
 
 interface CardProps {
@@ -54,25 +54,19 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
             curtida ? setCurtida(false) : setCurtida(true);
 
             try{
-                // Puxa o token do proprietario do animal
-                const userDocRef = doc(db, "Users", usuarioId, 'ExpoTokens', usuarioId);
-                const userDoc = await getDoc(userDocRef);
 
-                if (userDoc.exists()) {
-                    const expoTokensArray = userDoc.data().expoTokens.map( item => item['expoPushToken'] );
-                    console.log(expoTokensArray);
-                    if (expoTokensArray.length > 0) {
-                        
-                        const title = `${dadosUser.nome} curtiu seu pet!`;
-                        const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
-                        // Envia a notificação ao proprietário do animal
-                        await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id});
-                    } else {
-                        console.log("Proprietário do animal não possui um token de notificação registrado.");
-                    }
+                const expoTokensArray = await returnArrayTokens(usuarioId);
+                //console.log(expoTokensArray);
+
+                if (expoTokensArray.length > 0) {
+                    const title = `${dadosUser.nome} curtiu seu pet!` + ' 🐾';
+                    const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
+                    // Envia a notificação ao proprietário do animal
+                    await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id});
                 } else {
-                    console.log("Documento do usuário não encontrado.");
+                    console.log("Proprietário do animal não possui um token de notificação registrado.");
                 }
+               
             } catch (error) {
                 console.error("Erro ao buscar o token de notificação:", error);
             }
