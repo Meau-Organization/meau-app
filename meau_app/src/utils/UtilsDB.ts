@@ -76,3 +76,19 @@ export async function buscarUltimaMensagem(idChat: string, userId: string) {
     }
 
 }
+
+export async function documentExiste(docRef : any): Promise<boolean> {
+    try {
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists()) {
+        //console.log("Documento existe!");
+        return true;
+      } else {
+        console.log("Documento não existe.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Erro ao verificar documento:", error);
+    }
+    return false;
+  };

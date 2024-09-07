@@ -139,7 +139,7 @@ export default function DrawerRoutes() {
         MeuPerfil: '#cfe9e5',
         Adotar: '#ffd358',
         Conversas: '#88c9bf', //#589b9b
-        Config: '#ffd358',
+        Config: '#e6e7e8',
     };
     const coresIconeHeader: estilosHeaderMap = {
         DrawerRoutes: '#88c9bf',
@@ -156,7 +156,7 @@ export default function DrawerRoutes() {
         MeuPerfil: 'Meu Perfil',
         Adotar: 'Adotar',
         Conversas: 'Chat',
-        Config: 'Config',
+        Config: 'Privacidade',
     };
 
     return( 

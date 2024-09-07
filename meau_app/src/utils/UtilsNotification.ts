@@ -4,8 +4,10 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { getOrCreateInstallationId } from './UtilsGeral';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, db, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from '../configs/FirebaseConfig.js'
-import { InteressadoData, MeauData, MensagemData, NotificationAppEncerrado, StatusToken } from './UtilsType';
+import { collection, db, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from '../configs/FirebaseConfig.js'
+import { InteressadoData, MeauData, MensagemData, NotificationAppEncerrado, StackRoutesParametros, StatusToken } from './UtilsType';
+import { documentExiste } from './UtilsDB';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export async function salvarTokenArmazenamento(token: string) {
     try {
@@ -36,6 +38,13 @@ export async function validarExpoToken(userId: string, installationId: string) {
     let statusInstalation: boolean = false;
     let statusExpoTokenLocal: boolean = false;
     let statusExpoTokenRemoto: boolean = false;
+    let userNegou: boolean = false;
+
+    const resposta = await AsyncStorage.getItem('@userNegou');
+    if (resposta == 'yes') {
+        userNegou = true;
+    }
+
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -78,7 +87,8 @@ export async function validarExpoToken(userId: string, installationId: string) {
             statusExpoTokenLocal: statusExpoTokenLocal,
             statusExpoTokenRemoto: statusExpoTokenRemoto,
             statusInstalation: statusInstalation,
-            permissaoNotifcations: existingStatus
+            permissaoNotifcations: existingStatus,
+            userNegou: userNegou,
         }
     };
 
@@ -242,34 +252,44 @@ export async function sendNotifications(token: string | string[], title: string,
     }
 }
 
-export async function registrarDispositivo(
+export async function registrarDispositivoAutomaticamente(
     user: any,
     dadosUser: any,
+    nomeRotaAtiva: string,
     statusExpoToken: StatusToken,
     setStatusExpoToken: React.Dispatch<React.SetStateAction<StatusToken>>) {
 
-    await registerForPushNotificationsAsync()
-        .then(async (token) => {
-            if (token) {
-                console.log("token :" + token);
+    if (user && nomeRotaAtiva !== 'AvisoNotification' && !statusExpoToken.userNegou) {
 
-                let status_expo_token = statusExpoToken;
+        if (!statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto) {
 
-                await salvarTokenArmazenamento(token).then(async (status) => {
-                    status_expo_token.statusExpoTokenLocal = status;
+            registerForPushNotificationsAsync()
+                .then(async (token) => {
+                    if (token) {
+                        console.log("token :" + token);
 
-                    if (user) {
-                        await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
-                            status_expo_token.statusExpoTokenRemoto = status;
-                            setStatusExpoToken(status_expo_token);
+                        let status_expo_token = statusExpoToken;
+
+                        await salvarTokenArmazenamento(token).then(async (status) => {
+                            status_expo_token.statusExpoTokenLocal = status;
+
+                            if (user) {
+                                await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
+                                    status_expo_token.statusExpoTokenRemoto = status;
+                                    setStatusExpoToken(status_expo_token);
+                                });
+                            }
                         });
                     }
+                })
+                .catch((error: any) => {
+                    console.error("Erro:" + error);
                 });
-            }
-        })
-        .catch((error: any) => {
-            console.error("Erro:" + error);
-        });
+
+        } else {
+            console.log('Token remoto OK');
+        }
+    }
 }
 
 export async function limparNotifications(canal: string, chaveForeground: string, chaveBackground: string) {
@@ -487,9 +507,29 @@ export async function desativarToken(userId: string) {
 
     const tokenDocRef = doc(db, "Users", userId, 'ExpoTokens', installationId);
 
-    await updateDoc(tokenDocRef, {
-        ativo: false
+    documentExiste(tokenDocRef).then(async (resposta) => {
+        if (resposta) {
+            await updateDoc(tokenDocRef, {
+                ativo: false
+            });
+        }
     });
+
+}
+
+export async function removerToken(userId: string): Promise<boolean> {
+    let resposta : boolean = false;
+
+    const installationId = await getOrCreateInstallationId();
+
+    const tokenDocRef = doc(db, "Users", userId, 'ExpoTokens', installationId);
+
+    if (await documentExiste(tokenDocRef)) {
+        await deleteDoc(tokenDocRef);
+        resposta = true;
+    }
+
+    return resposta;
 }
 
 export async function extrairAtributoNotificationJson(atributo: string, dadosJson: any): Promise<MeauData | null> {
@@ -512,5 +552,139 @@ export async function extrairAtributoNotificationJson(atributo: string, dadosJso
         console.log("Atributo não encontrado.");
         return null;
     }
+
+}
+
+export async function listenerNotificationGlobal() {
+
+    Notifications.setNotificationHandler({
+
+        handleNotification: async (notification) => {
+
+            let mostrarNotification: boolean = true;
+            let mostrarNotificationChat: boolean = true;
+
+            console.log('HANDLENOTIFICATION ---------------------', notification);
+
+            const meauData: MeauData = await extrairAtributoNotificationJson("meau_data", notification);
+
+            if (meauData) {
+
+                if (meauData.channelId == 'mensagens') {
+                    const data: MensagemData = meauData.data as MensagemData;
+                    console.log('idChat Notificação:', data.idChat);
+                    const nomeRotaAtiva = await AsyncStorage.getItem('@rotaAtiva');
+                    if (nomeRotaAtiva) {
+                        console.log('nomeRotaAtiva:', nomeRotaAtiva);
+                        const [preFixoRotaAtiva, posFixoRotaAtiva] = nomeRotaAtiva.split(':');
+                        console.log('Pos-fixo ROTA:', posFixoRotaAtiva);
+                        if (posFixoRotaAtiva) {
+                            if (posFixoRotaAtiva == data.idChat) {
+                                mostrarNotificationChat = false;
+                                console.log('Notificação bloqueada Chat!!');
+                            }
+                        } else {
+                            if (preFixoRotaAtiva) {
+                                if (preFixoRotaAtiva == 'Conversas') {
+                                    mostrarNotification = false;
+                                    console.log('Popup bloqueado Conversas!!');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!mostrarNotificationChat) {
+                mostrarNotification = false;
+            }
+
+            console.log('shouldShowAlert', (true && mostrarNotificationChat));
+            console.log('shouldPlaySound', (mostrarNotification));
+            console.log('shouldSetBadge', (mostrarNotification));
+
+
+            return {
+                shouldShowAlert: true && mostrarNotificationChat,
+                shouldPlaySound: mostrarNotification,
+                shouldSetBadge: mostrarNotification,
+            }
+        }
+    });
+}
+
+export async function listenerNotificationClick(user: any, navigation: NativeStackNavigationProp<StackRoutesParametros>) {
+
+    Notifications.addNotificationResponseReceivedListener(async (notification) => {
+
+        const meauData: MeauData = await extrairAtributoNotificationJson("meau_data", notification);
+
+        if (meauData) {
+
+            const canalOrigem = meauData.channelId;
+
+            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 --------------', notification.notification);
+            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 --------------', canalOrigem);
+
+            if (canalOrigem == 'mensagens') {
+                const idChat = (meauData.data as MensagemData).idChat;
+                const titulo = meauData.title;
+                console.log("contato: ", titulo);
+                console.log("Data Mensagem: ", idChat);
+
+                const partes = titulo.split('▪️');
+                const primeiroNome = partes[0];
+                const segundoNome = partes[1].split(' ').pop();
+
+                limparNotifications(canalOrigem, idChat, titulo);
+
+                if (user) {
+                    const [_, idDono, idInteressado, __] = idChat.split('-');
+
+                    if (user.uid == idDono || user.uid == idInteressado) {
+                        navigation.navigate('ChatScreen', {
+                            idChat: idChat,
+                            nomeTopBar: primeiroNome + ' | ' + segundoNome,
+                        });
+                    }
+
+                } else {
+                    navigation.navigate('Login');
+                }
+
+            }
+            else if (canalOrigem == 'interessados') {
+                const corpo = meauData.body;
+                const nomeAnimal = (meauData.data as InteressadoData).nomeAnimal;
+                const idDono = (meauData.data as InteressadoData).idDono;
+                const idInteressado = (meauData.data as InteressadoData).idIteressado;
+                const idAnimal = (meauData.data as InteressadoData).idAnimal;
+                console.log("corpo: ", corpo);
+                console.log("nomeAnimal: ", nomeAnimal);
+                console.log("idAnimal: ", idAnimal);
+
+                limparNotifications(canalOrigem, idAnimal, corpo);
+
+                if (user) {
+                    if (user.uid == idDono || user.uid == idInteressado) {
+                        navigation.navigate('Interessados', {
+                            id_dono: idDono,
+                            id_interessado: idInteressado,
+                            animal_id: idAnimal,
+                            nome_animal: nomeAnimal
+                        });
+                    }
+
+                } else {
+                    navigation.navigate('Login');
+                }
+
+            } else {
+                console.log("canalOrigem: ", canalOrigem);
+            }
+
+        }
+
+    });
 
 }

@@ -8,34 +8,24 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BotaoMarcavelQuadrado from './BotaoMarcavelQuadrado';
 import { useState } from "react";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface ModalLoandingProps {
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
-    cor?: string;
+    texto: string;
 }
 
-export default function ModalAviso({ cor = "#ffd358", setModal }: ModalLoandingProps) {
-
-    const [userNegou, setUserNegou] = useState([]);
+export default function ModalSucesso({ setModal, texto }: ModalLoandingProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoNotification'>>();
-
-    async function continuar() {
-
-        if (userNegou.length > 0) {
-            await AsyncStorage.setItem('@userNegou', 'yes');
-        }
-        setModal(false);
-        navigation.navigate("DrawerRoutes");
-    }
 
     return (
         <View style={styles.container}>
             <View style={styles.modal}>
 
 
-                <Text style={[styles.middleText, { marginTop: 8 }]}>
-                    <MaterialIcons name="notifications-off" size={64} color="#fafafa" />
+                <Text style={[styles.middleText, { marginTop: 14 }]}>
+                    <AntDesign name="checkcircle" size={64} color="#88c9bf"/>
                 </Text>
 
 
@@ -43,31 +33,15 @@ export default function ModalAviso({ cor = "#ffd358", setModal }: ModalLoandingP
                 <View style={styles.middleView}>
 
                     <Text style={[styles.middleText, { fontSize: 14, marginBottom: 10 }]}>
-                        Tem certeza?
-
+                        {texto}
                     </Text>
-                    <BotaoMarcavelQuadrado
-                        vetor_opcoes={['Não perguntar novamente.']}
-                        setEstadoDoPai={setUserNegou}
-                        width={200}
-                        marginBottom={0}
-                        color="#fafafa"
-                        radioBackgroundColor="#88c9bf"
-                        fontSize={12}
-                        sizeRadio={16}
-                        justifyContent={true}
-                    />
+                    
                 </View>
                 
-                
-
                 <View style={styles.buttonsContainer}>
                     
-                    <TouchableOpacity onPress={() => continuar()}>
-                        <BotaoUsual texto='SIM' cor='#d4d4d4' marginRight={16} largura={80} altura={40} />
-                    </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => { setModal(false) }}>
-                        <BotaoUsual texto='NÃO' cor='#88c9bf' largura={80} altura={40} />
+                        <BotaoUsual texto='OK' cor='#bdbdbd' largura={80} altura={40} />
                     </TouchableOpacity>
 
                 </View>

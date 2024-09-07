@@ -1,3 +1,4 @@
+import * as Font from 'expo-font';
 import { Modal } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import ModalLoanding from '../../components/ModalLoanding';
@@ -22,14 +23,15 @@ const AutenticacaoUserContext = createContext<AutenticacaoUserContextType | unde
 export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {          // Cria o provedor do contexto
     const [user, setUser] = useState(null);
     const [dadosUser, setDadosUser] = useState<any>(null);
-    
+
     const [statusExpoToken, setStatusExpoToken] =
-        useState<StatusToken>( {
+        useState<StatusToken>({
             statusExpoTokenLocal: false,
             statusExpoTokenRemoto: false,
             statusInstalation: false,
-            permissaoNotifcations: 'undetermined'
-    });
+            permissaoNotifcations: 'undetermined',
+            userNegou: false,
+        });
 
     const [notificationAppEncerrado, setNotificationAppEncerrado] = useState<NotificationAppEncerrado>(null);
 
@@ -46,12 +48,12 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
-                
+
                 if (installationId) {
-                    await validarExpoToken(userId, installationId).then( async (retorno) => {           // Verifica se o token local do dispositivo é congruente com o token salvo no BD
+                    await validarExpoToken(userId, installationId).then(async (retorno) => {           // Verifica se o token local do dispositivo é congruente com o token salvo no BD
                         setStatusExpoToken(retorno.status_expo_token);                                  //
                     });                                                                                 //
-                    
+
                 }
 
                 setDadosUser(userDoc.data());
@@ -65,6 +67,11 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
     };
 
     useEffect(() => {
+
+        async function carregarFontes() {
+            await Font.loadAsync({ 'Courgette-Regular': require('../fonts/Courgette-Regular.ttf') });
+        };
+        carregarFontes();
 
         const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
             setTentativaCarga(false);
@@ -95,6 +102,7 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
 
     const liberarSplashScreen = async () => {
         if (tentativaCarga) {
+
             await SplashScreen.hideAsync();                                              // Libera a SplashScreen e continua as operações
             setLibera(true);
         }
@@ -103,11 +111,11 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
 
 
     return (
-        <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario, statusExpoToken, setStatusExpoToken, notificationAppEncerrado}}>
+        <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario, statusExpoToken, setStatusExpoToken, notificationAppEncerrado }}>
 
             {tentativaCarga ?                                                                           // Se a tentativa de carregar os dados terminou, renderize o APP
                 children
-            :                                                                                           // Se não mostre o loading...
+                :                                                                                           // Se não mostre o loading...
                 <Modal visible={!tentativaCarga && libera} animationType='fade' transparent={true}>
                     <ModalLoanding spinner={!tentativaCarga && libera} cor={'#cfe9e5'} />
                 </Modal>

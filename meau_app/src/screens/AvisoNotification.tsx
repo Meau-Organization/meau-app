@@ -3,7 +3,6 @@ import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
 import ModalAviso from "../components/ModalAviso";
-import { fonteCarregada } from "../utils/UtilsFonts";
 import ModalLoanding from "../components/ModalLoanding";
 import { useNavigation } from "@react-navigation/native";
 import { StackRoutesParametros } from "../utils/UtilsType";
@@ -66,7 +65,7 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
         setEsperando(false);
     }
 
-    console.log('--------------------> ', statusExpoToken);
+    console.log('AVISO NOTIFICATION >', statusExpoToken);
 
     return (
         <>
@@ -85,7 +84,6 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
 
             <View style={styles.container}>
 
-                {fonteCarregada ? (
                     <>
                         <Text style={[styles.welcomeText, { fontFamily: 'Courgette-Regular' }]}>
                             Olá!
@@ -94,16 +92,6 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                             Vamos manter você sempre informado!
                         </Text>
                     </>
-                ) : (
-                    <>
-                        <Text style={[styles.welcomeText]}>
-                            Olá!
-                        </Text>
-                        <Text style={[styles.welcomeText, { marginTop: 0, fontSize: 20 }]}>
-                            Vamos manter você sempre informado!
-                        </Text>
-                    </>
-                )}
 
                 <View >
                     <Image source={notification} style={styles.image} />
@@ -114,7 +102,7 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                         Para garantir que você não perca nenhuma atualização importante,
                         precisamos enviar notificações. Com as notificações ativadas,
                         você receberá alertas sobre novas mensagens, atualizações no
-                        processo e informações relevantes, seja você adotante ou doador.
+                        processo e informações relevantes.
 
                     </Text>
                 </View>

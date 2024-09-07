@@ -88,7 +88,7 @@ export default function PreencherCadastroAnimal() {
             });
 
             setLoading(false);
-            navigation.navigate('CadastroAnimal');
+            navigation.navigate('SucessoCadastroAnimal');
 
 
         } catch (error) {

@@ -2,7 +2,7 @@ import { View, Modal } from 'react-native';
 import { TopBar } from "../components/TopBar";
 import { useState, useCallback } from "react";
 import { comprimirImagem } from "../utils/UtilsImage";
-import { salvarRotaAtiva } from "../utils/UtilsGeral";
+import { processarRota, salvarRotaAtiva } from "../utils/UtilsGeral";
 import ModalLoanding from "../components/ModalLoanding";
 import { StackRoutesParametros } from "../utils/UtilsType";
 import { useNomeRotaAtiva } from "../hooks/useNomeRotaAtiva";
@@ -65,6 +65,8 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
                 async function atualizarChat() {
 
+                    //await processarRota(nomeRotaAtiva);
+
                     const rotaComposta = nomeRotaAtiva + ':' + idChat;
                     await salvarRotaAtiva(rotaComposta);
                     console.log('rotaComposta:', rotaComposta)
@@ -84,6 +86,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
 
                 return () => {
+                    setExpoTokensArray(['']);
                     if (unsubscribe) {
                         unsubscribe();
                         console.log('.......................... Desmontou listeners ChatSreen');

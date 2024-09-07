@@ -1,16 +1,16 @@
 
-import * as Font from 'expo-font';
+// import * as Font from 'expo-font';
 
-export let fonteCarregada = false; // Definindo a variável global
+// export let fonteCarregada = false; // Definindo a variável global
 
-async function carregarFontes() {
-    await Font.loadAsync({
-        'Courgette-Regular': require('../assets/fonts/Courgette-Regular.ttf'),
-    });
-    fonteCarregada = true;
-}
+// async function carregarFontes() {
+//     await Font.loadAsync({
+//         'Courgette-Regular': require('../assets/fonts/Courgette-Regular.ttf'),
+//     });
+//     fonteCarregada = true;
+// }
 
-carregarFontes();
+// carregarFontes();
 
-console.log('Carregando fontes....');
+// console.log('Carregando fontes....');
 

@@ -1,207 +1,176 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { Switch } from 'react-native-gesture-handler';
-
-
-import * as Notifications from 'expo-notifications';
-
+import { useCallback, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-import { getTokenArmazenado, registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/UtilsNotification';
+import { registerForPushNotificationsAsync, removerToken, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/UtilsNotification';
+import BotaoMarcavelQuadrado from '../components/BotaoMarcavelQuadrado';
+import BotaoUsual from '../components/BotaoUsual';
+import ModalSucesso from '../components/ModalSucesso';
+import { useFocusEffect } from '@react-navigation/native';
+import ModalLoanding from '../components/ModalLoanding';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 export default function Config() {
 
+    const { user, dadosUser, statusExpoToken, setStatusExpoToken } = useAutenticacaoUser();
     
+    const [modal, setModal] = useState(false);
+    const [esperando, setEsperando] = useState(false);
+    const [reRenderizar, setReRenderizar] = useState('');
+    const [textoModal, setTextoModal] = useState('');
+    const [notificationChatInteressados, setNotificationChatInteressados] = useState<string[]>([]);
 
-    const { user, dadosUser, statusExpoToken } = useAutenticacaoUser();
+    //console.log(statusExpoToken);
+    //console.log('notificationChatInteressados', notificationChatInteressados, notificationChatInteressados.length)
 
-    console.log('--------------------> ', statusExpoToken);
+    useFocusEffect(
+        useCallback(() => {
 
-    const [expoPushToken, setExpoPushToken] = useState('');
-    const [notificacoesAtivadas, setNotificacoesAtivadas] =
-        useState(
-            statusExpoToken.statusExpoTokenLocal &&
-            statusExpoToken.statusExpoTokenRemoto &&
-            statusExpoToken.statusInstalation &&
-            statusExpoToken.permissaoNotifcations == 'granted'
-        );
+            setEsperando(false);
+            setReRenderizar(Math.floor(Date.now() * Math.random()).toString(36));
+
+            if (statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation) {
+                setNotificationChatInteressados(['Ativar notificações de chat e interessados']);
+            } else {
+                setNotificationChatInteressados([]);
+            }
+        }, [])
+    );
+
+    async function desativarNotificationChatInteressados() {
+        let sucesso : boolean = false;
+
+        await removerToken(user.uid).then( async(resposta) => {
+            if (resposta) {
+                let status_expo_token = statusExpoToken;
+                status_expo_token.statusExpoTokenRemoto = false;
+                status_expo_token.statusInstalation = false;
+                setStatusExpoToken(status_expo_token);
+
+                await AsyncStorage.setItem('@userNegou', 'yes');
+                sucesso = true;
+            }
+        });
+
+        return sucesso;
+    }
 
 
-   
-    // Em testes
-    const toggleSwitch = () => {
-        const novoEstado = !notificacoesAtivadas;
-        setNotificacoesAtivadas(novoEstado);
+    async function ativarNotificationChatInteressados() {
+        let sucesso : boolean = false;
 
-        if (novoEstado) {
-            console.log('Notificações desativadas, ATIVANDO...');
-            registerForPushNotificationsAsync()
-                .then(token => {
-                    if (token) {
-                        console.log("token :" + token);
-                        setExpoPushToken(token);
+        await registerForPushNotificationsAsync()
+            .then(async (token) => {
+                if (token) {
+                    console.log("token :" + token);
 
-                        salvarTokenArmazenamento(token);
+                    let status_expo_token = statusExpoToken;
+
+                    await salvarTokenArmazenamento(token).then(async (status) => {
+                        status_expo_token.statusExpoTokenLocal = status;
 
                         if (user) {
-                            salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken);
+                            await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
+                                status_expo_token.statusExpoTokenRemoto = status;
+                                status_expo_token.statusInstalation = status;
+                                setStatusExpoToken(status_expo_token);
+                                sucesso = true;
+                            });
                         }
-                    }
-                })
-                .catch((error: any) => {
-                    console.error("Erro:" + error);
-                    setExpoPushToken(`${error}`)
-                });
-        } else {
-            console.log('Notificações ativadas, DESATIVANDO...');
-            setNotificacoesAtivadas(false);
-        }
-    };
-
-
-    /// FUNÇÕES DEGUB
-    getTokenArmazenado();
-
-    function limpar() {
-        Notifications.getNotificationChannelsAsync().then(value => {
-            value.map(async (item, i) => {
-                //console.log("CANAL", i, item.id);
-                await Notifications.deleteNotificationChannelAsync(item.id);
-            });
-
-            if (value.length == 0) {
-                console.log('VAZIO');
-            } else {
-                console.log('LIMPO');
-            }
-        });
-    }
-    function mostrar() {
-        Notifications.getNotificationChannelsAsync().then(value => {
-            value.map(async (item, i) => {
-                console.log("CANAL", i, item);
-                Alert.alert("CANAL", i.toString() + " " + JSON.stringify(item));
-            })
-            if (value.length == 0) {
-                console.log('VAZIO');
-            }
-        });
-    }
-    async function criar() {
-        await Notifications.setNotificationChannelGroupAsync('chat_mensagens_group', {
-            name: 'Mensagens de Chat',
-        });
-        await Notifications.setNotificationChannelGroupAsync('interessados_group', {
-            name: 'Grupo de Interessados',
-        });
-
-        await Notifications.setNotificationChannelAsync('interessados', {
-            name: 'Interessados',
-            description: 'Canal para os interessados em adotar',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-            groupId: 'interessados_group',
-            enableLights: true,
-            enableVibrate: true,
-            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-            showBadge: true,
-            sound: "default",
-        });
-
-        await Notifications.setNotificationChannelAsync('mensagens', {
-            name: "Mensagens",
-            description: 'Canal de mensagens',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-            groupId: 'chat_mensagens_group',
-            enableLights: true,
-            enableVibrate: true,
-            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-            showBadge: true,
-            sound: "default",
-        });
-    }
-    async function notifica() {
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: 'Notificação local',
-                body: 'Teste de notifcação local',
-                data: {},
-            },
-
-            trigger: {
-                seconds: 1,
-                channelId: 'mensagens',
-            }
-        });
-    }
-
-    async function limparNotifications(canal: string, idChat?: string) {
-
-        const presentedNotifications = await Notifications.getPresentedNotificationsAsync();
-
-        const chave = 'Lucas curtiu seu pet! 🐾';
-
-        if (canal == 'mensagens') {
-            presentedNotifications.map( async (notifi) => {
-                if (notifi.request.trigger) {
-                    console.log('LIDAR NORMALMENTE', notifi.request.content.title);
-                } else {
-                    console.log('NOTIFICAÇÃO BICHADA', notifi.request.content.title);
-                    const titulo = notifi.request.content.title;
-                    if (titulo) {
-                        if (titulo == chave) {
-                            await Notifications.dismissNotificationAsync(notifi.request.identifier);
-                        }
-                    }
-                    
+                    });
                 }
-                
+            })
+            .catch((error: any) => {
+                console.error("Erro:" + error);
             });
-        }
-        else if (canal == 'interessados') {
-
-        } else {
-            console.log('Canal não tratado:', canal);
-        }
         
+        return sucesso;
+    }
+
+    async function salvarAlteracoes() {
+        setEsperando(true);
+        
+        if (notificationChatInteressados.length > 0 && (!statusExpoToken.statusExpoTokenRemoto || !statusExpoToken.statusInstalation)) {
+            await ativarNotificationChatInteressados();
+            setTextoModal('Alterações salvas!');
+        }
+        else if (notificationChatInteressados.length <= 0 && (statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation)) {
+            await desativarNotificationChatInteressados();
+            setTextoModal('Alterações salvas!');
+        } else {
+            setTextoModal('Alterações já foram salvas!');
+            //console.log('Operações já foram salvas');
+        }
+
+        setEsperando(false);
+
+        setModal(true);
+
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Configurações</Text>
+        <>
+            <View style={styles.container} key={reRenderizar}>
 
-            {/* Notificações Switch */}
-            <View style={styles.switchContainer}>
-                <Text style={styles.label}>Notificações:</Text>
-                <Switch
-                    onValueChange={toggleSwitch}
-                    value={notificacoesAtivadas}
-                    thumbColor={notificacoesAtivadas ? "#4CAF50" : "#f4f3f4"}
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
+                <Text style={{ fontSize: 16, marginTop: 20, color: '#434343', marginBottom: 16, marginLeft: 24 }}>NOTIFICAÇÕES</Text>
+
+                <BotaoMarcavelQuadrado
+                    vetor_opcoes={['Ativar notificações de chat e interessados']}
+                    setEstadoDoPai={setNotificationChatInteressados}
+                    width={262}
+                    marginLeft={24}
+                    marginBottom={24}
+                    estadoInicial={statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation}
                 />
+
+
+                <View style={styles.middleView}>
+                    <Text style={styles.middleText}>
+                        Com as notificações de chat e interessados ativadas, você
+                        sempre receberá um aviso em seu celular quando
+                        alguém entrar em contato ou curtir um pet através do aplicativo.
+
+                    </Text>
+                </View>
+
+
+                <TouchableOpacity activeOpacity={0.5} style={{ alignSelf: 'center' }}>
+
+                </TouchableOpacity>
+
             </View>
 
-            <TouchableOpacity onPress={limpar} ><Text>Limpar canais</Text></TouchableOpacity>
-            <TouchableOpacity onPress={mostrar} ><Text>Mostrar canais</Text></TouchableOpacity>
-            <TouchableOpacity onPress={criar} ><Text>Criar canais</Text></TouchableOpacity>
-            <TouchableOpacity onPress={notifica} ><Text>Notifica local</Text></TouchableOpacity>
-            <TouchableOpacity onPress={e => limparNotifications('mensagens', 'chat-phOmMymk5dMI30bcqOTiWair5k32-vU8i0ZvI2rXgz6I8F1K1Q8o6dI12-zfA1j6RCGg5caf7yRtn6')} ><Text>Notificações da barra</Text></TouchableOpacity>
-            {/* Botão de Enviar Notificação */}
-            {/* <SendNotifications token ={expoPushToken} /> */}
-        </View>
+            <View style={{
+                backgroundColor: '#fafafa',
+                width: '100%',
+                alignItems: 'center'
+            }}>
+                <TouchableOpacity onPress={() => salvarAlteracoes()}>
+                    <BotaoUsual texto='SALVAR ALTERAÇÕES' cor='#bdbdbd' largura={232} altura={40} marginBottom={24} />
+                </TouchableOpacity>
+
+            </View>
+
+            <Modal visible={modal} animationType='fade' transparent={true}>
+                <ModalSucesso setModal={setModal} texto={textoModal}/>
+            </Modal>
+
+            <Modal visible={esperando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+            </Modal>
+
+        </>
     );
 }
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        alignItems: 'flex-start',
+        backgroundColor: '#fafafa',
     },
     title: {
         fontSize: 24,
@@ -216,5 +185,16 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 18,
         marginRight: 10,
-    }
+    },
+    middleView: {
+        width: '85%',
+        marginTop: 40,
+        marginLeft: 24,
+    },
+    middleText: {
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        color: '#757575',
+        textAlign: 'left',
+    },
 });

@@ -7,68 +7,88 @@ interface BotaoMarcavelRedondoProps {
     width?: number;
     marginBottom?: number;
     marginLeft?: number;
+    fontSize?: number;
+    color?: string;
+    sizeRadio?: number;
+    radioBackgroundColor?: string;
+    justifyContent?: boolean;
+    estadoInicial?: boolean;
 }
 
 interface nomesBotao {
   [key: string]: Boolean;
 }
 
-export default function BotaoMarcavelRedondo({ vetor_opcoes, setEstadoDoPai, width = 115, marginBottom = 28, marginLeft = 0 } : BotaoMarcavelRedondoProps) {
+export default function BotaoMarcavelQuadrado({
+        vetor_opcoes,
+        setEstadoDoPai,
+        width = 115,
+        marginBottom = 28,
+        marginLeft = 0,
+        fontSize = 14,
+        color = '#757575',
+        sizeRadio = 24,
+        radioBackgroundColor = '#ffd358',
+        justifyContent = false,
+        estadoInicial = false,
 
-    const [mapaDeNomes, setMapaDeNomes] = useState<nomesBotao>(() => {
+    } : BotaoMarcavelRedondoProps) {
 
-        const initialState: nomesBotao = {};
-        vetor_opcoes.forEach( chave => {
-            initialState[chave] = false;
+        const [mapaDeNomes, setMapaDeNomes] = useState<nomesBotao>(() => {
+
+            const initialState: nomesBotao = {};
+            vetor_opcoes.forEach( chave => {        
+                initialState[chave] = estadoInicial;
+            });
+
+            return initialState;
         });
 
-        return initialState;
-    });
+        //console.log(mapaDeNomes);
 
-    // console.log(mapaDeNomes);
+        const marcar = (opcao : string) => {
 
-    const marcar = (opcao : string) => {
+            setMapaDeNomes(botoes => ({
+                ...botoes,
+                [opcao]: !botoes[opcao]
+            }));
 
-        setMapaDeNomes(botoes => ({
-            ...botoes,
-            [opcao]: !botoes[opcao]
-        }));
-
-        setEstadoDoPai(nome => {
-            
-            if (nome.includes(opcao)) {
-                //console.log('existe');
-                return nome.filter(item => item !== opcao);
-
-            } else {
-                //console.log('insere');
-                return [...nome, opcao];
-
-            }
-        });
-
-    };
-
-
-    return (
-
-        <>
-            {vetor_opcoes.map( opcao => (
+            setEstadoDoPai(nome => {
                 
-                <View key={opcao} style={[styles.container, {width: width, marginBottom: marginBottom, marginLeft: marginLeft} ]}>
+                if (nome.includes(opcao)) {
+                    //console.log('existe');
+                    return nome.filter(item => item !== opcao);
 
-                    <TouchableOpacity style={styles.radioButton} onPress={() => marcar(opcao)}>
+                } else {
+                    //console.log('insere');
+                    return [...nome, opcao];
 
-                        { mapaDeNomes[opcao] && <View style={styles.marcado} />}
+                }
+            });
 
-                    </TouchableOpacity>
+        };
 
-                    <Text style={styles.opcao} >{opcao}</Text>
 
-                </View>
-            ) )}
-        </>
-    );
+
+        return (
+
+            <>
+                {vetor_opcoes.map( opcao => (
+                    
+                    <View key={opcao} style={[styles.container, { width: width, marginBottom: marginBottom, marginLeft: marginLeft, justifyContent: justifyContent ? 'center' : 'flex-start' } ]}>
+
+                        <TouchableOpacity style={[styles.radioButton, {width: sizeRadio, height: sizeRadio, borderColor: color}]} onPress={() => marcar(opcao)}>
+
+                            { mapaDeNomes[opcao] && <View style={[styles.marcado, {width: (sizeRadio - (sizeRadio * 0.417)), height: (sizeRadio - (sizeRadio * 0.417)), backgroundColor: radioBackgroundColor }]} />}
+
+                        </TouchableOpacity>
+
+                        <Text style={[styles.opcao, {fontSize: fontSize, color: color}]} >{opcao}</Text>
+
+                    </View>
+                ) )}
+            </>
+        );
 
     
 }
@@ -77,29 +97,20 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        //borderWidth: 1,
     },
     opcao: {
         fontFamily: 'Roboto',
         fontSize: 14,
-        color: '#757575',
     },
     radioButton: {
-        width: 24,
-        height: 24,
         borderWidth: 2.5,
         borderRadius: 4,
         alignItems: 'center',
         justifyContent: 'center',
-        borderColor: '#757575',
         marginRight: 5,
     },
 
     marcado : {
-        width: 14,
-        height: 14,
-        backgroundColor: '#ffd358',
         borderRadius: 4,
-        
     }
 });

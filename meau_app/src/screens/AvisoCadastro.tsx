@@ -1,7 +1,6 @@
 import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
-import {fonteCarregada} from "../utils/UtilsFonts";
 import { useNavigation } from "@react-navigation/native";
 import { StackRoutesParametros } from '../utils/UtilsType';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -37,15 +36,10 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
             
             <View style={styles.container}>
 
-                {fonteCarregada ? (
+
                     <Text style={ [styles.welcomeText, {fontFamily: 'Courgette-Regular'}]}>
                         Ops!
                     </Text>
-                ) : (
-                    <Text style={ [styles.welcomeText]}>
-                        Ops!
-                    </Text>
-                )}
 
                 <View style={styles.middleView}>
                     <Text style={styles.middleText}>

@@ -13,5 +13,6 @@ const rotaAtiva = (estadoNavegacao: NavigationState): string => {
 
 export const useNomeRotaAtiva = (): string => {
     const estadoNavegacao = useNavigationState(state => state);
+    //console.log(estadoNavegacao)
     return rotaAtiva(estadoNavegacao);
 };

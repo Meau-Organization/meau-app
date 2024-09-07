@@ -38,6 +38,7 @@ export interface StatusToken {
     statusExpoTokenRemoto: boolean;
     statusInstalation: boolean;
     permissaoNotifcations: string;
+    userNegou: boolean;
 }
 
 export type NotificationAppEncerrado = {

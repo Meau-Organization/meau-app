@@ -19,3 +19,16 @@ export async function salvarRotaAtiva(nomeRotaAtiva: string) {
         console.error('Erro ao salvar o nome da rota:', error);
     }
 };
+
+export async function processarRota(nomeRotaAtiva : string) {
+    const nomeRotaArmazenada = await AsyncStorage.getItem('@rotaAtiva');
+    if (nomeRotaArmazenada) {
+        const [preFixoRotaAtiva, _] = nomeRotaArmazenada.split(':');
+        // console.log('Pre-fixo ROTA:', preFixoRotaAtiva);
+        if (nomeRotaAtiva != preFixoRotaAtiva) {
+            await salvarRotaAtiva(nomeRotaAtiva);
+        }
+    } else {
+        await salvarRotaAtiva(nomeRotaAtiva);
+    }
+};

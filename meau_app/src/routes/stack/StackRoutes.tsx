@@ -6,50 +6,56 @@ import DrawerRoutes from '../drawer/DrawerRoutes';
 import ChatScreen from '../../screens/ChatScreen';
 import Interessados from '../../screens/Interessados';
 import AvisoCadastro from '../../screens/AvisoCadastro';
-import { salvarRotaAtiva } from '../../utils/UtilsGeral';
+import { processarRota, salvarRotaAtiva } from '../../utils/UtilsGeral';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
-import { StackRoutesParametros } from '../../utils/UtilsType';
+import { InteressadoData, MeauData, MensagemData, StackRoutesParametros } from '../../utils/UtilsType';
 import AvisoNotification from '../../screens/AvisoNotification';
 import { useNomeRotaAtiva } from '../../hooks/useNomeRotaAtiva';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import SucessoCadastroAnimal from '../../screens/SucessoCadastroAnimal';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
+import { useNavigation } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
+import { extrairAtributoNotificationJson, limparNotifications, listenerNotificationClick, listenerNotificationGlobal, registrarDispositivoAutomaticamente } from '../../utils/UtilsNotification';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
 
 export default function StackRoutes() {
 
-    const { user, statusExpoToken, notificationAppEncerrado } = useAutenticacaoUser();
-    const nomeRotaAtiva = useNomeRotaAtiva();
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros>>();
+
+    const { user, dadosUser, statusExpoToken, setStatusExpoToken, notificationAppEncerrado } = useAutenticacaoUser();
+    
+    let nomeRotaAtiva = useNomeRotaAtiva();
+
+    const telaInicial =
+        statusExpoToken.permissaoNotifcations !== 'granted' && !statusExpoToken.userNegou ? "AvisoNotification" : notificationAppEncerrado ? notificationAppEncerrado.tela : "DrawerRoutes";
 
     useEffect(() => {
+        if (nomeRotaAtiva == 'Desconhecido') {
+            nomeRotaAtiva = telaInicial;
+        }
         console.log('StackRoutes - Rota Ativa:', nomeRotaAtiva);
 
-        async function processarRota() {
-            const nomeRotaArmazenada = await AsyncStorage.getItem('@rotaAtiva');
-            if (nomeRotaArmazenada) {
-                const [preFixoRotaAtiva, _] = nomeRotaArmazenada.split(':');
-                //console.log('Pre-fixo ROTA:', preFixoRotaAtiva);
-                if (nomeRotaAtiva != preFixoRotaAtiva) {
-                    await salvarRotaAtiva(nomeRotaAtiva);
-                }
-            } else {
-                await salvarRotaAtiva(nomeRotaAtiva);
-            }
-
-        };
-        processarRota();
+        processarRota(nomeRotaAtiva);
 
     }, [nomeRotaAtiva]);
 
-    //console.log('--------------------> ', statusExpoToken, notificationAppEncerrado);
+    useEffect(() => {
 
-    const telaInicial =
-        statusExpoToken.permissaoNotifcations !== 'granted' ? "AvisoNotification" : notificationAppEncerrado ? notificationAppEncerrado.tela : "DrawerRoutes";
+        registrarDispositivoAutomaticamente(user, dadosUser, nomeRotaAtiva, statusExpoToken, setStatusExpoToken);
+
+        listenerNotificationGlobal();
+
+        listenerNotificationClick(user, navigation);
+
+    }, []);
+
+    //console.log('--------------------> ', statusExpoToken, notificationAppEncerrado);
 
     return (
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
@@ -80,7 +86,7 @@ export default function StackRoutes() {
                 }}
             />
 
-            <Stack.Screen name="Config" component={Config} />
+            <Stack.Screen name="Config" component={Config}/>
 
             <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{ topbar: true }} />
 
