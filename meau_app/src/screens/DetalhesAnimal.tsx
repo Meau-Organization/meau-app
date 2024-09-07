@@ -1,14 +1,15 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal } from "react-native";
 
 import { useCallback, useState } from "react";
-import { db, doc, getDoc } from "../configs/firebaseConfig";
+import { db, doc, getDoc } from "../configs/FirebaseConfig";
 import ModalLoanding from "../components/ModalLoanding";
 
 import BotaoUsual from "../components/BotaoUsual";
 import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/UtilsType";
 
 interface DetalhesAnimalProps {
     route: {

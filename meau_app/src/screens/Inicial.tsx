@@ -1,29 +1,22 @@
 
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-
-import Constants from 'expo-constants';
 import * as Font from 'expo-font';
-
+import Constants from 'expo-constants';
+import BotaoUsual from '../components/BotaoUsual';
 import { useEffect, useRef, useState } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+import { auth, onAuthStateChanged, signOut } from '../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { InteressadoData, MeauData, MensagemData, StackRoutesParametros } from '../utils/UtilsType';
+import { desativarToken, extrairAtributoNotificationJson, limparNotifications, registrarDispositivo } from '../utils/UtilsNotification';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
-import * as Notifications from 'expo-notifications';
 
-import { auth, onAuthStateChanged, signOut } from '../configs/firebaseConfig';
-import BotaoUsual from '../components/BotaoUsual';
-import { limparNotifications, registrarDispositivo, Trigger } from '../utils/Utils';
+export default function Inicial() {
 
-type InicialProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>;
-};
-
-
-
-export default function Inicial({ navigation }: InicialProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>>();
 
     const notificationResponseRef = useRef<any>();
     const [fonteCarregada, setFonteCarregada] = useState(false);
@@ -52,47 +45,74 @@ export default function Inicial({ navigation }: InicialProps) {
 
         //console.log("rotas na pilha " + navigation.getState().routeNames);
 
-        notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener(notification => {
+        notificationResponseRef.current = Notifications.addNotificationResponseReceivedListener( async (notification) => {
 
-            const canalOrigem = (notification.notification.request.trigger as Trigger).channelId;
+            const meauData : MeauData = await extrairAtributoNotificationJson("meau_data", notification);
 
-            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 --------------', notification.notification);
-            //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 --------------', canalOrigem);
+            if (meauData) {
 
-            if (canalOrigem == 'mensagens') {
-                const idChat = notification.notification.request.content.data.idChat;
-                const titulo = notification.notification.request.content.title;
-                console.log("contato: ", titulo);
-                console.log("Data Mensagem: ", idChat);
+                const canalOrigem = meauData.channelId;
 
-                const partes = titulo.split('▪️');
-                const primeiroNome = partes[0];
-                const segundoNome = partes[1].split(' ').pop();
+                //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER1 --------------', notification.notification);
+                //console.log('ADDNOTIFICATIONRESPONSERECEIVEDLISTENER2 --------------', canalOrigem);
 
-                limparNotifications(canalOrigem, idChat, titulo, false);
+                if (canalOrigem == 'mensagens') {
+                    const idChat = (meauData.data as MensagemData).idChat;
+                    const titulo = meauData.title;
+                    console.log("contato: ", titulo);
+                    console.log("Data Mensagem: ", idChat);
 
-                navigation.navigate('ChatScreen', {
-                    idChat: idChat,
-                    nomeTopBar: primeiroNome + ' | ' + segundoNome,
-                });
+                    const partes = titulo.split('▪️');
+                    const primeiroNome = partes[0];
+                    const segundoNome = partes[1].split(' ').pop();
 
-            }
-            else if (canalOrigem == 'interessados') {
-                const corpo = notification.notification.request.content.body;
-                const nomeAnimal = notification.notification.request.content.data.nomeAnimal;
-                const idAnimal = notification.notification.request.content.data.idAnimal;
-                console.log("corpo: ", corpo);
-                console.log("nomeAnimal: ", nomeAnimal);
-                console.log("idAnimal: ", idAnimal);
+                    limparNotifications(canalOrigem, idChat, titulo);
 
-                limparNotifications(canalOrigem, idAnimal, corpo, false);
+                    if (user) {
+                        const [_, idDono, idInteressado, __] = idChat.split('-');
+                        
+                        if (user.uid == idDono || user.uid == idInteressado) {
+                            navigation.navigate('ChatScreen', {
+                                idChat: idChat,
+                                nomeTopBar: primeiroNome + ' | ' + segundoNome,
+                            });
+                        }
 
-                navigation.navigate('Interessados', {
-                    animal_id: idAnimal,
-                    nome_animal: nomeAnimal
-                });
-            } else {
-                console.log("canalOrigem: ", canalOrigem);
+                    } else {
+                        navigation.navigate('Login');
+                    }
+
+                }
+                else if (canalOrigem == 'interessados') {
+                    const corpo = meauData.body;
+                    const nomeAnimal = (meauData.data as InteressadoData).nomeAnimal;
+                    const idDono = (meauData.data as InteressadoData).idDono;
+                    const idInteressado = (meauData.data as InteressadoData).idIteressado;
+                    const idAnimal = (meauData.data as InteressadoData).idAnimal;
+                    console.log("corpo: ", corpo);
+                    console.log("nomeAnimal: ", nomeAnimal);
+                    console.log("idAnimal: ", idAnimal);
+
+                    limparNotifications(canalOrigem, idAnimal, corpo);
+
+                    if (user) {
+                        if (user.uid == idDono || user.uid == idInteressado) {
+                            navigation.navigate('Interessados', {
+                                id_dono: idDono,
+                                id_interessado: idInteressado,
+                                animal_id: idAnimal,
+                                nome_animal: nomeAnimal
+                            });
+                        }
+
+                    } else {
+                        navigation.navigate('Login');
+                    }
+
+                } else {
+                    console.log("canalOrigem: ", canalOrigem);
+                }
+            
             }
 
         });
@@ -118,7 +138,9 @@ export default function Inicial({ navigation }: InicialProps) {
         }) */
     };
 
-    const logout = () => {
+    async function logout() {
+
+        await desativarToken(user.uid);
 
         signOut(auth)
             .then(() => {

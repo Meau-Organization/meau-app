@@ -1,22 +1,19 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useState, useCallback } from "react";
-
 import { View, Modal } from 'react-native';
 import { TopBar } from "../components/TopBar";
-import { GiftedChat, IMessage } from "react-native-gifted-chat";
-
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-
+import { useState, useCallback } from "react";
+import { comprimirImagem } from "../utils/UtilsImage";
+import { salvarRotaAtiva } from "../utils/UtilsGeral";
 import ModalLoanding from "../components/ModalLoanding";
-
-
-import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, getDoc, where, addDoc, DocumentReference, DocumentData } from "../configs/firebaseConfig";
-import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/GiftedChatEstilos";
-import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-import { buscarDadosAnimalBasico, buscarDadosUsuarioExterno, comprimirImagem, limparNotifications, returnArrayTokens, salvarRotaAtiva, sendNotifications } from "../utils/Utils";
-
+import { StackRoutesParametros } from "../utils/UtilsType";
 import { useNomeRotaAtiva } from "../hooks/useNomeRotaAtiva";
+import { GiftedChat, IMessage } from "react-native-gifted-chat";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { buscarDadosAnimalBasico, buscarDadosUsuarioExterno } from "../utils/UtilsDB";
+import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/UtilsGiftedChat";
+import { limparNotifications, returnArrayTokens, sendNotifications } from "../utils/UtilsNotification";
+import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, getDoc } from "../configs/FirebaseConfig";
 
 interface ChatScreenProps {
     route: {
@@ -33,6 +30,9 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
     const { user, dadosUser } = useAutenticacaoUser();
 
+    const { idChat, nomeTopBar } = route.params;
+    const [_, idDono, idInteressado, idAnimal] = idChat ? idChat.split('-') : '';
+
     const [mensagens, setMensagens] = useState<IMessage[]>([]);
     const [esperando, setEsperando] = useState(false);
     const [criarChat, setCriarChat] = useState<boolean>();
@@ -44,49 +44,56 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const [dadosInteressadoState, setDadosInteressadoState] = useState(null);
     const [dadosChatState, setDadosChatState] = useState(null);
 
-
-    const { idChat, nomeTopBar } = route.params;
-    const [_, idDono, idInteressado, idAnimal] = idChat.split('-');
+    const nomeRotaAtiva = useNomeRotaAtiva();
 
     //console.log(idChat);
     //console.log('Chat deve ser criado:', criarChat);
 
-    const nomeRotaAtiva = useNomeRotaAtiva();
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     useFocusEffect(
         useCallback(() => {
 
-            setEsperando(true);
+            if (user.uid == idDono || user.uid == idInteressado) {
 
-            limparNotifications('mensagens', idChat, '', false);
+                setEsperando(true);
 
-            let unsubscribe; 
+                limparNotifications('mensagens', idChat, '');
 
-            async function atualizarChat() {
+                let unsubscribe;
 
-                const rotaComposta = nomeRotaAtiva + ':' + idChat;
-                await salvarRotaAtiva(rotaComposta);
-                console.log('rotaComposta:', rotaComposta)
+                async function atualizarChat() {
 
-                const dadosChat = await buscarDadosChat();
-                if (dadosChat) {                                                                    // Se o chat já existe, utilize os dados do CHAT
-                    unsubscribe = buscarMensagens(dadosChat.nomeDono, dadosChat.nomeInteressado);
+                    const rotaComposta = nomeRotaAtiva + ':' + idChat;
+                    await salvarRotaAtiva(rotaComposta);
+                    console.log('rotaComposta:', rotaComposta)
 
-                } else {                                                                            // Se não, busque os dados dos usuarios para criar o CHAT
-                    const dadosGeraisImediatos = await buscarDadosGerais();
-                    unsubscribe = buscarMensagens(dadosGeraisImediatos.dadosDono.nome,
-                        dadosGeraisImediatos.dadosInteressado.nome);
+                    const dadosChat = await buscarDadosChat();
+                    if (dadosChat) {                                                                    // Se o chat já existe, utilize os dados do CHAT
+                        unsubscribe = buscarMensagens(dadosChat.nomeDono, dadosChat.nomeInteressado);
+
+                    } else {                                                                            // Se não, busque os dados dos usuarios para criar o CHAT
+                        const dadosGeraisImediatos = await buscarDadosGerais();
+                        unsubscribe = buscarMensagens(dadosGeraisImediatos.dadosDono.nome,
+                            dadosGeraisImediatos.dadosInteressado.nome);
+                    }
                 }
+                atualizarChat();
+
+
+
+                return () => {
+                    if (unsubscribe) {
+                        unsubscribe();
+                        console.log('.......................... Desmontou listeners ChatSreen');
+                    }
+                };
+                
+            } else {
+                navigation.navigate("DrawerRoutes");
             }
-            atualizarChat();
 
-            return () => {
-                if (unsubscribe) {
-                    unsubscribe();
-                    console.log('.......................... Desmontou listeners ChatSreen');
-                }
-            };
         }, [idChat])
     );
 
@@ -117,7 +124,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const createChat = async (msg: string) => {
         console.log('createChat');
         const data = Date.now();
-        
+
         try {
 
             const idMensagem = Math.floor(Date.now() * Math.random()).toString(36);
@@ -158,8 +165,8 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             const subDonoAnimalRef = doc(db, 'Users', idDono, 'UserChats', idChat);
             const subInteressadoRef = doc(db, 'Users', idInteressado, 'UserChats', idChat);
 
-            await setDoc(subDonoAnimalRef, {idChat: idChat, data: data} );
-            await setDoc(subInteressadoRef, {idChat: idChat, data: data} );
+            await setDoc(subDonoAnimalRef, { idChat: idChat, data: data });
+            await setDoc(subInteressadoRef, { idChat: idChat, data: data });
 
             notificar(msg, dadosAnimalState.nomeAnimal);
 
@@ -176,7 +183,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     const enviarMensagem = async (msg: string) => {
         console.log('enviarMensagem');
-        
+
         const data = Date.now();
         console.log('dadosChatState', dadosChatState.nomeDono);
         try {
@@ -217,7 +224,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             });
 
             notificar(msg, dadosChatState.nomeAnimal);
-            
+
 
             console.log('enviou');
         } catch (error) {
@@ -263,7 +270,7 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
                     novasMensagens.push(formatoIMessage);
                 });
-                
+
                 setMensagens(novasMensagens.reverse());
 
                 setEsperando(false);
@@ -297,11 +304,11 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function buscarDadosGerais() {
-        
+
         const dadosAnimal = await buscarDadosAnimalBasico(idAnimal);
         setDadosAnimalState(dadosAnimal);
 
-        
+
         let dadosDono: any;
         try {
             dadosDono = await new Promise(async (resolve) => {
@@ -358,11 +365,11 @@ export default function ChatScreen({ route }: ChatScreenProps) {
             //console.log('não existe');
             return null;
         }
-        
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    async function notificar(msg : string, nomeAnimal: string) {
+    async function notificar(msg: string, nomeAnimal: string) {
         const title = dadosUser.nome + '▪️' + 'Sobre o ' + nomeAnimal;
         const body = msg;
         if (expoTokensArray) {
@@ -375,43 +382,48 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 console.log('Usuario não permitiu notificações...');
             }
         }
-        
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    return (
-        <>
-            <TopBar
-                nome={nomeTopBar}
-                icone='voltar'
-                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
-                cor='#88c9bf'
-            />
-            {!esperando ?
-                <View style={{ flex: 1, backgroundColor: '#fafafa' }}>
 
-                    <GiftedChat
-                        messages={mensagens}
-                        onSend={acoesChat}
-                        renderMessage={renderMsg}
-                        user={{
-                            _id: user.uid,
-                            name: dadosUser.nome
-                        }}
-                        timeFormat="HH:mm"
-                        placeholder="Digite sua mensagem aqui..."
-                        renderSend={renderSend}
-                        renderBubble={renderBalaoMsg(user.uid)}
-                        renderDay={renderDay}
-                        alwaysShowSend={true}
-                        renderAvatar={null}
-                    />
-                </View>
-                :
-                <Modal visible={esperando} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
-                </Modal>
-            }
-        </>
-    );
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if (user.uid == idDono || user.uid == idInteressado) {
+
+        return (
+            <>
+                <TopBar
+                    nome={nomeTopBar}
+                    icone='voltar'
+                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    cor='#88c9bf'
+                />
+                {!esperando ?
+                    <View style={{ flex: 1, backgroundColor: '#fafafa' }}>
+
+                        <GiftedChat
+                            messages={mensagens}
+                            onSend={acoesChat}
+                            renderMessage={renderMsg}
+                            user={{
+                                _id: user.uid,
+                                name: dadosUser.nome
+                            }}
+                            timeFormat="HH:mm"
+                            placeholder="Digite sua mensagem aqui..."
+                            renderSend={renderSend}
+                            renderBubble={renderBalaoMsg(user.uid)}
+                            renderDay={renderDay}
+                            alwaysShowSend={true}
+                            renderAvatar={null}
+                        />
+                    </View>
+                    :
+                    <Modal visible={esperando} animationType='fade' transparent={true}>
+                        <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+                    </Modal>
+                }
+            </>
+        );
+
+    }
+
 }

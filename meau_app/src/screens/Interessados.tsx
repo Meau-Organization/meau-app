@@ -2,13 +2,19 @@ import { Text, View, ScrollView, StyleSheet } from "react-native";
 
 import { TopBar } from "../components/TopBar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-import { useNavigation } from "@react-navigation/native";
+
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { useCallback } from "react";
+
 interface InteressadosProps {
     route: {
         params: {
             animal_id: string;
             nome_animal: string;
+            id_dono: string;
+            id_interessado: string;
         };
     };
 }
@@ -17,28 +23,46 @@ interface InteressadosProps {
 
 export default function Interessados({ route }: InteressadosProps) {
 
+    const { user } = useAutenticacaoUser();
+
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Interessados'>>();
 
-    return (
-        <>
-            <TopBar
-                nome={route.params.nome_animal}
-                icone='voltar'
-                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
-                cor='#fee29b'
-            />
+    useFocusEffect(
+        useCallback(() => {
 
-            <ScrollView style={{ backgroundColor: '#fafafa' }}>
-                <View style={styles.container}>
-                    <Text>INTERESSADOS: {route.params.nome_animal} (ID: {route.params.animal_id})</Text>
-                </View>
-            </ScrollView>
+            if (user.uid == route.params.id_dono || user.uid == route.params.id_interessado) {
+                // Execute as operações
+                
+            } else {
+                navigation.navigate("DrawerRoutes");
+            }
+
+        }, [])
+    );
+
+    if (user.uid == route.params.id_dono || user.uid == route.params.id_interessado) {
+
+        return (
+            <>
+                <TopBar
+                    nome={route.params.nome_animal}
+                    icone='voltar'
+                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    cor='#fee29b'
+                />
+
+                <ScrollView style={{ backgroundColor: '#fafafa' }}>
+                    <View style={styles.container}>
+                        <Text>INTERESSADOS: NOME_ANIMAL: {route.params.nome_animal} || ID_ANIMAL: {route.params.animal_id} || ID_DONO: {route.params.id_dono}
+                            || ID_INTERESSADO: {route.params.id_interessado}
+                        </Text>
+                    </View>
+                </ScrollView>
 
 
-        </>
-    )
-
-
+            </>
+        )
+    }
 
 }
 

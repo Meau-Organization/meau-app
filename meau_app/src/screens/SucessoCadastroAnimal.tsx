@@ -1,17 +1,14 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
-
+import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
-
-import Constants from 'expo-constants';
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 
-export default function CadastroAnimal(){
+export default function SucessoCadastroAnimal(){
 
-
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "CadastroAnimal">>();
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "SucessoCadastroAnimal">>();
 
     return(
 
@@ -81,5 +78,3 @@ const styles = StyleSheet.create({
     
 
 })
-
-export{CadastroAnimal};

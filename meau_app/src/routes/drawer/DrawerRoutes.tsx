@@ -1,30 +1,23 @@
-import React, { useState } from 'react';
-
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer'
-
-import { Ionicons , AntDesign} from '@expo/vector-icons';
-
-import { View, StatusBar, Text, Image, StyleSheet, ImageBackground} from 'react-native';
-import Collapsible from 'react-native-collapsible';
-
-import Inicial from '../../screens/Inicial';
-import { TopBar } from '../../components/TopBar';
-
-import { NavigationState, useNavigationState } from '@react-navigation/native';
-import MeusPets from '../../screens/MeusPets';
-import MeuPerfil from '../../screens/MeuPerfil';
+import { useState } from 'react';
 import Adotar from '../../screens/Adotar';
-import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
-import Conversas from '../../screens/Conversas';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Config from '../../screens/Config';
+import Inicial from '../../screens/Inicial';
+import { Ionicons} from '@expo/vector-icons';
+import MeusPets from '../../screens/MeusPets';
+import Conversas from '../../screens/Conversas';
+import MeuPerfil from '../../screens/MeuPerfil';
+import Collapsible from 'react-native-collapsible';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text, StyleSheet, ImageBackground} from 'react-native';
+import { NavigationState, useNavigationState } from '@react-navigation/native';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer'
 
 const Drawer = createDrawerNavigator();
 
 interface estilosHeaderMap {
     [key: string]: string;
 }
-
 
 function CustomDrawerContent(props) {
     const { user, dadosUser } = useAutenticacaoUser();

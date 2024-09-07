@@ -1,14 +1,13 @@
 
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import Login from "../../screens/Login";
-import CadastroPessoal from "../../screens/forms/users/CadastroPessoal";
-import AvisoCadastro from "../../screens/AvisoCadastro";
-import DrawerRoutes from '../drawer/DrawerRoutes';
 import Inicial from "../../screens/Inicial";
-import { StackRoutesParametros } from "../../utils/StackRoutesParametros";
-import { useNavigationState , NavigationState} from '@react-navigation/native';
+import DrawerRoutes from '../drawer/DrawerRoutes';
+import AvisoCadastro from "../../screens/AvisoCadastro";
+import { StackRoutesParametros } from "../../utils/UtilsType";
 import DetalhesAnimalAdocao from "../../screens/DetalhesAnimalAdocao";
+import CadastroPessoal from "../../screens/forms/users/CadastroPessoal";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useNavigationState , NavigationState} from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
 
@@ -50,6 +49,4 @@ export default function AuthStack() {
         </Stack.Navigator>
 
     )
-
-
 }

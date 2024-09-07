@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { db, collection, addDoc } from './src/configs/firebaseConfig';
+import { db, collection, addDoc } from './src/configs/FirebaseConfig';
 
 import { Image } from 'react-native';
 

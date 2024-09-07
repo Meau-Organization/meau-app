@@ -1,13 +1,10 @@
 
-import { Modal, View , Button, StyleSheet, Alert } from 'react-native'; 
-import * as ImagePicker from 'expo-image-picker';
-
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-
 import * as FileSystem from 'expo-file-system'
+import * as ImagePicker from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { Modal, View , Button, StyleSheet, Alert } from 'react-native';
 
 export default function OpenImagePicker({ onImagePicked, onClose }) {
-
 
     const openImagePickerAsync = async (fromCamera) => {
         let permissionResult;
@@ -147,7 +144,7 @@ export default function OpenImagePicker({ onImagePicked, onClose }) {
             
 
         } else {
-            console.log("User canceled image picker")
+            console.log("User canceled image picker");
         }
         
         onClose();
@@ -171,10 +168,6 @@ export default function OpenImagePicker({ onImagePicked, onClose }) {
         </Modal>
         </>
     );
-
-
-
-
 };
 
 const styles = StyleSheet.create({

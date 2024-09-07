@@ -1,14 +1,11 @@
-import { Modal, ScrollView, StyleSheet, View } from "react-native";
 import Constants from 'expo-constants';
-
-import { db, collection, query, where, getDocs, doc, updateDoc } from '../configs/firebaseConfig';
 import { useCallback, useState } from "react";
+import CardAnimal from "../components/CardAnimal";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
-
-import CardAnimal from "../components/CardAnimal";
+import { Modal, ScrollView, StyleSheet, View } from "react-native";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-
+import { db, collection, query, where, getDocs, doc, updateDoc } from '../configs/FirebaseConfig';
 
 export default function MeusPets() {
 
@@ -99,6 +96,7 @@ export default function MeusPets() {
                                 meusPets={true}
                                 disponivel={animal.disponivel}
                                 updateEstadoAnimal={updateEstadoAnimal}
+                                usuarioId={animal.usuario_id}
                             />
 
                         </View>

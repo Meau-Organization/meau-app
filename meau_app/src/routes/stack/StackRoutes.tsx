@@ -1,30 +1,25 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { useEffect } from 'react';
 import Login from '../../screens/Login';
-import Inicial from '../../screens/Inicial';
-import AvisoCadastro from '../../screens/AvisoCadastro';
-import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
-import CadastroAnimal from '../../screens/CadastroAnimal';
-import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
-
-import { StackRoutesParametros } from '../../utils/StackRoutesParametros';
-import DrawerRoutes from '../drawer/DrawerRoutes';
-import DetalhesAnimal from '../../screens/DetalhesAnimal';
-import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
-import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
-
-import ChatScreen from '../../screens/ChatScreen';
 import Config from '../../screens/Config';
+import Inicial from '../../screens/Inicial';
+import DrawerRoutes from '../drawer/DrawerRoutes';
+import ChatScreen from '../../screens/ChatScreen';
+import Interessados from '../../screens/Interessados';
+import AvisoCadastro from '../../screens/AvisoCadastro';
+import { salvarRotaAtiva } from '../../utils/UtilsGeral';
+import DetalhesAnimal from '../../screens/DetalhesAnimal';
+import { StackRoutesParametros } from '../../utils/UtilsType';
 import AvisoNotification from '../../screens/AvisoNotification';
 import { useNomeRotaAtiva } from '../../hooks/useNomeRotaAtiva';
-import { useEffect } from 'react';
-import { salvarRotaAtiva } from '../../utils/Utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Interessados from '../../screens/Interessados';
+import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
+import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
+import SucessoCadastroAnimal from '../../screens/SucessoCadastroAnimal';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
+import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
-
-
 
 export default function StackRoutes() {
 
@@ -69,7 +64,7 @@ export default function StackRoutes() {
 
             <Stack.Screen name="CadastroPessoal" component={CadastroPessoal} />
 
-            <Stack.Screen name="CadastroAnimal" component={CadastroAnimal} />
+            <Stack.Screen name="SucessoCadastroAnimal" component={SucessoCadastroAnimal} />
 
             <Stack.Screen name="PreencherCadastroAnimal" component={PreencherCadastroAnimal} />
 
@@ -92,6 +87,8 @@ export default function StackRoutes() {
             <Stack.Screen name="Interessados"
                 component={Interessados}
                 initialParams={{
+                    id_dono: notificationAppEncerrado ? notificationAppEncerrado.idDono : '',
+                    id_interessado: notificationAppEncerrado ? notificationAppEncerrado.idInteressado : '',
                     animal_id: notificationAppEncerrado ? notificationAppEncerrado.idAnimal : '',
                     nome_animal: notificationAppEncerrado ? notificationAppEncerrado.nomeAnimal : '',
                 }}

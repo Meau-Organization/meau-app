@@ -1,24 +1,18 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, Modal, ImageBackground } from 'react-native'
 import React, { useState } from 'react';
-
-import { getAuth, createUserWithEmailAndPassword, db, setDoc, doc } from '../../../configs/firebaseConfig';
-import { TopBar } from '../../../components/TopBar';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
-import { useNavigation } from '@react-navigation/native';
-
 import Feather from '@expo/vector-icons/Feather';
-
-import OpenImagePicker from '../../../components/OpenImagePicker';
-
-import useVetorBool from '../../../hooks/useVetorBool';
-
-import { validarFinal, onChangeSenhaConfirm, onChangeSenha, onChangeGenerico, alertaErros } from '../../../utils/Valida';
-import BotaoUsual from '../../../components/BotaoUsual';
-import ModalLoanding from '../../../components/ModalLoanding';
-
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { TopBar } from '../../../components/TopBar';
+import useVetorBool from '../../../hooks/useVetorBool';
+import BotaoUsual from '../../../components/BotaoUsual';
+import { useNavigation } from '@react-navigation/native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import ModalLoanding from '../../../components/ModalLoanding';
+import { StackRoutesParametros } from '../../../utils/UtilsType';
+import OpenImagePicker from '../../../components/OpenImagePicker';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getAuth, createUserWithEmailAndPassword, db, setDoc, doc } from '../../../configs/FirebaseConfig';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, Modal, ImageBackground } from 'react-native'
+import { validarFinal, onChangeSenhaConfirm, onChangeSenha, onChangeGenerico, alertaErros } from '../../../utils/UtilsValidaFormUser';
 
 export default function CadastroPessoal() {
 
@@ -27,10 +21,6 @@ export default function CadastroPessoal() {
     const [pacoteImagemBase64, setPacoteImagemBase64] = useState(null);
 
     const [modalVisible, setModalVisible] = useState(false);
-
-    const [image, setImage] = useState(null);
-
-    const [opcaoImagem, setOpcaoImagem] = useState(false);
 
     const [nome, setNome] = useState(''); const idNome = 0;
     const [idade, setIdade] = useState(''); const idIdade = 1;
@@ -496,6 +486,4 @@ const styles = StyleSheet.create({
         width: 189
     },
 
-})
-
-export { CadastroPessoal };
+});

@@ -1,6 +1,6 @@
+import Constants from 'expo-constants';
 import { StyleSheet, View } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
-import Constants from 'expo-constants';
 
 interface ModalLoandingProps {
     spinner: boolean;

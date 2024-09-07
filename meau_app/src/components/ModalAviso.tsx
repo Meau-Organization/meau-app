@@ -1,11 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Constants from 'expo-constants';
 import BotaoUsual from "./BotaoUsual";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import Constants from 'expo-constants';
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 interface ModalLoandingProps {
     setModal: React.Dispatch<React.SetStateAction<boolean>>;

@@ -1,18 +1,14 @@
+import { useState } from "react";
+import Constants from 'expo-constants';
+import SelectDropdown from 'react-native-select-dropdown'
+import { useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Constants from 'expo-constants';
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-
-import SelectDropdown from 'react-native-select-dropdown'
-import { db, doc, getDoc } from "../configs/firebaseConfig";
-import { getOrCreateInstallationId, returnArrayTokens, sendNotifications } from "../utils/Utils";
-
+import { returnArrayTokens, sendNotifications } from "../utils/UtilsNotification";
 
 interface CardProps {
     id: string;
@@ -62,7 +58,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                     const title = `${dadosUser.nome} curtiu seu pet!` + ' 🐾';
                     const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
                     // Envia a notificação ao proprietário do animal
-                    await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id});
+                    await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id, idIteressado: user.uid, idDono: usuarioId });
                 } else {
                     console.log("Proprietário do animal não possui um token de notificação registrado.");
                 }

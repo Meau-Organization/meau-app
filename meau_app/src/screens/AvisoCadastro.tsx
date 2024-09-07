@@ -1,16 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
-
-import {fonteCarregada} from "../utils/FontsLoad";
-
 import BotaoUsual from "../components/BotaoUsual";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import {fonteCarregada} from "../utils/UtilsFonts";
 import { useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from '../utils/UtilsType';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 interface AvisoCadastroProps {
     route: {
@@ -20,10 +15,8 @@ interface AvisoCadastroProps {
     };
 }
 
-
 export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
 
-    
     const { topbar } = route.params;
 
     const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>>();

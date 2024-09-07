@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { getAuth, db, doc, getDoc, onAuthStateChanged } from '../../configs/firebaseConfig';
-import * as SplashScreen from 'expo-splash-screen';
 import { Modal } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import ModalLoanding from '../../components/ModalLoanding';
-import { getOrCreateInstallationId, NotificationAppEncerrado, processarNotificationsAppEncerrado, StatusToken, validarExpoToken } from '../../utils/Utils';
+import { getOrCreateInstallationId } from '../../utils/UtilsGeral';
+import { NotificationAppEncerrado, StatusToken } from '../../utils/UtilsType';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { getAuth, db, doc, getDoc, onAuthStateChanged } from '../../configs/FirebaseConfig';
+import { processarNotificationsAppEncerrado, validarExpoToken } from '../../utils/UtilsNotification';
 
 interface AutenticacaoUserContextType {                                                                 // Define o tipo do contexdo de autenticacao
     user: any,
@@ -102,7 +104,7 @@ export const AutenticacaoUserProvider: React.FC<{ children: ReactNode }> = ({ ch
 
     return (
         <AutenticacaoUserContext.Provider value={{ user, setUser, dadosUser, buscarDadosUsuario, statusExpoToken, setStatusExpoToken, notificationAppEncerrado}}>
-            
+
             {tentativaCarga ?                                                                           // Se a tentativa de carregar os dados terminou, renderize o APP
                 children
             :                                                                                           // Se não mostre o loading...

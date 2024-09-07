@@ -1,21 +1,17 @@
-
+import Constants from 'expo-constants';
+import { useCallback, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import BotaoUsual from "../components/BotaoUsual";
+import { buscarUltimaMensagem } from "../utils/UtilsDB";
+import ChatComponent from "../components/ChatComponent";
+import ModalLoanding from "../components/ModalLoanding";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-import { FlatList, RefreshControl } from "react-native-gesture-handler";
-import { collection, db, doc, getDoc, onSnapshot, orderBy, query } from "../configs/firebaseConfig";
-import { useCallback, useState } from "react";
-
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import ChatComponent from "../components/ChatComponent";
-
-import BotaoUsual from "../components/BotaoUsual";
-import ModalLoanding from "../components/ModalLoanding";
-import { buscarUltimaMensagem, limparNotifications } from "../utils/Utils";
-import Constants from 'expo-constants';
-
-import { Ionicons } from '@expo/vector-icons';
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { collection, db, doc, getDoc, onSnapshot, orderBy, query } from "../configs/FirebaseConfig";
 
 export default function Conversas() {
 

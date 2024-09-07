@@ -1,14 +1,14 @@
-import { Text, View, ScrollView, Image, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet } from "react-native";
-import { useCallback, useState } from "react";
-import { db, doc, getDoc } from "../configs/firebaseConfig";
-import ModalLoanding from "../components/ModalLoanding";
-
-import BotaoUsual from "../components/BotaoUsual";
 import { TopBar } from "../components/TopBar";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
+import { useCallback, useState } from "react";
+import BotaoUsual from "../components/BotaoUsual";
+import ModalLoanding from "../components/ModalLoanding";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import { db, doc, getDoc } from "../configs/FirebaseConfig";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { Text, View, ScrollView, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet } from "react-native";
 
 interface DetalhesAnimalProps {
     route: {
@@ -18,12 +18,6 @@ interface DetalhesAnimalProps {
         };
     };
 }
-
-
-import { comprimirImagem } from "../utils/Utils";
-import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
-
-
 
 export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 

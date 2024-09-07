@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
-import { Send, Message as GiftedMessage, Bubble, Time } from "react-native-gifted-chat";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { StyleSheet, Text, View } from "react-native";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Send, Message as GiftedMessage, Bubble, Time } from "react-native-gifted-chat";
 
 export const renderSend = (props) => {
     return (

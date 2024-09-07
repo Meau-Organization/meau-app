@@ -1,10 +1,8 @@
-import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native"
-
-import { Entypo, Ionicons } from '@expo/vector-icons'
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Entypo, Ionicons } from '@expo/vector-icons'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native"
 
 interface TopBarProps {
     nome: string;

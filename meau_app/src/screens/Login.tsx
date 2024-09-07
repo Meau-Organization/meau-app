@@ -1,21 +1,15 @@
-
-import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
+import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import { BoxLogin } from "../components/BoxLogin";
-
-import { AntDesign, Entypo } from '@expo/vector-icons'
-
-import Constants from 'expo-constants';
-
+import { AntDesign, Entypo } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/UtilsType";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
 
-import { StackRoutesParametros } from '../utils/StackRoutesParametros';
+export default function Login() {
 
-type LoginProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'Login'>;
-};
-
-export default function Login({navigation} : LoginProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Login'>>();
 
     const fecharTeclado = () => {
         Keyboard.dismiss();

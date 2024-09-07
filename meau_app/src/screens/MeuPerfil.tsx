@@ -1,15 +1,12 @@
-import { ImageBackground, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from 'expo-constants';
-
-import { TouchableOpacity } from "react-native-gesture-handler";
-import BotaoUsual from "../components/BotaoUsual";
-import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { useCallback, useState } from "react";
+import BotaoUsual from "../components/BotaoUsual";
 import { useFocusEffect } from "@react-navigation/native";
-
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { ImageBackground, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const userPadrao = require('../assets/images/user.jpg');
-
 
 export default function MeuPerfil() {
 
@@ -19,7 +16,6 @@ export default function MeuPerfil() {
 
 
     const [esperando, setEsperando] = useState(true);
-    const [modal, setModal] = useState(true);
 
 
     useFocusEffect(
@@ -40,9 +36,6 @@ export default function MeuPerfil() {
 
         }, [])
     );
-
-    
-
 
 
     return (

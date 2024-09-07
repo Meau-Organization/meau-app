@@ -1,8 +1,7 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-import Constants from 'expo-constants';
 import BotaoUsual from "./BotaoUsual";
+import Constants from 'expo-constants';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface ModalLoandingProps {
     //spinner: boolean;

@@ -1,17 +1,12 @@
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
-
-import { db, collection, query, where, getDocs } from '../configs/firebaseConfig';
 import { useCallback, useState } from "react";
-
-import { useFocusEffect } from "@react-navigation/native";
-
-import ModalLoanding from "../components/ModalLoanding";
-
 import CardAnimal from "../components/CardAnimal";
+import ModalLoanding from "../components/ModalLoanding";
+import { useFocusEffect } from "@react-navigation/native";
+import { db, collection, query, where, getDocs } from '../configs/FirebaseConfig';
+import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 export default function Adotar() {
-
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
@@ -45,10 +40,6 @@ export default function Adotar() {
             console.log(error);
         }
     };
-
-    const [data2, setData] = useState<any>(null);
-
-    
 
     useFocusEffect(
         useCallback(() => {

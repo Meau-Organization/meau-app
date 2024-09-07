@@ -1,2 +1,2 @@
-echo "Executando gerar-google-services.js...."
-node ./src/utils/gerar-google-services.js
+echo "Executando UtilsGerarGoogleServicesFile.ts...."
+node ./src/utils/UtilsGerarGoogleServicesFile.ts

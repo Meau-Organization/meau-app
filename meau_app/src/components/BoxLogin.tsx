@@ -1,16 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet, View, Keyboard, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
-
-import { FontAwesome6 } from '@expo/vector-icons';
 import BotaoUsual from './BotaoUsual';
-
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, User } from '../configs/firebaseConfig';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackRoutesParametros } from '../utils/StackRoutesParametros';
-import { useNavigation } from '@react-navigation/native';
 import ModalLoanding from './ModalLoanding';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackRoutesParametros } from '../utils/UtilsType';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getAuth, signInWithEmailAndPassword } from '../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-
+import { StyleSheet, View, Keyboard, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
 
 export function BoxLogin() {
 

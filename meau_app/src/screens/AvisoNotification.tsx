@@ -1,21 +1,16 @@
-import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import { useState } from "react";
 import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
-
-import { fonteCarregada } from "../utils/FontsLoad";
-
 import BotaoUsual from "../components/BotaoUsual";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-
-import { StackRoutesParametros } from "../utils/StackRoutesParametros";
-import { useNavigation } from "@react-navigation/native";
-import { registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from "../utils/Utils";
-import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import ModalAviso from "../components/ModalAviso";
-import { useState } from "react";
+import { fonteCarregada } from "../utils/UtilsFonts";
 import ModalLoanding from "../components/ModalLoanding";
+import { useNavigation } from "@react-navigation/native";
+import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from "../utils/UtilsNotification";
 
 const notification = require('../assets/images/notification.png');
 
@@ -27,9 +22,7 @@ interface AvisoNotificationProps {
     };
 }
 
-
 export default function AvisoNotification({ route }: AvisoNotificationProps) {
-
 
     const { topbar } = route.params;
 

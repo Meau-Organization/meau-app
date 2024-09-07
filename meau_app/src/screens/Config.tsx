@@ -7,9 +7,7 @@ import * as Notifications from 'expo-notifications';
 
 
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-
-
-import { getOrCreateInstallationId, getTokenArmazenado, registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/Utils';
+import { getTokenArmazenado, registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/UtilsNotification';
 
 
 

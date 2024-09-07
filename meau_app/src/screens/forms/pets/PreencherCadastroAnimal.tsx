@@ -1,38 +1,28 @@
-import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, ImageBackground, Alert } from 'react-native'
+import { useState } from 'react';
 import Constants from 'expo-constants';
-
 import { TopBar } from '../../../components/TopBar';
 import BotaoUsual from '../../../components/BotaoUsual';
+import { useNavigation } from '@react-navigation/native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import ModalLoanding from '../../../components/ModalLoanding';
+import { StackRoutesParametros } from '../../../utils/UtilsType';
+import OpenImagePicker from '../../../components/OpenImagePicker';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
-import OpenImagePicker from '../../../components/OpenImagePicker';
-
-
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackRoutesParametros } from '../../../utils/StackRoutesParametros';
-
-import { db, addDoc, collection, doc, setDoc } from '../../../configs/firebaseConfig';
-
-import ModalLoanding from '../../../components/ModalLoanding';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useState } from 'react';
+import { db, addDoc, collection, doc, setDoc } from '../../../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
+import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, ImageBackground, Alert } from 'react-native'
 
+export default function PreencherCadastroAnimal() {
 
-type MeusPetsProps = {
-    navigation: NativeStackNavigationProp<StackRoutesParametros, 'PreencherCadastroAnimal'>;
-};
-
-
-export default function PreencherCadastroAnimal({ navigation }: MeusPetsProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'PreencherCadastroAnimal'>>();
 
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [pacoteImagemBase64, setPacoteImagemBase64] = useState(null);
-
-
 
     const [nomeAnimal, setNomeAnimal] = useState('');
     const [especie, setEspecie] = useState('');
