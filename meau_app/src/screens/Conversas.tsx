@@ -187,9 +187,11 @@ export default function Conversas() {
                 height: 80,
                 justifyContent: 'center',
             }}>
+                {dadosConversas.lenght > 0 && (
                 <TouchableOpacity onPress={() => console.log('Botão pressionado')}>
                     <BotaoUsual texto='FINALIZAR UM PROCESSO' cor='#88c9bf'/>
                 </TouchableOpacity>
+                ) }
 
             </View>
 

@@ -28,6 +28,9 @@ export default function Login() {
                 
 
                 <BoxLogin />
+                <TouchableOpacity style={{marginTop: 8}} onPress={() => navigationStack.navigate('CadastroPessoal')}>
+                    <Text style={{fontFamily: 'Roboto-Medium', fontSize: 12, color: '#88c9bf'}}>Não possui uma conta ? Cadastre-se aqui!</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.botao_facebook} onPress={fecharTeclado}>
                     <AntDesign name="facebook-square" size={16} color="#f7f7f7" style={{}}/>
@@ -38,6 +41,7 @@ export default function Login() {
                     <Entypo name="google-" size={16} color="#f7f7f7" style={{}}/>
                     <Text style={styles.botao_texto}>ENTRAR COM O GOOGLE</Text>
                 </TouchableOpacity>
+
 
             </View>
             
