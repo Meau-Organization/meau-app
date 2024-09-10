@@ -115,7 +115,7 @@ export default function CustomDrawerContent(props : DrawerContentComponentProps)
                                 labelStyle={{ marginLeft: 16 }}
                                 onPress={() => {
                                     props.navigation.closeDrawer();
-                                    props.navigation.navigate('PreencherCadastroAnimal');
+                                    navigationStack.navigate('PreencherCadastroAnimal');
                                 }}
                             />
                             <DrawerItem label="Adotar um Pet" labelStyle={{ marginLeft: 16 }} onPress={() => props.navigation.navigate('Adotar')} />

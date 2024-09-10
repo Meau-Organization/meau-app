@@ -14,14 +14,14 @@ export type StackRoutesParametros = {
     DrawerRouteAuth: undefined;
     BoxLogin: undefined;
     CardAnimal: undefined;
-    DetalhesAnimal: { animal_id: string };
+    DetalhesAnimal: { animal_id: string, nome_animal: string };
     DetalhesAnimalAdocao: { animal_id: string; nome_animal: string; };
     ChatScreen: {
         idChat: string;
         nomeTopBar: string;
     };
     AvisoNotification: { topbar: boolean };
-    Interessados: { id_dono: string; id_interessado: string; animal_id: string; nome_animal: string; };
+    Interessados: { id_dono: string; animal_id: string; nome_animal: string;};
 };
 
 export type DrawerRoutesParametros = {

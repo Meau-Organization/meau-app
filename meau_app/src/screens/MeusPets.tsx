@@ -99,6 +99,7 @@ export default function MeusPets() {
                                 disponivel={item.disponivel}
                                 updateEstadoAnimal={updateEstadoAnimal}
                                 idDono={item.usuario_id}
+                                interessadosQtd={item.interessados ? item.interessados.length : 0}
                             />
 
                         </View>

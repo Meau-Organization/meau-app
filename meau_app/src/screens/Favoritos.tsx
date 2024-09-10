@@ -1,11 +1,10 @@
 import { useCallback, useState } from "react";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { FlatList, Modal, StyleSheet, Text, View } from "react-native";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import CardAnimal from '../components/CardAnimal';
-import { buscarFavoritos } from '../utils/UtilsDB';
-import { FlatList } from 'react-native-gesture-handler';
+import { buscarDadosFavoritos } from '../utils/UtilsDB';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import useLoading from '../hooks/useLoading';
 import { StatusBar } from "expo-status-bar";
@@ -26,7 +25,7 @@ export default function Favoritos() {
 
                 const retornoImediatoDadosUser = await buscarDadosUsuario(user.uid);
                 if (retornoImediatoDadosUser.favoritos) {
-                    await buscarFavoritos(retornoImediatoDadosUser.favoritos, setFavoritos);
+                    await buscarDadosFavoritos(retornoImediatoDadosUser.favoritos, setFavoritos);
                 }
                 Loanding.setPronto();
 

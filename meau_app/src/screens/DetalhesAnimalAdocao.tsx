@@ -43,6 +43,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
     const { animal_id, nome_animal } = route.params;
 
+    //console.log('route.params', route.params);
 
     const buscarDadosAnimais = async (animalId: string) => {
         try {
