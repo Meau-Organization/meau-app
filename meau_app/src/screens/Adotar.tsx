@@ -33,13 +33,12 @@ export default function Adotar() {
             const snapshot = await getDocs(q);
             const animaisArray = [];
 
-            console.log(snapshot)
             snapshot.forEach((doc) => {
                 const data = doc.data();
 
                 const favoritos = data.favoritos || [];
 
-                const isFavorito = favoritos.find((fav) => fav === user ? user.uid : '');
+                const isFavorito = favoritos.find((fav) => user ? fav ===  user.uid : fav ===  '');
 
                 const animalData = {
                     uid: doc.id,

@@ -25,7 +25,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.meauorganization.meau_app",
-      "versionCode": 95,
+      "versionCode": 96,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
