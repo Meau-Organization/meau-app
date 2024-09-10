@@ -2,21 +2,21 @@ import { useState } from "react";
 import Constants from 'expo-constants';
 import SelectDropdown from 'react-native-select-dropdown'
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { returnArrayTokens, sendNotifications } from "../utils/UtilsNotification";
+import { db, doc } from "../configs/FirebaseConfig";
+import { addFavoritos, removeFavoritos } from "../utils/UtilsDB";
 
 interface CardProps {
-    id: string;
+    idAnimal: string;
     nome: string;
     tela: any;
     foto: { uri: string };
     modo: any;
-    primeiro?: boolean;
     sexo?: string;
     idade?: string;
     porte?: string;
@@ -27,46 +27,72 @@ interface CardProps {
     meusPets?: boolean;
     disponivel?: boolean;
     updateEstadoAnimal?: (id: string, estado: boolean) => void,
-    usuarioId: string;
+    idDono: string;
+    foiCurtido?: boolean;
+    favoritos?: any;
+    setFavoritos?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idade, porte, cidade, estado, trocaIcone = false, id, foto, tela, corCard = '#fee29b', meusPets = false, disponivel, updateEstadoAnimal }: CardProps) {
+export default function CardAnimal({
+    idDono, modo, nome, sexo, idade,
+    porte, cidade, estado, trocaIcone = false,
+    idAnimal, foto, tela, corCard = '#fee29b', meusPets = false,
+    disponivel, updateEstadoAnimal, foiCurtido, favoritos,
+    setFavoritos
+}: CardProps) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CardAnimal'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const { user, dadosUser } = useAutenticacaoUser();
 
-    const [curtida, setCurtida] = useState(false);
+    const [curtida, setCurtida] = useState(foiCurtido);
 
     const curtir = async () => {
-        if (!user){
+        if (!user) {
             // Se o usuário não estiver autenticado, redirecione para a tela de aviso
-            navigation.navigate("AvisoCadastro", {topbar: true} )
+            navigationStack.navigate("AvisoCadastro", { topbar: true })
         } else {
-            // Caso contrário, navegue para a tela de detalhes
-            // navigation.navigate(tela, { animal_id: id });
+            
             curtida ? setCurtida(false) : setCurtida(true);
 
-            try{
+            console.log(nome, curtida);
+            if (!curtida) {
+                const userRef = doc(db, "Users", user.uid);
+                const animalRef = doc(db, "Animals", idAnimal);
+                addFavoritos(userRef, idAnimal);
+                addFavoritos(animalRef, user.uid);
 
-                const expoTokensArray = await returnArrayTokens(usuarioId);
-                //console.log(expoTokensArray);
+                try {
 
-                if (expoTokensArray.length > 0) {
-                    const title = `${dadosUser.nome} curtiu seu pet!` + ' 🐾';
-                    const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
-                    // Envia a notificação ao proprietário do animal
-                    await sendNotifications(expoTokensArray, title, body, 'interessados', {nomeAnimal: nome, idAnimal: id, idIteressado: user.uid, idDono: usuarioId });
-                } else {
-                    console.log("Proprietário do animal não possui um token de notificação registrado.");
+                    const expoTokensArray = await returnArrayTokens(idDono);
+
+                    if (expoTokensArray.length > 0) {
+                        const title = `${dadosUser.nome} curtiu seu pet!` + ' 🐾';
+                        const body = `O usuário ${dadosUser.nome} curtiu o seu animal ${nome}`;
+                        // Envia a notificação ao proprietário do animal
+                        await sendNotifications(expoTokensArray, title, body, 'interessados', { nomeAnimal: nome, idAnimal: idAnimal, idIteressado: user.uid, idDono: idDono });
+                    } else {
+                        console.log("Proprietário do animal não possui um token de notificação registrado.");
+                    }
+
+                } catch (error) {
+                    console.error("Erro ao buscar o token de notificação:", error);
                 }
-               
-            } catch (error) {
-                console.error("Erro ao buscar o token de notificação:", error);
+
+            } else {
+                const userRef = doc(db, "Users", user.uid);
+                const animalRef = doc(db, "Animals", idAnimal);
+                removeFavoritos(userRef, idAnimal);
+                removeFavoritos(animalRef, user.uid);
+
+                if (favoritos) {
+                    const novosFavoritos = favoritos.filter(favorito => favorito.id !== idAnimal);
+                    setFavoritos(novosFavoritos);
+                }
+
             }
-                
         }
     };
 
@@ -78,29 +104,29 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
     //console.log(nome + ": disp: " + disponivel);
 
     // Simulando interessados
-    let interessados : number;
-    if (meusPets) { 
+    let interessados: number;
+    if (meusPets) {
         if (Math.floor(Math.random() * 2) == 1) {
             interessados = 3;
         } else {
             interessados = 0;
         }
     }
-    
+
 
     return (
 
-        <View style={[styles.card, { marginTop: primeiro ? 8 - Constants.statusBarHeight : 8 }]}>
+        <View style={[styles.card, { marginTop: 8 }]}>
 
 
             <View style={[styles.titulo, { backgroundColor: corCard }]}>
 
-                <TouchableOpacity onPress={ () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })}>
+                <TouchableOpacity onPress={() => navigationStack.navigate(tela, { animal_id: idAnimal, nome_animal: nome })}>
                     <Text style={styles.text_nome}>{nome}</Text>
                 </TouchableOpacity>
 
                 {trocaIcone ?
-                    interessados > 0 ? 
+                    interessados > 0 ?
                         <MaterialIcons name="error" size={24} color="#434343" style={{ marginRight: 15 }} />
                         :
                         <></>
@@ -119,7 +145,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
             <TouchableOpacity
                 onPress={
                     //() => navigation.navigate("DetalhesAnimal", {animal_id: id })
-                    () => navigation.navigate(tela, { animal_id: id, nome_animal: nome })
+                    () => navigationStack.navigate(tela, { animal_id: idAnimal, nome_animal: nome })
                 }
                 style={styles.foto}>
                 <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />
@@ -151,9 +177,9 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                                     console.log(item, index);
                                     {
                                         item.title == 'Disponível' ?
-                                        updateEstadoAnimal(id, true)
-                                        :
-                                        updateEstadoAnimal(id, false)
+                                            updateEstadoAnimal(idAnimal, true)
+                                            :
+                                            updateEstadoAnimal(idAnimal, false)
                                     }
 
 
@@ -186,7 +212,7 @@ export default function CardAnimal({ primeiro, usuarioId ,modo, nome, sexo, idad
                                 dropdownStyle={styles.botaoDropMenu}
                             />
 
-                            <View style={{width: 1.1, height: 30, backgroundColor: '#434343'}} ></View>
+                            <View style={{ width: 1.1, height: 30, backgroundColor: '#434343' }} ></View>
 
                             <Text style={[styles.text_dados, { marginRight: 20 }]}>{interessados} INTERESSADOS</Text>
 
@@ -274,13 +300,13 @@ const styles = StyleSheet.create({
     text_nome: {
         color: '#434343',
         marginLeft: 15,
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 16,
     },
     text_dados: {
         color: '#434343',
         fontSize: 12,
-        fontFamily: 'Roboto'
+        fontFamily: 'Roboto-Medium'
     },
     text: {
         color: '#fff',

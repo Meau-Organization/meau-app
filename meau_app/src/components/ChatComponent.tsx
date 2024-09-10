@@ -122,6 +122,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         color: '#589b9b',
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
     },
 });

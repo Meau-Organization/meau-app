@@ -2,9 +2,8 @@ import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from '../utils/UtilsType';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { NativeStackNavigationProps } from '../utils/UtilsType';
 
 interface AvisoCadastroProps {
     route: {
@@ -18,7 +17,7 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
 
     const { topbar } = route.params;
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoCadastro'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     return(
         <>
@@ -26,7 +25,7 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
                     <TopBar
                         nome='Cadastro'
                         icone='voltar'
-                        irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                        irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                         cor='#88c9bf'
                     />
                 ) : (
@@ -48,7 +47,7 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
                     </Text>
                 </View>
                     
-                <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigationStack.navigate("CadastroPessoal")}  activeOpacity={0.5}>
                     <BotaoUsual texto='FAZER CADASTRO' marginTop={52}/>
                 </TouchableOpacity>
 
@@ -58,7 +57,7 @@ export default function AvisoCadastro( { route } : AvisoCadastroProps ) {
                     </Text>
                 </View>
                 
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}  activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigationStack.navigate("Login")}  activeOpacity={0.5}>
                     <BotaoUsual texto='FAZER LOGIN' marginTop={16}/>
                 </TouchableOpacity>
 
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
         marginTop: 52,
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 16,
         color: '#757575',
         textAlign: 'center',

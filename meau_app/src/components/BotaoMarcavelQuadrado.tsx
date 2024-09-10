@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     opcao: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14,
     },
     radioButton: {

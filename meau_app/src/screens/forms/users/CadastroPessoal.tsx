@@ -7,16 +7,15 @@ import BotaoUsual from '../../../components/BotaoUsual';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ModalLoanding from '../../../components/ModalLoanding';
-import { StackRoutesParametros } from '../../../utils/UtilsType';
 import OpenImagePicker from '../../../components/OpenImagePicker';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getAuth, createUserWithEmailAndPassword, db, setDoc, doc } from '../../../configs/FirebaseConfig';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, Modal, ImageBackground } from 'react-native'
 import { validarFinal, onChangeSenhaConfirm, onChangeSenha, onChangeGenerico, alertaErros } from '../../../utils/UtilsValidaFormUser';
+import { NativeStackNavigationProps } from '../../../utils/UtilsType';
 
 export default function CadastroPessoal() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'CadastroPessoal'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
     
     const [pacoteImagemBase64, setPacoteImagemBase64] = useState(null);
 
@@ -94,7 +93,7 @@ export default function CadastroPessoal() {
                 await createUserWithEmailAndPassword(getAuth(), email, senha)
                     .then(() => {
                         Alert.alert("Conta", "cadastrada com sucesso");
-                        navigation.navigate("DrawerRoutes");
+                        navigationStack.navigate("DrawerRoutes");
                     })
                     .catch((error) => {
                         console.log(error);
@@ -140,7 +139,7 @@ export default function CadastroPessoal() {
             <TopBar
                 nome='Cadastro'
                 icone='voltar'
-                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                 cor='#88c9bf'
             />
             
@@ -440,7 +439,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center',
         color: '#757575',
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14
     },
     imageAddButton: {
@@ -481,7 +480,7 @@ const styles = StyleSheet.create({
     textFotoTam: {
         marginTop: 8,
         fontSize: 14,
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         //backgroundColor: 'red',
         width: 189
     },

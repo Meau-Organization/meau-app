@@ -1,12 +1,11 @@
 import { Text, View, ScrollView, StyleSheet } from "react-native";
 
 import { TopBar } from "../components/TopBar";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { useCallback } from "react";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 
 interface InteressadosProps {
     route: {
@@ -25,7 +24,7 @@ export default function Interessados({ route }: InteressadosProps) {
 
     const { user } = useAutenticacaoUser();
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Interessados'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     useFocusEffect(
         useCallback(() => {
@@ -34,7 +33,7 @@ export default function Interessados({ route }: InteressadosProps) {
                 // Execute as operações
                 
             } else {
-                navigation.navigate("DrawerRoutes");
+                navigationStack.navigate("DrawerRoutes");
             }
 
         }, [])
@@ -47,7 +46,7 @@ export default function Interessados({ route }: InteressadosProps) {
                 <TopBar
                     nome={route.params.nome_animal}
                     icone='voltar'
-                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                     cor='#fee29b'
                 />
 

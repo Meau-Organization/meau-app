@@ -3,6 +3,7 @@ import { Entypo, Ionicons } from '@expo/vector-icons'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native"
+import { StatusBar } from 'expo-status-bar';
 
 interface TopBarProps {
     nome: string;
@@ -39,6 +40,7 @@ export function TopBar( {nome, icone, irParaPagina, cor, touch = true} : TopBarP
     return (
 
         <SafeAreaView style={{backgroundColor: cor}}>
+            <StatusBar style={cor === '#FFFFFF' ? 'dark' : 'light'} backgroundColor={cor} />
             <View style = { [styles.barra, {width: width, backgroundColor: cor }] }>
 
                 { touch ?
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     texto: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 20,
         color: '#434343',
         marginLeft: 30

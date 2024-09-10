@@ -2,18 +2,18 @@ import { View, Modal } from 'react-native';
 import { TopBar } from "../components/TopBar";
 import { useState, useCallback } from "react";
 import { comprimirImagem } from "../utils/UtilsImage";
-import { processarRota, salvarRotaAtiva } from "../utils/UtilsGeral";
+import { salvarRotaAtiva } from "../utils/UtilsGeral";
 import ModalLoanding from "../components/ModalLoanding";
-import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 import { useNomeRotaAtiva } from "../hooks/useNomeRotaAtiva";
 import { GiftedChat, IMessage } from "react-native-gifted-chat";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { buscarDadosAnimalBasico, buscarDadosUsuarioExterno } from "../utils/UtilsDB";
 import { renderBalaoMsg, renderDay, renderMsg, renderSend } from "../utils/UtilsGiftedChat";
-import { limparNotifications, returnArrayTokens, sendNotifications } from "../utils/UtilsNotification";
-import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, getDoc } from "../configs/FirebaseConfig";
+import { limparNotifications, sendNotifications } from "../utils/UtilsNotification";
+import { collection, db, doc, setDoc, onSnapshot, query, orderBy, updateDoc, getDoc, where, DocumentData, CollectionReference } from "../configs/FirebaseConfig";
+import useLoading from '../hooks/useLoading';
 
 interface ChatScreenProps {
     route: {
@@ -26,7 +26,9 @@ interface ChatScreenProps {
 
 export default function ChatScreen({ route }: ChatScreenProps) {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
+
+    const Loanding = useLoading();
 
     const { user, dadosUser } = useAutenticacaoUser();
 
@@ -34,7 +36,6 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const [_, idDono, idInteressado, idAnimal] = idChat ? idChat.split('-') : '';
 
     const [mensagens, setMensagens] = useState<IMessage[]>([]);
-    const [esperando, setEsperando] = useState(false);
     const [criarChat, setCriarChat] = useState<boolean>();
 
     const [expoTokensArray, setExpoTokensArray] = useState<Array<string>>(null);
@@ -45,6 +46,8 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     const [dadosChatState, setDadosChatState] = useState(null);
 
     const nomeRotaAtiva = useNomeRotaAtiva();
+
+    const listeners = [];
 
     //console.log(idChat);
     //console.log('Chat deve ser criado:', criarChat);
@@ -57,9 +60,11 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
             if (user.uid == idDono || user.uid == idInteressado) {
 
-                setEsperando(true);
+                Loanding.setCarregando();
 
                 limparNotifications('mensagens', idChat, '');
+
+                buscarExpoTokens();
 
                 let unsubscribe;
 
@@ -83,18 +88,14 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 }
                 atualizarChat();
 
-
-
                 return () => {
-                    setExpoTokensArray(['']);
-                    if (unsubscribe) {
-                        unsubscribe();
-                        console.log('.......................... Desmontou listeners ChatSreen');
-                    }
+                    Loanding.setParado();
+                    listeners.forEach(unsubscribe => unsubscribe());
+                    console.log('.......................... Desmontou listeners ChatSreen', listeners.length);
                 };
                 
             } else {
-                navigation.navigate("DrawerRoutes");
+                navigationStack.navigate("DrawerRoutes");
             }
 
         }, [idChat])
@@ -276,14 +277,17 @@ export default function ChatScreen({ route }: ChatScreenProps) {
 
                 setMensagens(novasMensagens.reverse());
 
-                setEsperando(false);
+                Loanding.setPronto();
+
             });
 
-            return unsubscribe;
+            //return unsubscribe;
+            listeners.push(unsubscribe);
 
         } catch (error) {
             console.error("Erro ao buscar mensagens: " + error);
-            setEsperando(false);
+            Loanding.setPronto();
+
             return null;
         }
     }
@@ -342,7 +346,8 @@ export default function ChatScreen({ route }: ChatScreenProps) {
         }
         setDadosInteressadoState(dadosInteressado);
 
-        setEsperando(false);
+        Loanding.setPronto();
+
         return {
             dadosDono: dadosDono,
             dadosInteressado: dadosInteressado
@@ -352,40 +357,43 @@ export default function ChatScreen({ route }: ChatScreenProps) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function buscarExpoTokens() {
 
-        let expoTokensArray;
+        let tokensDocRef : CollectionReference<DocumentData, DocumentData>;
         if (user.uid == idDono) {
-            expoTokensArray = await returnArrayTokens(idInteressado);
+            tokensDocRef = collection(db, "Users", idInteressado, 'ExpoTokens');
         } else {
-            expoTokensArray = await returnArrayTokens(idDono);
+            tokensDocRef = collection(db, "Users", idDono, 'ExpoTokens');
         }
 
+        const q = query(tokensDocRef, where('ativo', '==', true));
 
-        if (expoTokensArray.length > 0) {
-            console.log(expoTokensArray);
-            setExpoTokensArray(expoTokensArray);
-            return expoTokensArray;
-        } else {
-            //console.log('não existe');
-            return null;
-        }
+        const unsubscribe = onSnapshot(q, (docs) => {
+            console.log('Buscando TOKENS..................');
+            let expoTokensArray = [];
+            docs.forEach((doc) => {
+                expoTokensArray.push(doc.data().expoPushToken);
+            });
+            
+            if (expoTokensArray.length > 0) {
+                setExpoTokensArray(expoTokensArray);
+            } else {
+                console.log('Usuario sem tokens registrados');
+                setExpoTokensArray(null);
+            }
+        });
 
+        listeners.push(unsubscribe);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function notificar(msg: string, nomeAnimal: string) {
         const title = dadosUser.nome + '▪️' + 'Sobre o ' + nomeAnimal;
         const body = msg;
+        console.log('------------------------------------------ expoTokensArray', expoTokensArray)
         if (expoTokensArray) {
             await sendNotifications(expoTokensArray, title, body, 'mensagens', { idChat: idChat });
         } else {
-            const expoTokensArrayImediato = await buscarExpoTokens();
-            if (expoTokensArrayImediato) {
-                await sendNotifications(expoTokensArrayImediato, title, body, 'mensagens', { idChat: idChat });
-            } else {
-                console.log('Usuario não permitiu notificações...');
-            }
+            console.log('Usuario não permitiu notificações...');
         }
-
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,10 +404,10 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                 <TopBar
                     nome={nomeTopBar}
                     icone='voltar'
-                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                     cor='#88c9bf'
                 />
-                {!esperando ?
+                {Loanding.Pronto ?
                     <View style={{ flex: 1, backgroundColor: '#fafafa' }}>
 
                         <GiftedChat
@@ -420,8 +428,8 @@ export default function ChatScreen({ route }: ChatScreenProps) {
                         />
                     </View>
                     :
-                    <Modal visible={esperando} animationType='fade' transparent={true}>
-                        <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+                    <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                        <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'} />
                     </Modal>
                 }
             </>

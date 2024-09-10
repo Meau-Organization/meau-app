@@ -263,7 +263,7 @@ export async function registrarDispositivoAutomaticamente(
 
         if (!statusExpoToken.statusExpoTokenLocal || !statusExpoToken.statusExpoTokenRemoto) {
 
-            registerForPushNotificationsAsync()
+            await registerForPushNotificationsAsync()
                 .then(async (token) => {
                     if (token) {
                         console.log("token :" + token);
@@ -276,6 +276,7 @@ export async function registrarDispositivoAutomaticamente(
                             if (user) {
                                 await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
                                     status_expo_token.statusExpoTokenRemoto = status;
+                                    status_expo_token.statusInstalation = status;
                                     setStatusExpoToken(status_expo_token);
                                 });
                             }
@@ -527,6 +528,7 @@ export async function removerToken(userId: string): Promise<boolean> {
     if (await documentExiste(tokenDocRef)) {
         await deleteDoc(tokenDocRef);
         resposta = true;
+        console.log('Removeu Token');
     }
 
     return resposta;

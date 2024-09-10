@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         //borderWidth: 1,
     },
     opcao: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14,
         color: '#757575',
     },

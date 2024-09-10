@@ -2,13 +2,13 @@ import Constants from 'expo-constants';
 import { TopBar } from "../components/TopBar";
 import BotaoUsual from "../components/BotaoUsual";
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { DrawerNavigationProps, NativeStackNavigationProps } from '../utils/UtilsType';
 
 export default function SucessoCadastroAnimal(){
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, "SucessoCadastroAnimal">>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
+    const navigationDrawer = useNavigation<DrawerNavigationProps>();
 
     return(
 
@@ -17,7 +17,7 @@ export default function SucessoCadastroAnimal(){
             <TopBar
                     nome='Cadastro do Animal'
                     icone='voltar'
-                    irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                    irParaPagina={() => navigationStack.navigate("DrawerRoutes")}
                     cor='#ffd358'
                 />
             <View style = {styles.container}>
@@ -38,7 +38,7 @@ export default function SucessoCadastroAnimal(){
 
                 <TouchableOpacity
                     onPress={
-                        () => navigation.navigate('MeusPets')
+                        () => navigationDrawer.navigate('MeusPets')
                     }
                     activeOpacity={0.5}
                 >
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 52,
         fontSize: 14, 
-        fontFamily: 'Roboto'
+        fontFamily: 'Roboto-Medium'
     }, 
     
 

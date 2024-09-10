@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     },
 
     botao_texto: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 12,
         color: '#434343',
     }

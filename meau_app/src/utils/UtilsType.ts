@@ -1,6 +1,7 @@
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export type StackRoutesParametros = {
-    Inicial: { userEstado: number };
     AvisoCadastro: { topbar: boolean };
     Login: undefined;
     CadastroPessoal: undefined;
@@ -12,8 +13,6 @@ export type StackRoutesParametros = {
     DrawerRoutes: undefined;
     DrawerRouteAuth: undefined;
     BoxLogin: undefined;
-    MeusPets: undefined;
-    Adotar: undefined;
     CardAnimal: undefined;
     DetalhesAnimal: { animal_id: string };
     DetalhesAnimalAdocao: { animal_id: string; nome_animal: string; };
@@ -21,11 +20,22 @@ export type StackRoutesParametros = {
         idChat: string;
         nomeTopBar: string;
     };
-    Conversas: undefined;
-    Config: undefined;
     AvisoNotification: { topbar: boolean };
     Interessados: { id_dono: string; id_interessado: string; animal_id: string; nome_animal: string; };
 };
+
+export type DrawerRoutesParametros = {
+    Inicial: undefined;
+    MeuPerfil: undefined;
+    MeusPets: undefined;
+    Adotar: undefined;
+    Favoritos: undefined;
+    Conversas: undefined;
+    Config: undefined;
+};
+
+export type NativeStackNavigationProps = NativeStackNavigationProp<StackRoutesParametros>;
+export type DrawerNavigationProps = DrawerNavigationProp<DrawerRoutesParametros>;
 
 export type Trigger = {
     channelId: string;

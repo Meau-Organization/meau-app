@@ -3,20 +3,19 @@ import BotaoUsual from './BotaoUsual';
 import ModalLoanding from './ModalLoanding';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { StackRoutesParametros } from '../utils/UtilsType';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProps } from '../utils/UtilsType';
 import { getAuth, signInWithEmailAndPassword } from '../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 import { StyleSheet, View, Keyboard, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
+import useLoading from '../hooks/useLoading';
 
 export function BoxLogin() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
+
+    const Loanding = useLoading();
 
     const { setUser } = useAutenticacaoUser();
-
-    const [esperando, setEsperando] = useState(false);
-    const [modal, setModal] = useState(false);
 
     const [userTexto, setUserTexto] = useState('');
     const [senhaTexto, setSenhaTexto] = useState('');
@@ -48,29 +47,28 @@ export function BoxLogin() {
 
 
     const login = async (user: string, senha: string) => {
-        setEsperando(true);
+        Loanding.setCarregando();
+
         await signInWithEmailAndPassword(getAuth(), user, senha)
         .then((userCredential) => {
-            
-            setEsperando(false);
             const user = userCredential.user;
             setUser(user);
             console.log('Entrou:', user.email);
-            navigation.navigate("DrawerRoutes");//redefinindo a navegação e direcionando para tela inicial do usuario Autenticado
+
+            Loanding.setPronto();
+            navigationStack.navigate("DrawerRoutes");//redefinindo a navegação e direcionando para tela inicial do usuario Autenticado
         })
         .catch((error) => {
-            
-            setEsperando(false);
             const errorCode = error.code;
             const errorMessage = error.message;
-            console.error('Deu ruim:', errorMessage);
+            console.error('Deu ruim:', errorMessage, errorCode);
             Alert.alert('Erro','Falha ao fazer login. Verifique sua internet ou suas credenciais e tente novamente.');
+            Loanding.setPronto();
         });
     };
 
     const acoesOnPress = (user: string, senha: string) => {
         Keyboard.dismiss();
-        setModal(true);
         login(user, senha);
     }
 
@@ -108,8 +106,8 @@ export function BoxLogin() {
                 <BotaoUsual texto='ENTRAR' cor='#88c9bf' marginTop={52}/>
             </TouchableOpacity>
 
-            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+            <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'} />
             </Modal>
             
         </View>

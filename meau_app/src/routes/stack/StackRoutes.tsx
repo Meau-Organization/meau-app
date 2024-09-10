@@ -1,32 +1,28 @@
 import { useEffect } from 'react';
 import Login from '../../screens/Login';
-import Config from '../../screens/Config';
-import Inicial from '../../screens/Inicial';
 import DrawerRoutes from '../drawer/DrawerRoutes';
 import ChatScreen from '../../screens/ChatScreen';
 import Interessados from '../../screens/Interessados';
 import AvisoCadastro from '../../screens/AvisoCadastro';
-import { processarRota, salvarRotaAtiva } from '../../utils/UtilsGeral';
+import { processarRota } from '../../utils/UtilsGeral';
 import DetalhesAnimal from '../../screens/DetalhesAnimal';
-import { InteressadoData, MeauData, MensagemData, StackRoutesParametros } from '../../utils/UtilsType';
 import AvisoNotification from '../../screens/AvisoNotification';
 import { useNomeRotaAtiva } from '../../hooks/useNomeRotaAtiva';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import DetalhesAnimalAdocao from '../../screens/DetalhesAnimalAdocao';
 import CadastroPessoal from '../../screens/forms/users/CadastroPessoal';
 import SucessoCadastroAnimal from '../../screens/SucessoCadastroAnimal';
-import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAutenticacaoUser } from '../../assets/contexts/AutenticacaoUserContext';
 import PreencherCadastroAnimal from '../../screens/forms/pets/PreencherCadastroAnimal';
 import { useNavigation } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
-import { extrairAtributoNotificationJson, limparNotifications, listenerNotificationClick, listenerNotificationGlobal, registrarDispositivoAutomaticamente } from '../../utils/UtilsNotification';
+import { listenerNotificationClick, listenerNotificationGlobal, registrarDispositivoAutomaticamente } from '../../utils/UtilsNotification';
+import { NativeStackNavigationProps, StackRoutesParametros } from '../../utils/UtilsType';
 
 const Stack = createNativeStackNavigator<StackRoutesParametros>();
 
 export default function StackRoutes() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const { user, dadosUser, statusExpoToken, setStatusExpoToken, notificationAppEncerrado } = useAutenticacaoUser();
     
@@ -51,7 +47,7 @@ export default function StackRoutes() {
 
         listenerNotificationGlobal();
 
-        listenerNotificationClick(user, navigation);
+        listenerNotificationClick(user, navigationStack);
 
     }, []);
 
@@ -62,7 +58,7 @@ export default function StackRoutes() {
 
             <Stack.Screen name="DrawerRoutes" component={DrawerRoutes} />
 
-            <Stack.Screen name="Inicial" component={Inicial} initialParams={{ userEstado: 23 }} options={{ title: 'Inicial', animationTypeForReplace: user === null ? 'pop' : 'push', }} />
+            {/* <Stack.Screen name="Inicial" component={Inicial} initialParams={{ userEstado: 23 }} options={{ title: 'Inicial', animationTypeForReplace: user === null ? 'pop' : 'push', }} /> */}
 
             <Stack.Screen name="AvisoCadastro" component={AvisoCadastro} initialParams={{ topbar: true }} />
 
@@ -85,8 +81,6 @@ export default function StackRoutes() {
                     nomeTopBar: notificationAppEncerrado ? notificationAppEncerrado.nomeTopBar : '',
                 }}
             />
-
-            <Stack.Screen name="Config" component={Config}/>
 
             <Stack.Screen name="AvisoNotification" component={AvisoNotification} initialParams={{ topbar: true }} />
 

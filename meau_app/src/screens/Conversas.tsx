@@ -5,21 +5,23 @@ import BotaoUsual from "../components/BotaoUsual";
 import { buscarUltimaMensagem } from "../utils/UtilsDB";
 import ChatComponent from "../components/ChatComponent";
 import ModalLoanding from "../components/ModalLoanding";
-import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { collection, db, doc, getDoc, onSnapshot, orderBy, query } from "../configs/FirebaseConfig";
+import useLoading from '../hooks/useLoading';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Conversas() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Conversas'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const { user } = useAutenticacaoUser();
 
-    const [esperando, setEsperando] = useState(true);
+    const Loanding = useLoading();
+
     const [refreshing, setRefreshing] = useState(false);
 
     const [dadosConversas, setDadosConversas] = useState(null);
@@ -31,12 +33,13 @@ export default function Conversas() {
         useCallback(() => {
 
             if (!refreshing) {
-                setEsperando(true);
+                Loanding.setCarregando();
             }
             buscarUserChats();
 
             return () => {
                 setDadosConversas([]);
+                Loanding.setParado();
                 listeners.forEach(unsubscribe => unsubscribe());
                 console.log('.......................... Desmontou listeners Conversas');
             };
@@ -53,7 +56,7 @@ export default function Conversas() {
         const unsubscribeUserChats = onSnapshot(userChatQuery, async (snapshotUserChats) => {
 
             if (refreshing) {
-                setEsperando(true);
+                Loanding.setCarregando();
             }
 
             if (snapshotUserChats.docs.length > 0) {
@@ -67,7 +70,7 @@ export default function Conversas() {
                         const [_, idDono, idInteressado, idAnimal] = userChat.data().idChat.split('-');
                         const pacoteUltimaMensagem = await buscarUltimaMensagem(userChat.data().idChat, user.uid);
                         if (!pacoteUltimaMensagem) {
-                            setEsperando(false);
+                            Loanding.setPronto();
                         }
 
                         return {
@@ -94,7 +97,7 @@ export default function Conversas() {
                 setDadosConversas([]);
             }
 
-            setEsperando(false);
+            Loanding.setPronto();
         });
 
         listeners.push(unsubscribeUserChats);
@@ -108,10 +111,12 @@ export default function Conversas() {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    if (!esperando) {
-        return (
-            <>
-                <View style={styles.container}>
+    return (
+        <>
+            <View style={styles.container}>
+                <StatusBar style="dark" backgroundColor='#88c9bf' />
+
+                {Loanding.Pronto ?
 
                     <FlatList
                         data={dadosConversas}
@@ -137,7 +142,7 @@ export default function Conversas() {
                                             :                                           // Caso contrário, eu (usuario online) sou o Dono
                                             item.dadosChat.iconeInteressado}            // Mostre o icone do interessado na lista de conversas
 
-                                    onPress={() => navigation.navigate('ChatScreen', {
+                                    onPress={() => navigationStack.navigate('ChatScreen', {
                                         idChat: item.idChat,
                                         nomeTopBar: user.uid == item.idInteressado ?                                        // Se eu (usuario online) sou o interessado
                                             item.dadosChat.nomeDono + ' | ' + item.dadosChat.nomeAnimal                     // Mostre o nome do dono na topBar
@@ -155,7 +160,7 @@ export default function Conversas() {
                         ListEmptyComponent={
                             <View style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 12, width: '80%', marginTop: 100 }}>
                                 <Ionicons name="chatbubbles" size={48} color="rgba(0, 0, 0, 0.10)" />
-                                <Text style={{ marginLeft: 8, fontSize: 16, fontFamily: 'Roboto', width: 120, color: 'rgba(0, 0, 0, 0.15)', backgroundColor: '' }} >Nada por aqui...</Text>
+                                <Text style={{ marginLeft: 8, fontSize: 16, fontFamily: 'Roboto-Medium', width: 120, color: 'rgba(0, 0, 0, 0.15)', backgroundColor: '' }} >Nada por aqui...</Text>
                             </View>
                         }
                         refreshControl={
@@ -164,37 +169,33 @@ export default function Conversas() {
                                 onRefresh={onRefresh}
                             />
                         }
-
                     />
 
-
-                </View>
-
-                <View style={{    
-                    backgroundColor: '#fafafa',
-                    width: '100%',
-                    alignItems: 'center'
-                }}>
-                    <TouchableOpacity onPress={() => console.log('Botão pressionado')}>
-                        <BotaoUsual texto='FINALIZAR UM PROCESSO' cor='#88c9bf' marginBottom={24}
-                        />
-                    </TouchableOpacity>
-
-                </View>
-
-            </>
-
-        );
-    } else {
-
-        return (
-            <Modal visible={esperando} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
-            </Modal>
-        );
-    }
+                    :
+                    <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                        <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'} />
+                    </Modal>
+                }
 
 
+            </View>
+
+            <View style={{
+                backgroundColor: '#fafafa',
+                width: '100%',
+                alignItems: 'center',
+                height: 80,
+                justifyContent: 'center',
+            }}>
+                <TouchableOpacity onPress={() => console.log('Botão pressionado')}>
+                    <BotaoUsual texto='FINALIZAR UM PROCESSO' cor='#88c9bf'/>
+                </TouchableOpacity>
+
+            </View>
+
+        </>
+
+    );
 }
 
 const styles = StyleSheet.create({

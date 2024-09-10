@@ -1,13 +1,6 @@
 import BotaoUsual from "./BotaoUsual";
 import Constants from 'expo-constants';
-import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import BotaoMarcavelQuadrado from './BotaoMarcavelQuadrado';
-import { useState } from "react";
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface ModalLoandingProps {
@@ -16,8 +9,6 @@ interface ModalLoandingProps {
 }
 
 export default function ModalSucesso({ setModal, texto }: ModalLoandingProps) {
-
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoNotification'>>();
 
     return (
         <View style={styles.container}>
@@ -78,7 +69,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 16,
         color: '#fafafa',
         textAlign: 'center',

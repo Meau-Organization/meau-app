@@ -1,19 +1,25 @@
-import Constants from 'expo-constants';
 import { useCallback, useState } from "react";
 import CardAnimal from "../components/CardAnimal";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
 import { db, collection, query, where, getDocs } from '../configs/FirebaseConfig';
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
+import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
+import { FlatList } from 'react-native-gesture-handler';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import useLoading from '../hooks/useLoading';
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Adotar() {
 
     //console.log("statusbar: " + Constants.statusBarHeight);
 
-    const [esperando, setEsperando] = useState(true);
-    const [modal, setModal] = useState(true);
+    const Loanding = useLoading();
 
     const [animais, setAnimais] = useState([]);
+
+    const { user } = useAutenticacaoUser();
 
     const buscarAnimais = async () => {
 
@@ -22,87 +28,110 @@ export default function Adotar() {
 
             const q = query(animalsRef, where('disponivel', '==', true));
 
+
+
             const snapshot = await getDocs(q);
             const animaisArray = [];
 
+            console.log(snapshot)
             snapshot.forEach((doc) => {
-                animaisArray.push({ uid: doc.id, ...doc.data() });
-                // uid (nome personalizado)
-                //console.log(doc.id, " => ", doc.data());
+                const data = doc.data();
+
+                const favoritos = data.favoritos || [];
+
+                const isFavorito = favoritos.find((fav) => fav === user ? user.uid : '');
+
+                const animalData = {
+                    uid: doc.id,
+                    ...data,
+                    curtido: !!isFavorito
+                };
+
+                animaisArray.push(animalData);
             });
 
             setAnimais(animaisArray);
 
-            setEsperando(false);
+            Loanding.setPronto();
 
         } catch (error) {
-            setEsperando(false);
+            Loanding.setPronto();
             console.log(error);
         }
     };
 
     useFocusEffect(
         useCallback(() => {
-            setEsperando(true);     
+
+            Loanding.setCarregando();
+
             buscarAnimais();
 
-            return () =>  {
-                //console.log('Tela perdeu foco');
+            return () => {
+                setAnimais([]);
+                Loanding.setParado();
+                console.log('Tela perdeu foco');
             };
 
         }, [])
     );
 
 
-    if (!esperando) {
 
-        return (
-            <ScrollView style={{ backgroundColor: '#fafafa' }}>
-                <View style={styles.container}>
 
-                    {animais.map((animal, index: number) => (
+    return (
 
-                        
 
-                        <View key={animal.uid} style={{ flexDirection: 'row', width: '95.5%' }}>
+        <View style={styles.container}>
+            <StatusBar style="dark" backgroundColor='#ffd358' />
+
+            { Loanding.Pronto ?
+
+                <FlatList
+                    data={animais}
+                    keyExtractor={item => item.uid}
+                    renderItem={({ item }) => (
+                        <View key={item.uid} style={{ flexDirection: 'row', width: '95.5%' }}>
+
                             <CardAnimal
-                                id={animal.uid}
-                                nome={animal.nomeAnimal}
+                                idAnimal={item.uid}
+                                nome={item.nomeAnimal}
                                 tela={"DetalhesAnimalAdocao"}
-                                foto={{ uri: `data:${"image/" + (animal.imagemComprimidaBase64.uri.split('.').pop() || 'unknown')};base64,${animal.imagemComprimidaBase64.base64}` }}
+                                foto={{ uri: `data:${"image/" + (item.imagemComprimidaBase64 ? item.imagemComprimidaBase64.uri.split('.').pop() : '' || 'unknown')};base64,${item.imagemComprimidaBase64 ? item.imagemComprimidaBase64.base64 : ''}` }}
                                 modo={'space-between'}
-                                primeiro={index == 0 ? true : false}
-                                sexo={animal.sexo}
-                                idade={animal.idade}
-                                porte={animal.porte}
-                                cidade={animal.cidade}
-                                estado={animal.estado}
-                                disponivel={animal.disponivel}
-                                usuarioId={animal.usuario_id}
+                                sexo={item.sexo}
+                                idade={item.idade}
+                                porte={item.porte}
+                                cidade={item.cidade}
+                                estado={item.estado}
+                                disponivel={item.disponivel}
+                                idDono={item.usuario_id}
+                                foiCurtido={item.curtido}
                             />
 
                         </View>
-                    ))}
 
-                    <View style={{ marginTop: 20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100 }}></View>
+                    )}
+                    contentContainerStyle={{ backgroundColor: '#fafafa', alignItems: 'center' }}
+                    ListEmptyComponent={
 
-                    <TouchableOpacity></TouchableOpacity>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 12, width: '80%', marginTop: 100 }}>
+                            <MaterialIcons name="pets" size={48} color="rgba(0, 0, 0, 0.10)" />
+                            <Text style={{ marginLeft: 8, fontSize: 16, fontFamily: 'Roboto-Medium', width: 120, color: 'rgba(0, 0, 0, 0.15)', backgroundColor: '' }} >Nada por aqui...</Text>
+                        </View>
 
-                </View>
-            </ScrollView>
+                    }
+                    ListFooterComponent={<View style={{ marginTop: 20, backgroundColor: 'rgba(0, 0, 0, 0)', width: '80%', height: 100 }} />}
+                />
 
+                :
+                <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={Loanding.Carregando} />
+                </Modal>
+            }
+        </View>
+    );
 
-        );
-
-    } else {
-
-        return (
-            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} />
-            </Modal>
-        );
-
-    }
 
 }
 
@@ -110,9 +139,7 @@ export default function Adotar() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Constants.statusBarHeight,
         backgroundColor: '#fafafa',
-        alignItems: 'center',
         //borderWidth: 1
     },
 });

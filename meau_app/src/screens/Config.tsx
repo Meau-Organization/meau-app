@@ -1,41 +1,47 @@
 import { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
-
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-import { registerForPushNotificationsAsync, removerToken, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/UtilsNotification';
-import BotaoMarcavelQuadrado from '../components/BotaoMarcavelQuadrado';
 import BotaoUsual from '../components/BotaoUsual';
 import ModalSucesso from '../components/ModalSucesso';
 import { useFocusEffect } from '@react-navigation/native';
 import ModalLoanding from '../components/ModalLoanding';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Switch } from 'react-native-gesture-handler';
+import { registerForPushNotificationsAsync, removerToken, salvarTokenArmazenamento, salvarTokenNoFirestore } from '../utils/UtilsNotification';
+import useLoading from '../hooks/useLoading';
+import { StatusBar } from 'expo-status-bar';
 
 
 
 export default function Config() {
 
     const { user, dadosUser, statusExpoToken, setStatusExpoToken } = useAutenticacaoUser();
+
+    const Loanding = useLoading();
     
     const [modal, setModal] = useState(false);
-    const [esperando, setEsperando] = useState(false);
+    
     const [reRenderizar, setReRenderizar] = useState('');
     const [textoModal, setTextoModal] = useState('');
-    const [notificationChatInteressados, setNotificationChatInteressados] = useState<string[]>([]);
+    const [notificacoesAtivadas, setNotificacoesAtivadas] = useState(false);
 
-    //console.log(statusExpoToken);
-    //console.log('notificationChatInteressados', notificationChatInteressados, notificationChatInteressados.length)
+    console.log(statusExpoToken);
+    console.log(notificacoesAtivadas);
 
     useFocusEffect(
         useCallback(() => {
 
-            setEsperando(false);
             setReRenderizar(Math.floor(Date.now() * Math.random()).toString(36));
 
             if (statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation) {
-                setNotificationChatInteressados(['Ativar notificações de chat e interessados']);
+                setNotificacoesAtivadas(true);
             } else {
-                setNotificationChatInteressados([]);
+                setNotificacoesAtivadas(false);
             }
+
+            return () => {
+                Loanding.setParado();
+            };
         }, [])
     );
 
@@ -56,7 +62,6 @@ export default function Config() {
 
         return sucesso;
     }
-
 
     async function ativarNotificationChatInteressados() {
         let sucesso : boolean = false;
@@ -90,13 +95,13 @@ export default function Config() {
     }
 
     async function salvarAlteracoes() {
-        setEsperando(true);
+        Loanding.setCarregando();
         
-        if (notificationChatInteressados.length > 0 && (!statusExpoToken.statusExpoTokenRemoto || !statusExpoToken.statusInstalation)) {
+        if (notificacoesAtivadas && (!statusExpoToken.statusExpoTokenRemoto || !statusExpoToken.statusInstalation)) {
             await ativarNotificationChatInteressados();
             setTextoModal('Alterações salvas!');
         }
-        else if (notificationChatInteressados.length <= 0 && (statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation)) {
+        else if (!notificacoesAtivadas && (statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation)) {
             await desativarNotificationChatInteressados();
             setTextoModal('Alterações salvas!');
         } else {
@@ -104,27 +109,32 @@ export default function Config() {
             //console.log('Operações já foram salvas');
         }
 
-        setEsperando(false);
+        Loanding.setPronto();
 
         setModal(true);
 
     }
 
+    const toggleSwitch = () => {
+        setNotificacoesAtivadas(!notificacoesAtivadas);
+    };
+
     return (
         <>
             <View style={styles.container} key={reRenderizar}>
+            <StatusBar style="dark" backgroundColor='#e6e7e8' />
 
                 <Text style={{ fontSize: 16, marginTop: 20, color: '#434343', marginBottom: 16, marginLeft: 24 }}>NOTIFICAÇÕES</Text>
 
-                <BotaoMarcavelQuadrado
-                    vetor_opcoes={['Ativar notificações de chat e interessados']}
-                    setEstadoDoPai={setNotificationChatInteressados}
-                    width={262}
-                    marginLeft={24}
-                    marginBottom={24}
-                    estadoInicial={statusExpoToken.statusExpoTokenLocal && statusExpoToken.statusExpoTokenRemoto && statusExpoToken.statusInstalation}
-                />
-
+                <View style={{width: 300, height: 20, flexDirection: 'row', alignItems: 'center', marginLeft: 12}}>
+                    <Switch
+                        onValueChange={toggleSwitch}
+                        value={notificacoesAtivadas}
+                        thumbColor={notificacoesAtivadas ? "#cfe9e5" : "#f4f3f4"}
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                    />
+                    <Text style={{fontSize: 14, fontFamily: 'Roboto-Medium', color: '#757575'}}>Ativar notificações de chat e interessados</Text>
+                </View>
 
                 <View style={styles.middleView}>
                     <Text style={styles.middleText}>
@@ -134,11 +144,6 @@ export default function Config() {
 
                     </Text>
                 </View>
-
-
-                <TouchableOpacity activeOpacity={0.5} style={{ alignSelf: 'center' }}>
-
-                </TouchableOpacity>
 
             </View>
 
@@ -157,8 +162,8 @@ export default function Config() {
                 <ModalSucesso setModal={setModal} texto={textoModal}/>
             </Modal>
 
-            <Modal visible={esperando} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+            <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'} />
             </Modal>
 
         </>
@@ -192,7 +197,7 @@ const styles = StyleSheet.create({
         marginLeft: 24,
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14,
         color: '#757575',
         textAlign: 'left',

@@ -1,10 +1,9 @@
 import BotaoUsual from "./BotaoUsual";
 import Constants from 'expo-constants';
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BotaoMarcavelQuadrado from './BotaoMarcavelQuadrado';
 import { useState } from "react";
@@ -18,7 +17,7 @@ export default function ModalAviso({ cor = "#ffd358", setModal }: ModalLoandingP
 
     const [userNegou, setUserNegou] = useState([]);
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoNotification'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     async function continuar() {
 
@@ -26,7 +25,7 @@ export default function ModalAviso({ cor = "#ffd358", setModal }: ModalLoandingP
             await AsyncStorage.setItem('@userNegou', 'yes');
         }
         setModal(false);
-        navigation.navigate("DrawerRoutes");
+        navigationStack.navigate("DrawerRoutes");
     }
 
     return (
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 16,
         color: '#fafafa',
         textAlign: 'center',

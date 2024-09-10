@@ -5,11 +5,11 @@ import BotaoUsual from "../components/BotaoUsual";
 import ModalAviso from "../components/ModalAviso";
 import ModalLoanding from "../components/ModalLoanding";
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { registerForPushNotificationsAsync, salvarTokenArmazenamento, salvarTokenNoFirestore } from "../utils/UtilsNotification";
+import useLoading from "../hooks/useLoading";
 
 const notification = require('../assets/images/notification.png');
 
@@ -25,15 +25,16 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
 
     const { topbar } = route.params;
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'AvisoNotification'>>();
+    const Loanding = useLoading();
+
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const { user, dadosUser, statusExpoToken, setStatusExpoToken } = useAutenticacaoUser();
 
     const [modal, setModal] = useState(false);
-    const [esperando, setEsperando] = useState(false);
 
     async function permitir() {
-        setEsperando(true);
+        Loanding.setCarregando();
 
         await registerForPushNotificationsAsync()
             .then( async (token) => {
@@ -49,20 +50,20 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                             await salvarTokenNoFirestore(token, user.uid, dadosUser, statusExpoToken).then((status) => {
                                 status_expo_token.statusExpoTokenRemoto = status;
                                 setStatusExpoToken(status_expo_token);
-                                setEsperando(false);
-                                navigation.replace('DrawerRoutes');
+                                Loanding.setPronto();
+                                navigationStack.replace('DrawerRoutes');
                             });
-                            setEsperando(false);
+                            Loanding.setPronto();
                         }
                     });
-                    setEsperando(false);
+                    Loanding.setPronto();
                 }
             })
             .catch((error: any) => {
                 console.error("Erro:" + error);
             });
         
-        setEsperando(false);
+        Loanding.setPronto();
     }
 
     console.log('AVISO NOTIFICATION >', statusExpoToken);
@@ -113,12 +114,6 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
 
                     </Text>
                 </View>
-                {/*                     
-                <TouchableOpacity onPress={() => navigation.navigate("CadastroPessoal")}  activeOpacity={0.5}>
-                    <BotaoUsual texto='FAZER CADASTRO' marginTop={52}/>
-                </TouchableOpacity> */}
-
-
 
                 <View style={styles.buttonsContainer}>
                     <TouchableOpacity activeOpacity={0.5} onPress={permitir} >
@@ -134,8 +129,8 @@ export default function AvisoNotification({ route }: AvisoNotificationProps) {
                     <ModalAviso cor={'#cfe9e5'} setModal={setModal} />
                 </Modal>
 
-                <Modal visible={esperando} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} cor={'#cfe9e5'} />
+                <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'} />
                 </Modal>
 
 
@@ -166,7 +161,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14,
         color: '#757575',
         textAlign: 'center',

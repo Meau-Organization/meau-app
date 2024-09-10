@@ -8,20 +8,23 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { auth, onAuthStateChanged, signOut } from '../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { StackRoutesParametros } from '../utils/UtilsType';
 import { desativarToken } from '../utils/UtilsNotification';
+import { logout } from '../utils/UtilsGeral';
+import { DrawerNavigationProps, NativeStackNavigationProps } from '../utils/UtilsType';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PlaceLogoImage = require('../assets/images/Meau_marca_2.png');
 
 export default function Inicial() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Inicial'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
+    const navigationDrawer = useNavigation<DrawerNavigationProps>();
 
     const { user, setUser } = useAutenticacaoUser(); // Utiliza o contexto para obter o estado e a função de atualização do usuário
 
 
     useEffect(() => {
-        console.log('Rodou fonts inicial');
 
         //console.log("rotas na pilha " + navigation.getState().routeNames);
 
@@ -33,34 +36,27 @@ export default function Inicial() {
                 console.log("Usuario off ");
             }
         });
-        
+
 
         return () => unsubscribe();
 
     }, [setUser]);
 
-    async function logout() {
+    async function handleLogout() {
 
         await desativarToken(user.uid);
-
-        signOut(auth)
-            .then(() => {
-                setUser(null); //Define o estaudo global como null após logout
-                console.log('Usuario Saiu');
-            })
-            .catch((error) => {
-                Alert.alert('Erro', 'Erro ao tentar fazer fazer o logout');
-                console.error('Erro ao tentar fazer fazer o logout:', error);
-            });
+        logout(user.uid, setUser);
     };
 
     return (
 
-        <View style={styles.container}>
+        
+        <SafeAreaView style={styles.container}>
+            <StatusBar style="dark" backgroundColor='#fafafa' />
 
-                <Text style={[styles.welcomeText, { fontFamily: 'Courgette-Regular' }]}>
-                    Olá!
-                </Text>
+            <Text style={[styles.welcomeText, { fontFamily: 'Courgette-Regular' }]}>
+                Olá!
+            </Text>
 
             <View style={styles.middleView}>
                 <Text style={styles.middleText}>Bem vindo ao Meau! {'\n'}
@@ -71,15 +67,15 @@ export default function Inicial() {
 
             <View style={styles.menuCenter}>
 
-                <TouchableOpacity onPress={() => navigation.navigate("Adotar")} activeOpacity={0.5}>
+                <TouchableOpacity onPress={() => navigationDrawer.navigate("Adotar")} activeOpacity={0.5}>
                     <BotaoUsual texto='ADOTAR' corTexto='#434343' marginBottom={12} raio={5} />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() =>
                     user ?
-                        navigation.navigate("PreencherCadastroAnimal")
+                        navigationStack.navigate("PreencherCadastroAnimal")
                         :
-                        navigation.navigate("AvisoCadastro", { topbar: true })
+                        navigationStack.navigate("AvisoCadastro", { topbar: true })
                 }
                     activeOpacity={0.5}>
 
@@ -89,24 +85,25 @@ export default function Inicial() {
             </View>
 
             {!user ?
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                    <View style={styles.login} >
-                        <Text style={styles.loginText}>login</Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={styles.login} >
+                    <TouchableOpacity onPress={() => navigationStack.navigate("Login")}>
+                        <Text style={styles.loginText}>Entrar</Text>
+                    </TouchableOpacity>
+                </View>
                 :
-                <TouchableOpacity onPress={logout}>
-                    <View style={[styles.login, { width: 50 }]} >
-                        <Text style={styles.loginText}>logout</Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={styles.login} >
+                    <TouchableOpacity onPress={handleLogout}>
+                        <Text style={styles.loginText}>Sair</Text>
+                    </TouchableOpacity>
+                </View>
+
             }
 
             <View style={styles.imageContainer}>
                 <Image source={PlaceLogoImage} style={styles.image} />
             </View>
 
-        </View>
+        </SafeAreaView>
 
     );
 }
@@ -136,7 +133,7 @@ const styles = StyleSheet.create({
         marginBottom: 48,
     },
     middleText: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 16,
         color: '#757575',
         textAlign: 'center',
@@ -148,14 +145,14 @@ const styles = StyleSheet.create({
     login: {
         marginTop: 32,
         marginBottom: 68,
-        width: 37,
-        height: 25,
+        width: 'auto',
+        height: 'auto',
         justifyContent: 'center'
     },
     loginText: {
         textAlign: 'center',
         fontSize: 16,
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         color: '#88c9bf',
     },
     imageContainer: {

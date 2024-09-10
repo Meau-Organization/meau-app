@@ -2,13 +2,13 @@ import { TopBar } from "../components/TopBar";
 import { useCallback, useState } from "react";
 import BotaoUsual from "../components/BotaoUsual";
 import ModalLoanding from "../components/ModalLoanding";
-import { StackRoutesParametros } from "../utils/UtilsType";
 import { db, doc, getDoc } from "../configs/FirebaseConfig";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { Text, View, ScrollView, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet } from "react-native";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
+import useLoading from "../hooks/useLoading";
 
 interface DetalhesAnimalProps {
     route: {
@@ -21,19 +21,20 @@ interface DetalhesAnimalProps {
 
 export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'ChatScreen'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
-    const { user, dadosUser } = useAutenticacaoUser();
+    const { user } = useAutenticacaoUser();
+
+    const Loanding = useLoading();
 
     const [dadosAnimal, setDadosAnimal] = useState(null);
 
-    const [esperando, setEsperando] = useState(true);
     const [modal, setModal] = useState(false);
 
     const [curtida, setCurtida] = useState(false);
     const curtir = () => {
         if (!user) {
-            navigation.navigate("AvisoCadastro", { topbar: true })
+            navigationStack.navigate("AvisoCadastro", { topbar: true })
         } else {
             curtida ? setCurtida(false) : setCurtida(true);
         }
@@ -63,7 +64,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
 
         } finally {
-            setEsperando(false);
+            Loanding.setPronto();
 
         }
     };
@@ -83,7 +84,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             expoTokensArray = docSnapDono.data().expoTokens.map( item => item['expoPushToken'] );
         }
 
-        navigation.navigate('ChatScreen', {
+        navigationStack.navigate('ChatScreen', {
             idChat: 'chat-' + dadosAnimal.usuario_id + '-' + user.uid + '-' + dadosAnimal.uid,
             nomeTopBar: dadosAnimal.dono
 
@@ -97,12 +98,13 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
     useFocusEffect(
         useCallback(() => {
 
-            setEsperando(true);
+            Loanding.setCarregando();
 
 
             buscarDadosAnimais(animal_id);
 
             return () => {
+                Loanding.setParado();
                 //console.log('Tela perdeu foco');
             };
 
@@ -120,11 +122,11 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
             <TopBar
                 nome={nome_animal}
                 icone='voltar'
-                irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                 cor='#fee29b'
             />
 
-            {!esperando ?
+            {Loanding.Pronto ?
                 <ScrollView style={{ backgroundColor: '#fafafa' }}>
 
                     <View style={styles.container}>
@@ -141,7 +143,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
                         </View>
 
                         <View style={styles.view_geral}>
-                            <Text style={{ fontFamily: 'Roboto', fontSize: 16, color: '#434343', marginTop: 16 }}>{dadosAnimal.nomeAnimal}</Text>
+                            <Text style={{ fontFamily: 'Roboto-Medium', fontSize: 16, color: '#434343', marginTop: 16 }}>{dadosAnimal.nomeAnimal}</Text>
                             <View style={styles.caixaLike}>
                                 <TouchableOpacity onPress={curtir}>
                                     <View style={styles.circuloLike}>
@@ -319,7 +321,7 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
 
                                     :
-                                    navigation.navigate("AvisoCadastro", { topbar: true })
+                                    navigationStack.navigate("AvisoCadastro", { topbar: true })
 
                             }
                             activeOpacity={0.5}>
@@ -333,8 +335,8 @@ export default function DetalhesAnimalAdocao({ route }: DetalhesAnimalProps) {
 
                 </ScrollView>
                 :
-                <Modal visible={esperando} animationType='fade' transparent={true}>
-                    <ModalLoanding spinner={esperando} />
+                <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                    <ModalLoanding spinner={Loanding.Carregando} />
                 </Modal>
             }
 

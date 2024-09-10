@@ -1,6 +1,5 @@
 
 import Login from "../../screens/Login";
-import Inicial from "../../screens/Inicial";
 import DrawerRoutes from '../drawer/DrawerRoutes';
 import AvisoCadastro from "../../screens/AvisoCadastro";
 import { StackRoutesParametros } from "../../utils/UtilsType";
@@ -35,8 +34,6 @@ export default function AuthStack() {
         <Stack.Navigator initialRouteName={telaInicial} screenOptions={{ headerShown: false }}>
             
             <Stack.Screen name="DrawerRoutes" component={DrawerRoutes} />
-
-            <Stack.Screen name="Inicial" component={Inicial} initialParams={{userEstado: 23}}/>
 
             <Stack.Screen name="Login" component={Login}  />
 

@@ -3,13 +3,12 @@ import { TopBar } from "../components/TopBar";
 import { BoxLogin } from "../components/BoxLogin";
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
+import { NativeStackNavigationProps } from '../utils/UtilsType';
 
 export default function Login() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'Login'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const fecharTeclado = () => {
         Keyboard.dismiss();
@@ -21,7 +20,7 @@ export default function Login() {
                 <TopBar
                     nome='Login'
                     icone='voltar'
-                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                     cor='#88c9bf'
                 />
             
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
 
     botao_texto: {
         marginLeft: 10,
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 12,
         color: '#f7f7f7',
     },

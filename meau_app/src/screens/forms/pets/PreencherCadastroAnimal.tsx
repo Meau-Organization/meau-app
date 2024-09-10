@@ -5,18 +5,17 @@ import BotaoUsual from '../../../components/BotaoUsual';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ModalLoanding from '../../../components/ModalLoanding';
-import { StackRoutesParametros } from '../../../utils/UtilsType';
 import OpenImagePicker from '../../../components/OpenImagePicker';
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BotaoMarcavelRedondo from '../../../components/BotaoMarcavelRedondo';
 import BotaoMarcavelQuadrado from '../../../components/BotaoMarcavelQuadrado';
 import { db, addDoc, collection, doc, setDoc } from '../../../configs/FirebaseConfig';
 import { useAutenticacaoUser } from '../../../assets/contexts/AutenticacaoUserContext';
 import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, ImageBackground, Alert } from 'react-native'
+import { NativeStackNavigationProps } from '../../../utils/UtilsType';
 
 export default function PreencherCadastroAnimal() {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'PreencherCadastroAnimal'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -88,7 +87,7 @@ export default function PreencherCadastroAnimal() {
             });
 
             setLoading(false);
-            navigation.navigate('SucessoCadastroAnimal');
+            navigationStack.navigate('SucessoCadastroAnimal');
 
 
         } catch (error) {
@@ -122,7 +121,7 @@ export default function PreencherCadastroAnimal() {
             <TopBar
                 nome='Cadastro do Animal'
                 icone='voltar'
-                irParaPagina={() => navigation.navigate("DrawerRoutes")}
+                irParaPagina={() => navigationStack.navigate("DrawerRoutes")}
                 cor='#ffd358'
             />
             <ScrollView >
@@ -291,7 +290,7 @@ const styles = StyleSheet.create({
     title: {
         paddingTop: 16,
         color: '#757575',
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         alignSelf: 'center'
     },
     containerButtons: {
@@ -306,14 +305,14 @@ const styles = StyleSheet.create({
         color: '#bdbdbd',
         marginLeft: 24,
         fontSize: 14,
-        fontFamily: 'Roboto'
+        fontFamily: 'Roboto-Medium'
     },
     textFotoTam: {
         marginTop: 8,
         //color: '#f7a800',
         marginLeft: 50,
         fontSize: 14,
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         //backgroundColor: 'red',
         width: 200
     },
@@ -349,7 +348,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center',
         color: '#757575',
-        fontFamily: 'Roboto',
+        fontFamily: 'Roboto-Medium',
         fontSize: 14
     },
     imageAddButton: {

@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth, signOut } from '../configs/FirebaseConfig';
+import { Alert } from 'react-native';
+import * as Font from 'expo-font';
 
 
 export async function getOrCreateInstallationId() {
@@ -31,4 +34,26 @@ export async function processarRota(nomeRotaAtiva : string) {
     } else {
         await salvarRotaAtiva(nomeRotaAtiva);
     }
+};
+
+export async function logout(userId : string, setUser: React.Dispatch<React.SetStateAction<any>>) {
+
+    signOut(auth)
+        .then(() => {
+            setUser(null); //Define o estaudo global como null após logout
+            console.log('Usuario Saiu');
+        })
+        .catch((error) => {
+            Alert.alert('Erro', 'Erro ao tentar fazer fazer o logout');
+            console.error('Erro ao tentar fazer fazer o logout:', error);
+        });
+};
+
+export async function carregarFontes() {
+    console.log('Carregando fontes...');
+    await Font.loadAsync({
+        'Courgette-Regular': require('../assets/fonts/Courgette-Regular.ttf'),
+        'Roboto-Medium': require('../assets/fonts/Roboto-Medium.ttf')
+    });
+    console.log('Fontes Carregadas');
 };

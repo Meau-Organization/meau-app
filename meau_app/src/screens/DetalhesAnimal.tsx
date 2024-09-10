@@ -6,10 +6,10 @@ import ModalLoanding from "../components/ModalLoanding";
 
 import BotaoUsual from "../components/BotaoUsual";
 import { TopBar } from "../components/TopBar";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { StackRoutesParametros } from "../utils/UtilsType";
+import { NativeStackNavigationProps } from "../utils/UtilsType";
+import useLoading from "../hooks/useLoading";
 
 interface DetalhesAnimalProps {
     route: {
@@ -24,12 +24,11 @@ interface DetalhesAnimalProps {
 
 export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
-    const navigation = useNavigation<NativeStackNavigationProp<StackRoutesParametros, 'BoxLogin'>>();
+    const navigationStack = useNavigation<NativeStackNavigationProps>();
 
     const [dadosAnimal, setDadosAnimal] = useState(null);
 
-    const [esperando, setEsperando] = useState(true);
-    const [modal, setModal] = useState(true);
+    const Loanding = useLoading();
 
     const { animal_id } = route.params; // Extrai o id do animal dos parâmetros da rota.
 
@@ -48,14 +47,14 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                 console.log('Dados do animal não encontrados');
 
             }
-            setEsperando(false);
+            Loanding.setPronto();
 
         } catch (error) {
             console.error('Erro ao buscar dados do animal: ', error);
-            setEsperando(false);
+            Loanding.setPronto();
 
         } finally {
-            setEsperando(false);
+            Loanding.setPronto();
 
         }
     };
@@ -63,11 +62,12 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
     useFocusEffect(
         useCallback(() => {
             
-            setEsperando(true);
+            Loanding.setCarregando();
             
             buscarDadosAnimais(animal_id);
 
             return () => {
+                Loanding.setParado();
                 //console.log('Tela perdeu foco');
             };
 
@@ -76,14 +76,14 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
 
 
 
-    if (!esperando) {
+    if (Loanding.Pronto) {
 
         return (
             <>
                 <TopBar
                     nome={dadosAnimal.nomeAnimal}
                     icone='voltar'
-                    irParaPagina={() => navigation.getState().index > 0 ? navigation.goBack() : navigation.navigate('DrawerRoutes')}
+                    irParaPagina={() => navigationStack.getState().index > 0 ? navigationStack.goBack() : navigationStack.navigate('DrawerRoutes')}
                     cor='#88c9bf'
                 />
                 <ScrollView style={{backgroundColor: '#fafafa'}}>
@@ -103,7 +103,7 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
                     
 
                     <View style={styles.view_geral}>
-                        <Text style={{fontFamily: 'Roboto', fontSize: 16, color: '#434343', marginTop: 16}}>{dadosAnimal.nomeAnimal}</Text>
+                        <Text style={{fontFamily: 'Roboto-Medium', fontSize: 16, color: '#434343', marginTop: 16}}>{dadosAnimal.nomeAnimal}</Text>
 
                         <View style = {styles.linha}></View>
 
@@ -199,8 +199,8 @@ export default function DetalhesAnimal({ route }: DetalhesAnimalProps) {
     } else {
 
         return (
-            <Modal visible={esperando && modal} animationType='fade' transparent={true}>
-                <ModalLoanding spinner={esperando} cor={'#cfe9e5'}/>
+            <Modal visible={Loanding.Carregando} animationType='fade' transparent={true}>
+                <ModalLoanding spinner={Loanding.Carregando} cor={'#cfe9e5'}/>
             </Modal>
         );
 

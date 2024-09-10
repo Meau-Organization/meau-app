@@ -1,4 +1,4 @@
-import { collection, db, doc, getDoc, getDocs, limitToLast, orderBy, query, where } from '../configs/FirebaseConfig.js'
+import { arrayRemove, arrayUnion, collection, db, doc, DocumentData, documentId, DocumentReference, getDoc, getDocs, limitToLast, orderBy, query, updateDoc, where } from '../configs/FirebaseConfig.js'
 
 export async function buscarCampoEspecifico(colecao: string, id_documento: string, campo: string) {
     const docRef = doc(db, colecao, id_documento);
@@ -77,18 +77,86 @@ export async function buscarUltimaMensagem(idChat: string, userId: string) {
 
 }
 
-export async function documentExiste(docRef : any): Promise<boolean> {
+export async function documentExiste(docRef: any): Promise<boolean> {
     try {
-      const docSnapshot = await getDoc(docRef);
-      if (docSnapshot.exists()) {
-        //console.log("Documento existe!");
-        return true;
-      } else {
-        console.log("Documento não existe.");
-        return false;
-      }
+        const docSnapshot = await getDoc(docRef);
+        if (docSnapshot.exists()) {
+            //console.log("Documento existe!");
+            return true;
+        } else {
+            console.log("Documento não existe.");
+            return false;
+        }
     } catch (error) {
-      console.error("Erro ao verificar documento:", error);
+        console.error("Erro ao verificar documento:", error);
     }
     return false;
-  };
+};
+
+
+export async function addFavoritos(documentRef: DocumentReference<DocumentData, DocumentData>, idFav: string) {
+
+    documentExiste(documentRef).then(async (resposta) => {
+        if (resposta) {
+            try {
+                await updateDoc(documentRef, {
+                    favoritos: arrayUnion(idFav)
+                });
+                console.log("Pet adicionado aos favoritos!");
+            } catch (error) {
+                console.error("Erro favoritos : adicionar ", error);
+            }
+        }
+    });
+}
+
+export async function removeFavoritos(documentRef: DocumentReference<DocumentData, DocumentData>, idFav: string) {
+
+    documentExiste(documentRef).then(async (resposta) => {
+        if (resposta) {
+            try {
+                await updateDoc(documentRef, {
+                    favoritos: arrayRemove(idFav)
+                });
+                console.log("Pet removido dos favoritos!");
+            } catch (error) {
+                console.error("Erro favoritos : remover : ", error);
+            }
+        }
+    });
+}
+
+export async function buscarFavoritos(ids: string[], setFavoritos: React.Dispatch<React.SetStateAction< any[] >>) {
+    console.log('buscarFavoritos...');
+
+    
+    const blocosSize = 30;
+    const blocos = [];
+
+    for (let i = 0; i < ids.length; i += blocosSize) {
+        blocos.push(ids.slice(i, i + blocosSize));
+    }
+
+    try {
+        let docs = [];
+        const promises = blocos.map(async (bloco) => {
+
+            const q = query(collection(db, 'Animals'), where(documentId(), 'in', bloco));
+            const querySnapshot = await getDocs(q);
+
+            docs = [...docs, ...querySnapshot.docs];
+            
+        })
+        await Promise.all(promises);
+
+        setFavoritos(docs);
+        
+
+        docs.forEach((doc) => {
+            console.log("ID do Documento:", doc.id, "Dados do Documento:", doc.data().nomeAnimal);
+        });
+
+    } catch (error) {
+        console.error("Erro ao buscar documentos:", error);
+    }
+}
