@@ -88,7 +88,7 @@ export default function StackRoutes() {
                 component={Interessados}
                 initialParams={{
                     id_dono: notificationAppEncerrado ? notificationAppEncerrado.idDono : '',
-                    id_interessado: notificationAppEncerrado ? notificationAppEncerrado.idInteressado : '',
+                    //id_interessado: notificationAppEncerrado ? notificationAppEncerrado.idInteressado : '',
                     animal_id: notificationAppEncerrado ? notificationAppEncerrado.idAnimal : '',
                     nome_animal: notificationAppEncerrado ? notificationAppEncerrado.nomeAnimal : '',
                 }}

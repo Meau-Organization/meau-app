@@ -3,9 +3,8 @@ import CardAnimal from "../components/CardAnimal";
 import ModalLoanding from "../components/ModalLoanding";
 import { useFocusEffect } from "@react-navigation/native";
 import { db, collection, query, where, getDocs } from '../configs/FirebaseConfig';
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { FlatList, Modal, StyleSheet, Text, View } from "react-native";
 import { useAutenticacaoUser } from '../assets/contexts/AutenticacaoUserContext';
-import { FlatList } from 'react-native-gesture-handler';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import useLoading from '../hooks/useLoading';
 import { StatusBar } from "expo-status-bar";
@@ -34,19 +33,20 @@ export default function Adotar() {
             const animaisArray = [];
 
             snapshot.forEach((doc) => {
-                const data = doc.data();
+                const animalData = doc.data();
 
-                const favoritos = data.favoritos || [];
+                const interessadosIds = animalData.interessados || [];
 
-                const isFavorito = favoritos.find((fav) => user ? fav ===  user.uid : fav ===  '');
+                // Se o id do user online esta na lista de interessados, então o pet é um favorito dele
+                const isFavorito = interessadosIds.find((interessadoId) => user ? interessadoId ===  user.uid : interessadoId ===  '');
 
-                const animalData = {
+                const dadosAnimal = {
                     uid: doc.id,
-                    ...data,
+                    ...animalData,
                     curtido: !!isFavorito
                 };
 
-                animaisArray.push(animalData);
+                animaisArray.push(dadosAnimal);
             });
 
             setAnimais(animaisArray);

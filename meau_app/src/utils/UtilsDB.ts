@@ -94,13 +94,15 @@ export async function documentExiste(docRef: any): Promise<boolean> {
 };
 
 
-export async function addFavoritos(documentRef: DocumentReference<DocumentData, DocumentData>, idFav: string) {
+export async function addFavoritos(userId: string, idFavorito: string) {
 
-    documentExiste(documentRef).then(async (resposta) => {
+    const userRef = doc(db, "Users", userId);
+
+    documentExiste(userRef).then(async (resposta) => {
         if (resposta) {
             try {
-                await updateDoc(documentRef, {
-                    favoritos: arrayUnion(idFav)
+                await updateDoc(userRef, {
+                    favoritos: arrayUnion(idFavorito)
                 });
                 console.log("Pet adicionado aos favoritos!");
             } catch (error) {
@@ -110,13 +112,14 @@ export async function addFavoritos(documentRef: DocumentReference<DocumentData, 
     });
 }
 
-export async function removeFavoritos(documentRef: DocumentReference<DocumentData, DocumentData>, idFav: string) {
+export async function removeFavoritos(userId: string, idFavorito: string) {
+    const userRef = doc(db, "Users", userId);
 
-    documentExiste(documentRef).then(async (resposta) => {
+    documentExiste(userRef).then(async (resposta) => {
         if (resposta) {
             try {
-                await updateDoc(documentRef, {
-                    favoritos: arrayRemove(idFav)
+                await updateDoc(userRef, {
+                    favoritos: arrayRemove(idFavorito)
                 });
                 console.log("Pet removido dos favoritos!");
             } catch (error) {
@@ -126,8 +129,43 @@ export async function removeFavoritos(documentRef: DocumentReference<DocumentDat
     });
 }
 
-export async function buscarFavoritos(ids: string[], setFavoritos: React.Dispatch<React.SetStateAction< any[] >>) {
-    console.log('buscarFavoritos...');
+export async function addInteressado(idAnimal: string, userInteressado: string) {
+
+    const animalRef = doc(db, "Animals", idAnimal);
+    
+    documentExiste(animalRef).then(async (resposta) => {
+        if (resposta) {
+            try {
+                await updateDoc(animalRef, {
+                    interessados: arrayUnion(userInteressado)
+                });
+                console.log("Interessado adicionado ao pet!");
+            } catch (error) {
+                console.error("Erro interessados : adicionar ", error);
+            }
+        }
+    });
+}
+
+export async function removeInteressado(idAnimal: string, userInteressado: string) {
+    const animalRef = doc(db, "Animals", idAnimal);
+
+    documentExiste(animalRef).then(async (resposta) => {
+        if (resposta) {
+            try {
+                await updateDoc(animalRef, {
+                    interessados: arrayRemove(userInteressado)
+                });
+                console.log("Interessado removido do pet!");
+            } catch (error) {
+                console.error("Erro interessados : remover : ", error);
+            }
+        }
+    });
+}
+
+export async function buscarDadosFavoritos(ids: string[], setFavoritos: React.Dispatch<React.SetStateAction< any[] >>) {
+    console.log('buscarDadosFavoritos...');
 
     
     const blocosSize = 30;
@@ -153,10 +191,45 @@ export async function buscarFavoritos(ids: string[], setFavoritos: React.Dispatc
         
 
         docs.forEach((doc) => {
-            console.log("ID do Documento:", doc.id, "Dados do Documento:", doc.data().nomeAnimal);
+            console.log("ID do favorito:", doc.id, "Dados do favorito:", doc.data().nomeAnimal);
         });
 
     } catch (error) {
-        console.error("Erro ao buscar documentos:", error);
+        console.error("Erro ao buscar favoritos:", error);
+    }
+}
+
+export async function buscarDadosInteressados(ids: string[], setInteressados: React.Dispatch<React.SetStateAction< any[] >>) {
+    console.log('buscarDadosInteressados...');
+
+    
+    const blocosSize = 30;
+    const blocos = [];
+
+    for (let i = 0; i < ids.length; i += blocosSize) {
+        blocos.push(ids.slice(i, i + blocosSize));
+    }
+
+    try {
+        let docs = [];
+        const promises = blocos.map(async (bloco) => {
+
+            const q = query(collection(db, 'Users'), where(documentId(), 'in', bloco));
+            const querySnapshot = await getDocs(q);
+
+            docs = [...docs, ...querySnapshot.docs];
+            
+        })
+        await Promise.all(promises);
+
+        setInteressados(docs);
+        
+
+        // docs.forEach((doc) => {
+        //     console.log("ID do interessado:", doc.id, "Dados do interessado:", doc.data().nome);
+        // });
+
+    } catch (error) {
+        console.error("Erro ao buscar interessados:", error);
     }
 }

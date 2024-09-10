@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Constants from 'expo-constants';
 import SelectDropdown from 'react-native-select-dropdown'
 import { useNavigation } from "@react-navigation/native";
@@ -9,7 +9,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useAutenticacaoUser } from "../assets/contexts/AutenticacaoUserContext";
 import { returnArrayTokens, sendNotifications } from "../utils/UtilsNotification";
 import { db, doc } from "../configs/FirebaseConfig";
-import { addFavoritos, removeFavoritos } from "../utils/UtilsDB";
+import { addFavoritos, addInteressado, removeFavoritos, removeInteressado } from "../utils/UtilsDB";
 
 interface CardProps {
     idAnimal: string;
@@ -31,6 +31,7 @@ interface CardProps {
     foiCurtido?: boolean;
     favoritos?: any;
     setFavoritos?: React.Dispatch<React.SetStateAction<any[]>>;
+    interessadosQtd?: number
 }
 
 export default function CardAnimal({
@@ -38,7 +39,7 @@ export default function CardAnimal({
     porte, cidade, estado, trocaIcone = false,
     idAnimal, foto, tela, corCard = '#fee29b', meusPets = false,
     disponivel, updateEstadoAnimal, foiCurtido, favoritos,
-    setFavoritos
+    setFavoritos, interessadosQtd
 }: CardProps) {
 
     const modoJustifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' = modo;
@@ -54,15 +55,14 @@ export default function CardAnimal({
             // Se o usuário não estiver autenticado, redirecione para a tela de aviso
             navigationStack.navigate("AvisoCadastro", { topbar: true })
         } else {
-            
+
             curtida ? setCurtida(false) : setCurtida(true);
 
             console.log(nome, curtida);
             if (!curtida) {
-                const userRef = doc(db, "Users", user.uid);
-                const animalRef = doc(db, "Animals", idAnimal);
-                addFavoritos(userRef, idAnimal);
-                addFavoritos(animalRef, user.uid);
+
+                addFavoritos(user.uid, idAnimal);
+                addInteressado(idAnimal, user.uid);
 
                 try {
 
@@ -82,10 +82,8 @@ export default function CardAnimal({
                 }
 
             } else {
-                const userRef = doc(db, "Users", user.uid);
-                const animalRef = doc(db, "Animals", idAnimal);
-                removeFavoritos(userRef, idAnimal);
-                removeFavoritos(animalRef, user.uid);
+                removeFavoritos(user.uid, idAnimal);
+                removeInteressado(idAnimal, user.uid);
 
                 if (favoritos) {
                     const novosFavoritos = favoritos.filter(favorito => favorito.id !== idAnimal);
@@ -101,17 +99,7 @@ export default function CardAnimal({
         { title: 'Disponível', icon: 'emoticon-excited-outline' },
     ];
 
-    //console.log(nome + ": disp: " + disponivel);
-
-    // Simulando interessados
-    let interessados: number;
-    if (meusPets) {
-        if (Math.floor(Math.random() * 2) == 1) {
-            interessados = 3;
-        } else {
-            interessados = 0;
-        }
-    }
+    //console.log(nome + ": disp: " + disponivel, tela);
 
 
     return (
@@ -121,12 +109,16 @@ export default function CardAnimal({
 
             <View style={[styles.titulo, { backgroundColor: corCard }]}>
 
-                <TouchableOpacity onPress={() => navigationStack.navigate(tela, { animal_id: idAnimal, nome_animal: nome })}>
+                <TouchableOpacity
+                    onPress={() => navigationStack.navigate(tela, 
+                        { animal_id: idAnimal, nome_animal: nome }
+                    )}>
+                    
                     <Text style={styles.text_nome}>{nome}</Text>
                 </TouchableOpacity>
 
                 {trocaIcone ?
-                    interessados > 0 ?
+                    interessadosQtd > 0 ?
                         <MaterialIcons name="error" size={24} color="#434343" style={{ marginRight: 15 }} />
                         :
                         <></>
@@ -143,10 +135,9 @@ export default function CardAnimal({
 
 
             <TouchableOpacity
-                onPress={
-                    //() => navigation.navigate("DetalhesAnimal", {animal_id: id })
-                    () => navigationStack.navigate(tela, { animal_id: idAnimal, nome_animal: nome })
-                }
+                onPress={() => navigationStack.navigate(tela, 
+                    { animal_id: idAnimal, nome_animal: nome }
+                )}
                 style={styles.foto}>
                 <Image source={foto} style={{ width: '100%', height: 180 }} resizeMode="cover" />
 
@@ -214,7 +205,7 @@ export default function CardAnimal({
 
                             <View style={{ width: 1.1, height: 30, backgroundColor: '#434343' }} ></View>
 
-                            <Text style={[styles.text_dados, { marginRight: 20 }]}>{interessados} INTERESSADOS</Text>
+                            <Text style={[styles.text_dados, { marginRight: 20 }]}>{interessadosQtd} INTERESSADOS</Text>
 
                         </View>
                     </>
