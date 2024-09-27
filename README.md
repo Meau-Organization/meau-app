@@ -102,23 +102,21 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/Meau-Organization/meau-app.git
    ```
 3. Install NPM packages
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
+4. Config the .env in root folder
    ```js
    const API_KEY = 'ENTER YOUR API';
    ```
-5. Change git remote url to avoid accidental pushes to base project
+5. to guarantee the project runs, type the additional step
    ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
+   npx expo install --check
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -133,6 +131,52 @@ Use this space to show useful examples of how a project can be used. Additional 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+https://github.com/user-attachments/assets/5a9fb86c-8b88-4952-84c0-92cc1ad0121c
+
+
+
+https://github.com/user-attachments/assets/6f4f60fd-e72e-4677-a23b-af5e2bdb97b5
+
+
+https://github.com/user-attachments/assets/7f65b3dc-9096-4447-9dcc-91a69e527ebb
+
+
+
+https://github.com/user-attachments/assets/c1ad3df6-216b-4ded-9355-68d2e1b6dbc6
+
+
+
+
+https://github.com/user-attachments/assets/ff67217e-8907-4924-b20a-1523ed925fec
+
+
+
+<video width="320" height="240" controls>
+  <source src="CadastroAnimal.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video width="320" height="240" controls>
+  <source src="Cadastro_Uusario.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video width="320" height="240" controls>
+  <source src="favoritando_chat_notificacoes.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video width="320" height="240" controls>
+  <source src="splash.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<video width="320" height="240" controls>
+  <source src="tela_adotar_e_chat.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 
 
