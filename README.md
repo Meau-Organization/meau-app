@@ -65,7 +65,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<img src="meau_app/assets/splash.png" alt="Logo" width="200" height="380">
 
 Meau is an app designed to help users adopt dogs and cats. It provides several features to enhance the adoption process:
 - Chat with the current owners of pets.
@@ -150,48 +150,6 @@ https://github.com/user-attachments/assets/c1ad3df6-216b-4ded-9355-68d2e1b6dbc6
 
 
 https://github.com/user-attachments/assets/ff67217e-8907-4924-b20a-1523ed925fec
-
-
-
-<video width="320" height="240" controls>
-  <source src="CadastroAnimal.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
-<video width="320" height="240" controls>
-  <source src="Cadastro_Uusario.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
-<video width="320" height="240" controls>
-  <source src="favoritando_chat_notificacoes.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
-<video width="320" height="240" controls>
-  <source src="splash.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
-<video width="320" height="240" controls>
-  <source src="tela_adotar_e_chat.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CONTRIBUTING -->
