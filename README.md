@@ -212,8 +212,8 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/github_username/repo_name/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" />
+<a href="[https://github.com/github_username/repo_name/](https://github.com/Meau-Organization/meau-app/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Meau-Organization/meau-app" alt="contrib.rocks image" />
 </a>
 
 
@@ -230,9 +230,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Luiz Sperandio - luizsperandiodavid@gmail.com
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/Meau-Organization/meau-app](https://github.com/Meau-Organization/meau-app)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
