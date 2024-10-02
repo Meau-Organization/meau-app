@@ -1,0 +1,24 @@
+services:
+    meau_app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+              NODE_ENV: development
+              PORT: 19006
+        environment:
+            - NODE_ENV= development
+        tty: true
+        ports:
+             - "19000:19000"
+             - "19006:19006"
+             - "19001:19001"
+             - "19002:19002"
+        volumes:
+          - .:/opt/meau_app/app
+          - ./package.json:/opt/meau_app/app/package.json
+          - ./package-lock.json:/opt/meau_app/app/package-lock.json
+          - notused:/opt/meau_app/app/node_modules
+
+volumes:
+  notused:
